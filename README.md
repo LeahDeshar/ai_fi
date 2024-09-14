@@ -1,6 +1,6 @@
 ## progress
 
-<!-- check the todo -->
+<!-- check the todo ui-->
 
 - [x] challenge details
 - [ ] Fasting screen
@@ -11,3 +11,9 @@
 - [ ] workout detail page
 - [ ] workout page
 - [ ] plan page
+
+<!-- check the todo models-->
+
+- [x] personalize model training
+- [ ] deploy the model
+- [ ] test the api
