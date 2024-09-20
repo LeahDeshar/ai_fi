@@ -12,8 +12,10 @@
 - [ ] workout page
 - [ ] plan page
 
-<!-- check the todo models-->
-
 - [x] personalize model training
-- [ ] deploy the model
-- [ ] test the api
+- [x] deploy the model
+  - [x] Excercise
+  - [x] Diet
+  - [x] sleep
+  - [x] calorie intake recommend
+- [x] test the api
