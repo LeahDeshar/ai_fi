@@ -1,7 +1,7 @@
 import pandas as pd
 import joblib
 import numpy as np
-from fastapi import FastAPI
+from fastapi import FastAPI,HTTPException
 
 # Load the dataset
 df = pd.read_csv('gym/exercises.csv')
@@ -211,36 +211,30 @@ model = joblib.load(model_filename)
 class RecipeRequest(BaseModel):
     recipe_id: int
     k: int = 5  # Default number of closest recipes to return
-
 @app.post("/recommend-diet")
 async def recommend_recipes(request: RecipeRequest):
     try:
-        nutritional_data = pd.read_csv("diet/recipes.csv")
-        cols_to_divide = ["Calories", "FatContent", "SaturatedFatContent", "CholesterolContent", 
-                        "SodiumContent", "CarbohydrateContent", "FiberContent", "SugarContent", "ProteinContent"]
+        # Assume nutritional_df is still available
+        # You may need to load it from the CSV or prepare it again
+        diet_data = pd.read_csv("diet/recipes.csv")
+        nutritional_cols = ["RecipeId", "Calories", "FatContent", "SaturatedFatContent", 
+                            "CholesterolContent", "SodiumContent", "CarbohydrateContent", 
+                            "FiberContent", "SugarContent", "ProteinContent"]
         
-        # clean the nutritional_data 
-        nutritional_data = nutritional_data.replace([np.inf, -np.inf], np.nan).dropna()
+        nutritional_df = diet_data[nutritional_cols]
         
-        
-        
-        # Find closest recipes using the loaded model
-        input_recipe = nutritional_data[nutritional_data["RecipeId"] == request.recipe_id][cols_to_divide]
+        input_recipe = nutritional_df[nutritional_df["RecipeId"] == request.recipe_id]
+        if input_recipe.empty:
+            raise HTTPException(status_code=404, detail="Recipe not found")
 
-
-        distances, indices = model.kneighbors(input_recipe, n_neighbors=request.k + 1)
-
-        # Exclude the input recipe from the results
+        distances, indices = model.kneighbors(input_recipe[nutritional_cols[1:]], n_neighbors=request.k + 1)
+        
         closest_indices = indices[0][1:]  # Exclude the first element (recipe itself)
-        closest_recipes = nutritional_data.iloc[closest_indices]
+        closest_recipes = diet_data.iloc[closest_indices]
+         # Replace infinite values with a specific value (e.g., 0) and NaN values
+        closest_recipes = closest_recipes.replace([np.inf, -np.inf], 0).fillna(0)
 
-     
-        if closest_recipes.empty:
-            return {"error": "No valid closest recipes found after filtering."}
-
-        return closest_recipes.to_dict(orient="records")
+        return closest_recipes.to_dict(orient='records')
     
     except Exception as e:
-        print(
-            f"An error occurred: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=str(e))
