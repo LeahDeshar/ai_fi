@@ -60,7 +60,7 @@ app = FastAPI()
 #         print(f"Error occurred: {e}")
 #         return {"error": str(e)}
 
-
+from pydantic import BaseModel
 @app.get("/recommend/")
 async def recommend_exercises(target_input: str, k: int = 5):
     try:
@@ -98,3 +98,55 @@ async def recommend_exercises(target_input: str, k: int = 5):
     except Exception as e:
         # Handle any other exceptions
         return {"error": str(e)}
+
+
+
+
+
+
+
+
+# Load the saved model, scaler, and label encoders
+model = joblib.load("sleep_duration_model.pkl")
+scaler = joblib.load("scaler.pkl")
+label_encoders = joblib.load("label_encoders.pkl")
+
+
+
+# Define the input structure for the API
+class UserInput(BaseModel):
+    Gender: int  # 0 for Male, 1 for Female
+    Age: int
+    Occupation: int
+    Physical_Activity_Level: int
+    Stress_Level: int
+    BMI_Category: int  # Encoded BMI Category
+
+# API root endpoint
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the Sleep Recommendation API!"}
+
+@app.post("/predict")
+def predict_sleep_duration(user_input: UserInput):
+    input_data = np.array([[user_input.Gender, user_input.Age, 
+                            user_input.Occupation, user_input.Physical_Activity_Level, 
+                            user_input.Stress_Level, user_input.BMI_Category]])
+    
+    # Scale the input data
+    scaled_data = scaler.transform(input_data)
+    
+    # Predict sleep duration
+    predicted_sleep_duration = model.predict(scaled_data)
+    
+    return {"predicted_sleep_duration": predicted_sleep_duration[0]}
+
+# To retrieve label encoding for occupation and BMI categories
+@app.get("/encodings")
+def get_encodings():
+    encodings = {}
+    print(label_encoders)
+    for column, le in label_encoders.items():
+        
+        encodings[column] = dict(zip(le.classes_, le.transform(le.classes_)))
+    return encodings

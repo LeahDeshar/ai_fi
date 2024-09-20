@@ -17,3 +17,5 @@ gym/*.json
 
 sleep/*.csv
 sleep/*.json
+
+*.pkl
