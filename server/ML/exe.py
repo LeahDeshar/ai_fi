@@ -7,8 +7,8 @@ from fastapi import FastAPI
 df = pd.read_csv('gym/exercises.csv')
 
 # Load the RandomForest model and label encoders
-rf = joblib.load('exe_model.pkl')
-label_encoders = joblib.load('exe_label_encoders.pkl')
+# rf = joblib.load('exe_model.pkl')
+# label_encoders = joblib.load('exe_label_encoders.pkl')
 
 # Define the FastAPI app
 app = FastAPI()
@@ -150,3 +150,97 @@ def get_encodings():
         
         encodings[column] = dict(zip(le.classes_, le.transform(le.classes_)))
     return encodings
+
+
+
+
+# Load the pre-trained model and scaler
+model = joblib.load('calorie_model.joblib')
+scaler = joblib.load('calorie_scaler.joblib')
+
+# Define the input data model
+class CalorieInput(BaseModel):
+    age: int
+    weight_kg: float
+    height_m: float
+    gender: int  # 0 for female, 1 for male
+    BMI: float
+    BMR: float
+    activity_level: int  # 1 for sedentary, 2 for lightly active, etc.
+
+
+# Define a POST method for predictions
+@app.post("/predict-calorie")
+async def predict_calories(input_data: CalorieInput):
+    # Convert input data to pandas DataFrame
+    new_data = pd.DataFrame({
+        'age': [input_data.age],
+        'weight(kg)': [input_data.weight_kg],
+        'height(m)': [input_data.height_m],
+        'gender': [input_data.gender],
+        'BMI': [input_data.BMI],
+        'BMR': [input_data.BMR],
+        'activity_level': [input_data.activity_level]
+    })
+
+    # Scale the input data
+    new_data_scaled = scaler.transform(new_data)
+
+    # Make predictions
+    predicted_calories = model.predict(new_data_scaled)
+
+    # Return the prediction result
+    return {"predicted_calories": predicted_calories[0]}
+
+
+
+
+
+
+
+
+
+
+# Diet recommender
+
+# Load the model
+model_filename = 'recipe_recommender_knn.pkl'
+model = joblib.load(model_filename)
+
+# Define request body
+class RecipeRequest(BaseModel):
+    recipe_id: int
+    k: int = 5  # Default number of closest recipes to return
+
+@app.post("/recommend-diet")
+async def recommend_recipes(request: RecipeRequest):
+    try:
+        nutritional_data = pd.read_csv("diet/recipes.csv")
+        cols_to_divide = ["Calories", "FatContent", "SaturatedFatContent", "CholesterolContent", 
+                        "SodiumContent", "CarbohydrateContent", "FiberContent", "SugarContent", "ProteinContent"]
+        
+        # clean the nutritional_data 
+        nutritional_data = nutritional_data.replace([np.inf, -np.inf], np.nan).dropna()
+        
+        
+        
+        # Find closest recipes using the loaded model
+        input_recipe = nutritional_data[nutritional_data["RecipeId"] == request.recipe_id][cols_to_divide]
+
+
+        distances, indices = model.kneighbors(input_recipe, n_neighbors=request.k + 1)
+
+        # Exclude the input recipe from the results
+        closest_indices = indices[0][1:]  # Exclude the first element (recipe itself)
+        closest_recipes = nutritional_data.iloc[closest_indices]
+
+     
+        if closest_recipes.empty:
+            return {"error": "No valid closest recipes found after filtering."}
+
+        return closest_recipes.to_dict(orient="records")
+    
+    except Exception as e:
+        print(
+            f"An error occurred: {str(e)}"
+        )
