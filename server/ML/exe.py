@@ -2,6 +2,7 @@ import pandas as pd
 import joblib
 import numpy as np
 from fastapi import FastAPI,HTTPException
+from pydantic import BaseModel
 
 # Load the dataset
 df = pd.read_csv('gym/exercises.csv')
@@ -60,7 +61,6 @@ app = FastAPI()
 #         print(f"Error occurred: {e}")
 #         return {"error": str(e)}
 
-from pydantic import BaseModel
 @app.get("/recommend/")
 async def recommend_exercises(target_input: str, k: int = 5):
     try:
@@ -163,16 +163,14 @@ class CalorieInput(BaseModel):
     age: int
     weight_kg: float
     height_m: float
-    gender: int  # 0 for female, 1 for male
+    gender: int  
     BMI: float
     BMR: float
-    activity_level: int  # 1 for sedentary, 2 for lightly active, etc.
+    activity_level: int 
 
 
-# Define a POST method for predictions
 @app.post("/predict-calorie")
 async def predict_calories(input_data: CalorieInput):
-    # Convert input data to pandas DataFrame
     new_data = pd.DataFrame({
         'age': [input_data.age],
         'weight(kg)': [input_data.weight_kg],
@@ -210,12 +208,11 @@ model = joblib.load(model_filename)
 # Define request body
 class RecipeRequest(BaseModel):
     recipe_id: int
-    k: int = 5  # Default number of closest recipes to return
+    k: int = 5  
 @app.post("/recommend-diet")
 async def recommend_recipes(request: RecipeRequest):
     try:
-        # Assume nutritional_df is still available
-        # You may need to load it from the CSV or prepare it again
+        
         diet_data = pd.read_csv("diet/recipes.csv")
         nutritional_cols = ["RecipeId", "Calories", "FatContent", "SaturatedFatContent", 
                             "CholesterolContent", "SodiumContent", "CarbohydrateContent", 
@@ -229,9 +226,9 @@ async def recommend_recipes(request: RecipeRequest):
 
         distances, indices = model.kneighbors(input_recipe[nutritional_cols[1:]], n_neighbors=request.k + 1)
         
-        closest_indices = indices[0][1:]  # Exclude the first element (recipe itself)
+        closest_indices = indices[0][1:]  
         closest_recipes = diet_data.iloc[closest_indices]
-         # Replace infinite values with a specific value (e.g., 0) and NaN values
+       
         closest_recipes = closest_recipes.replace([np.inf, -np.inf], 0).fillna(0)
 
         return closest_recipes.to_dict(orient='records')
