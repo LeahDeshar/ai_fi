@@ -72,7 +72,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="Workouts"
+        name="workout"
         options={{
           title: "Workouts",
           tabBarIcon: ({ color, focused }) => (
@@ -89,7 +89,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="Fasting"
+        name="fasting"
         options={{
           title: "Fasting",
           tabBarIcon: ({ color, focused }) => (
@@ -106,7 +106,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="Challenges"
+        name="challenges"
         options={{
           title: "Challenges",
           tabBarIcon: ({ color, focused }) => (
@@ -123,7 +123,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="More"
+        name="more"
         options={{
           title: "More",
           tabBarIcon: ({ color, focused }) => (
