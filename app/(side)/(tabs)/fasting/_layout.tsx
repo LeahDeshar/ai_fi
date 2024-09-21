@@ -12,7 +12,7 @@ const FastingScreenLayout = () => {
           name="index"
           options={{
             ...StackScreenWithSearchBar,
-            headerTitle: "Favorites",
+            headerTitle: "Fasting",
           }}
         />
       </Stack>

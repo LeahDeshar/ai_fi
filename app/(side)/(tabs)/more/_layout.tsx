@@ -12,7 +12,7 @@ const moreLayout = () => {
           name="index"
           options={{
             ...StackScreenWithSearchBar,
-            headerTitle: "Favorites",
+            headerTitle: "More",
           }}
         />
       </Stack>

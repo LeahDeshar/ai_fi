@@ -12,7 +12,7 @@ const workoutLayout = () => {
           name="index"
           options={{
             ...StackScreenWithSearchBar,
-            headerTitle: "Favorites",
+            headerTitle: "Workout",
           }}
         />
       </Stack>

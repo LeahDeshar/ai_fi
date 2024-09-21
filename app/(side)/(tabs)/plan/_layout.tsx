@@ -12,7 +12,7 @@ const planLayout = () => {
           name="index"
           options={{
             ...StackScreenWithSearchBar,
-            headerTitle: "Favorites",
+            headerTitle: "Plan",
           }}
         />
       </Stack>

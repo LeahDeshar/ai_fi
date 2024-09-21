@@ -63,6 +63,7 @@ const challengeScreen = () => {
           title="21-Day Sugar Free"
           participants="24.3K Participants"
           price="US$8.99"
+          navigation={navigation}
         />
       </ScrollView>
     </View>
