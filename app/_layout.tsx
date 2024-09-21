@@ -59,6 +59,7 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 
 import { ThemeProvider, useTheme } from "@/constants/ThemeProvider";
+import { StackScreenWithSearchBar } from "@/constants/layout";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -98,83 +99,120 @@ const InnerStack = () => {
         headerLeft: () => null,
       }}
     >
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="(side)" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="index"
+        options={{
+          ...StackScreenWithSearchBar,
+          // headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="(side)"
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="MyProfile"
         options={{
+          ...StackScreenWithSearchBar,
+
           headerTitle: "My Profile",
         }}
       />
       <Stack.Screen
         name="ProfileFitness"
         options={{
+          ...StackScreenWithSearchBar,
+
           headerTitle: "Profile",
         }}
       />
       <Stack.Screen
         name="ProfileActivitiesScreen"
         options={{
+          ...StackScreenWithSearchBar,
+
           headerTitle: "Profile",
         }}
       />
       <Stack.Screen
         name="ProfileReminder"
         options={{
+          ...StackScreenWithSearchBar,
+
           headerTitle: "Reminder",
         }}
       />
       <Stack.Screen
         name="ProfileDOBScreen"
         options={{
+          ...StackScreenWithSearchBar,
+
           headerTitle: "Profile",
         }}
       />
       <Stack.Screen
         name="ProfileUnitsScreen"
         options={{
+          ...StackScreenWithSearchBar,
+
           headerTitle: "Profile",
         }}
       />
       <Stack.Screen
         name="ProfileNameScreen"
         options={{
+          ...StackScreenWithSearchBar,
+
           headerTitle: "Profile",
         }}
       />
       <Stack.Screen
         name="ProfileHeightScreen"
         options={{
+          ...StackScreenWithSearchBar,
+
           headerTitle: "Profile",
         }}
       />
       <Stack.Screen
         name="ProfileTargetWeightScreen"
         options={{
+          ...StackScreenWithSearchBar,
+
           headerTitle: "Profile",
         }}
       />
       <Stack.Screen
         name="ProfileStartWeightScreen"
         options={{
+          ...StackScreenWithSearchBar,
+
           headerTitle: "Profile",
         }}
       />
       <Stack.Screen
         name="ProfilePhysicalLimitationScreen"
         options={{
+          ...StackScreenWithSearchBar,
+
           headerTitle: "Profile",
         }}
       />
       <Stack.Screen
         name="MoreMeals"
         options={{
+          ...StackScreenWithSearchBar,
+
           headerTitle: "Your Perfect Meal Plan",
         }}
       />
       <Stack.Screen
         name="MorePersonalCoach"
         options={{
+          ...StackScreenWithSearchBar,
+
           headerTitle: "Pick Coach",
         }}
       />
@@ -187,12 +225,16 @@ const InnerStack = () => {
       <Stack.Screen
         name="MoreHelp"
         options={{
+          ...StackScreenWithSearchBar,
+
           headerTitle: "Help",
         }}
       />
       <Stack.Screen
         name="WorkoutSubworkout"
         options={{
+          ...StackScreenWithSearchBar,
+
           headerShown: false,
         }}
       />
@@ -243,6 +285,8 @@ const InnerStack = () => {
       <Stack.Screen
         name="FastingReadDetails"
         options={{
+          // ...StackScreenWithSearchBar,
+
           headerTitle: "Read",
         }}
       />

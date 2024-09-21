@@ -5,6 +5,10 @@ import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { ThemeProvider, useTheme } from "@/constants/ThemeProvider";
+import { BlurView } from "expo-blur";
+import { fontSize } from "@/constants/token";
+import { StyleSheet } from "react-native";
+import { StackScreenWithSearchBar } from "@/constants/layout";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -13,19 +17,47 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.tabIconSelected,
+        tabBarActiveTintColor: colors.primary,
         tabBarLabelStyle: {
-          color: colors.tint,
+          fontSize: fontSize.xs,
+          fontWeight: "500",
         },
-        tabBarStyle: { backgroundColor: colors.primary }, // Tab bar background color
-        headerStyle: { backgroundColor: colors.primary },
+        headerShown: false,
+        tabBarStyle: {
+          position: "absolute",
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          borderTopWidth: 0,
+          paddingTop: 8,
+        },
+        tabBarBackground: () => (
+          <BlurView
+            intensity={95}
+            style={{
+              ...StyleSheet.absoluteFillObject,
+              overflow: "hidden",
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+            }}
+          />
+        ),
       }}
+
+      // screenOptions={{
+      //   tabBarActiveTintColor: colors.tabIconSelected,
+      //   tabBarLabelStyle: {
+      //     color: colors.tint,
+      //   },
+      //   tabBarStyle: { backgroundColor: colors.primary }, // Tab bar background color
+      //   headerStyle: { backgroundColor: colors.primary },
+      // }}
     >
       <Tabs.Screen
         name="plan"
         options={{
           title: "Plan",
-          headerShown: false,
+
+          // headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               iconSet="Ionicons"
