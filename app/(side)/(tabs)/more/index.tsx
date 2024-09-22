@@ -1,19 +1,3 @@
-// import {
-//   StyleSheet,
-//   TouchableOpacity,
-//   Text,
-//   View,
-//   FlatList,
-//   Image,
-//   ScrollView,
-// } from "react-native";
-// import React from "react";
-// import { useTheme } from "@/constants/ThemeProvider";
-// import Button from "@/components/Button";
-// import { ThemedView } from "@/components/ThemedView";
-// import { useNavigation, useRouter } from "expo-router";
-// import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-// import { defaultStyles } from "@/styles";
 import {
   StyleSheet,
   TouchableOpacity,
@@ -22,7 +6,7 @@ import {
   Image,
   ScrollView,
 } from "react-native";
-import React from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { useTheme } from "@/constants/ThemeProvider";
 import Button from "@/components/Button";
 import { ThemedView } from "@/components/ThemedView";
@@ -30,6 +14,7 @@ import { useNavigation, useRouter } from "expo-router";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { defaultStyles } from "@/styles";
 import { screenPadding } from "@/constants/token";
+import { Animated } from "react-native";
 
 type MoreItem = {
   title: string;

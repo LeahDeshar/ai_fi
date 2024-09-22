@@ -1,5 +1,5 @@
-import { View, Text } from "react-native";
-import React from "react";
+import { View, Text, Image } from "react-native";
+import React, { useState } from "react";
 import { defaultStyles } from "@/styles";
 import { Stack } from "expo-router";
 import { StackScreenWithSearchBar } from "@/constants/layout";
@@ -12,7 +12,7 @@ const moreLayout = () => {
           name="index"
           options={{
             ...StackScreenWithSearchBar,
-            headerTitle: "More",
+            headerTitle: "Profile",
           }}
         />
       </Stack>
