@@ -3,8 +3,10 @@ import React from "react";
 import { StackScreenWithSearchBar } from "@/constants/layout";
 import { Stack } from "expo-router";
 import { defaultStyles } from "@/styles";
+import { useTheme } from "@/constants/ThemeProvider";
 
 const FastingScreenLayout = () => {
+  const { colors } = useTheme();
   return (
     <View style={defaultStyles.container}>
       <Stack>
@@ -13,6 +15,15 @@ const FastingScreenLayout = () => {
           options={{
             ...StackScreenWithSearchBar,
             headerTitle: "Fasting",
+            headerLargeStyle: {
+              backgroundColor: colors.opacity,
+            },
+
+            headerLargeTitleStyle: {
+              color: colors.text,
+            },
+
+            headerTintColor: colors.text,
           }}
         />
       </Stack>

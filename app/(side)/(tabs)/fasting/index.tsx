@@ -19,7 +19,14 @@ import { Button, IconButton } from "react-native-paper";
 const FastingScreen = () => {
   const { colors, dark } = useTheme();
   return (
-    <View style={defaultStyles.container}>
+    <View
+      style={[
+        defaultStyles.container,
+        {
+          backgroundColor: colors.background,
+        },
+      ]}
+    >
       <ScrollView
         style={{
           paddingHorizontal: screenPadding.horizontal,

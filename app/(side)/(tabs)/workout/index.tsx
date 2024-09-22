@@ -17,7 +17,14 @@ import { useNavigation } from "expo-router";
 const workoutScreen = () => {
   const { colors, dark } = useTheme();
   return (
-    <View style={defaultStyles.container}>
+    <View
+      style={[
+        defaultStyles.container,
+        {
+          backgroundColor: colors.background,
+        },
+      ]}
+    >
       <ScrollView
         style={{
           paddingHorizontal: screenPadding.horizontal,
@@ -26,7 +33,7 @@ const workoutScreen = () => {
       >
         {workouts.map((workout, index) => (
           <View key={index} style={{ paddingHorizontal: 15, paddingTop: 15 }}>
-            <WorkoutList workout={workout} index={index} colors={colors} />
+            <WorkoutList workout={workout} colors={colors} />
           </View>
         ))}
       </ScrollView>

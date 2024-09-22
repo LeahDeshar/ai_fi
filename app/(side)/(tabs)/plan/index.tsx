@@ -13,6 +13,7 @@ import { useTheme } from "@/constants/ThemeProvider";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { StackScreenWithSearchBar } from "@/constants/layout";
+import { StatusBar } from "react-native";
 
 const planScreen = () => {
   const navigation = useNavigation();
@@ -56,7 +57,18 @@ const planScreen = () => {
     navigation.navigate(path);
   };
   return (
-    <View style={defaultStyles.container}>
+    <View
+      style={[
+        defaultStyles.container,
+        {
+          backgroundColor: colors.background,
+        },
+      ]}
+    >
+      <StatusBar
+        barStyle={"default"}
+        // barStyle={dark ? "light-content" : "dark-content"}
+      />
       <ScrollView
         style={{
           paddingHorizontal: screenPadding.horizontal,

@@ -43,7 +43,14 @@ const challengeScreen = () => {
   const { colors } = useTheme();
   const navigation = useRouter();
   return (
-    <View style={defaultStyles.container}>
+    <View
+      style={[
+        defaultStyles.container,
+        {
+          backgroundColor: colors.background,
+        },
+      ]}
+    >
       <ScrollView
         style={{
           paddingHorizontal: screenPadding.horizontal,

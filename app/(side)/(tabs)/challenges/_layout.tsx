@@ -3,8 +3,10 @@ import React from "react";
 import { defaultStyles } from "@/styles";
 import { Stack } from "expo-router";
 import { StackScreenWithSearchBar } from "@/constants/layout";
+import { useTheme } from "@/constants/ThemeProvider";
 
 const challengeLayout = () => {
+  const { colors } = useTheme();
   return (
     <View style={defaultStyles.container}>
       <Stack>
@@ -13,6 +15,15 @@ const challengeLayout = () => {
           options={{
             ...StackScreenWithSearchBar,
             headerTitle: "Challenges",
+            headerLargeStyle: {
+              backgroundColor: colors.opacity,
+            },
+
+            headerLargeTitleStyle: {
+              color: colors.text,
+            },
+
+            headerTintColor: colors.text,
           }}
         />
       </Stack>
