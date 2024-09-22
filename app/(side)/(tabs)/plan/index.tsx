@@ -6,14 +6,17 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import { defaultStyles } from "@/styles";
 import { screenPadding } from "@/constants/token";
 import { useTheme } from "@/constants/ThemeProvider";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
+import { StackScreenWithSearchBar } from "@/constants/layout";
 
 const planScreen = () => {
+  const navigation = useNavigation();
+
   const { colors, dark } = useTheme();
 
   const itemSet = [
@@ -49,7 +52,6 @@ const planScreen = () => {
     },
   ];
 
-  const navigation = useNavigation();
   const handleNavigate = (path) => () => {
     navigation.navigate(path);
   };
@@ -73,7 +75,7 @@ const planScreen = () => {
             <Text
               style={{
                 color: colors.text,
-                fontSize: 24,
+                fontSize: 29,
                 fontWeight: "bold",
                 textAlign: "center",
                 marginVertical: 16,
