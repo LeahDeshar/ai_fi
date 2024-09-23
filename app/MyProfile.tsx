@@ -16,6 +16,8 @@ import { useNavigation, useRouter } from "expo-router";
 
 const MyProfile = () => {
   const { colors, dark } = useTheme();
+  const navigation = useRouter();
+
   return (
     <SafeAreaView
       style={{
@@ -68,7 +70,7 @@ const MyProfile = () => {
             </Text>
             <Button
               title="Login"
-              handlePress={() => console.log("Edit Profile")}
+              handlePress={() => navigation.push("LoginScreen")}
             />
             <View
               style={{

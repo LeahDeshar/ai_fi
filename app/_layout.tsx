@@ -99,6 +99,7 @@ const InnerStack = () => {
         headerLeft: () => null,
       }}
     >
+      <Stack.Screen name="LoginScreen" />
       <Stack.Screen
         name="index"
         options={{
