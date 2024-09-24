@@ -100,24 +100,6 @@ const InnerStack = () => {
       }}
     >
       <Stack.Screen
-        name="LoginScreen"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="RegisterScreen"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="PersonalizeScreen"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
         name="index"
         options={{
           ...StackScreenWithSearchBar,
@@ -160,6 +142,30 @@ const InnerStack = () => {
           ...StackScreenWithSearchBar,
 
           headerTitle: "Reminder",
+        }}
+      />
+      <Stack.Screen
+        name="LoginScreen"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="RegisterScreen"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="PersonalizeScreen"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="ProfileGender"
+        options={{
+          headerShown: false,
         }}
       />
       <Stack.Screen
