@@ -112,6 +112,12 @@ const InnerStack = () => {
         }}
       />
       <Stack.Screen
+        name="PersonalizeScreen"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="index"
         options={{
           ...StackScreenWithSearchBar,

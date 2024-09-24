@@ -110,7 +110,10 @@ const RegisterScreen = () => {
             secureTextEntry
           />
 
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("PersonalizeScreen")}
+            style={styles.button}
+          >
             <Text style={styles.buttonText}>REGISTER</Text>
           </TouchableOpacity>
 
