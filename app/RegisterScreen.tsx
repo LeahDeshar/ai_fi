@@ -13,9 +13,8 @@ import { useRouter } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 
-const LoginScreen = () => {
+const RegisterScreen = () => {
   const navigation = useRouter();
-
   return (
     <View style={styles.container}>
       <Image
@@ -55,10 +54,10 @@ const LoginScreen = () => {
             <Text
               style={{ marginVertical: 5, fontWeight: "bold", fontSize: 30 }}
             >
-              Step into AiFi
+              Join AiFi
             </Text>
             <Text style={{ fontWeight: "semibold", color: "#424242" }}>
-              Where Every Move Counts!
+              Begin Your Fitness Journey Today!
             </Text>
           </View>
         </View>
@@ -74,7 +73,7 @@ const LoginScreen = () => {
               color: "#5d5d5d",
             }}
           >
-            Login with your email to access your personalized plan.
+            Sign up to personalize your fitness experience.
           </Text>
         </View>
       </View>
@@ -85,12 +84,18 @@ const LoginScreen = () => {
           tint="light"
           intensity={250}
         >
-          <Text style={styles.title}>LOGIN</Text>
+          <Text style={styles.title}>REGISTER</Text>
 
+          <TextInput
+            style={styles.input}
+            placeholder="Username"
+            placeholderTextColor="#7e7e7e"
+          />
           <TextInput
             style={styles.input}
             placeholder="Email"
             placeholderTextColor="#7e7e7e"
+            keyboardType="email-address"
           />
           <TextInput
             style={styles.input}
@@ -98,16 +103,15 @@ const LoginScreen = () => {
             placeholderTextColor="#7e7e7e"
             secureTextEntry
           />
-          <TouchableOpacity
-            style={{
-              marginVertical: 15,
-            }}
-          >
-            <Text>Forgot Password ? </Text>
-          </TouchableOpacity>
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            placeholderTextColor="#7e7e7e"
+            secureTextEntry
+          />
 
           <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>LOGIN</Text>
+            <Text style={styles.buttonText}>REGISTER</Text>
           </TouchableOpacity>
 
           <Text
@@ -120,7 +124,6 @@ const LoginScreen = () => {
             or
           </Text>
           <TouchableOpacity
-            onPress={() => navigation.navigate("RegisterScreen")}
             style={{
               padding: 10,
               paddingVertical: 12,
@@ -130,13 +133,14 @@ const LoginScreen = () => {
               width: "100%",
               alignItems: "center",
             }}
+            onPress={() => navigation.navigate("LoginScreen")}
           >
             <Text
               style={{
                 letterSpacing: 3,
               }}
             >
-              CREATE ACCOUNT
+              LOGIN
             </Text>
           </TouchableOpacity>
         </BlurView>
@@ -214,4 +218,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default RegisterScreen;
