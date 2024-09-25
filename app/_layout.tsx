@@ -279,7 +279,59 @@ const InnerStack = () => {
         })}
       />
       <Stack.Screen
+        name="ProfileDietType"
+        options={({ navigation }) => ({
+          headerTitle: "Profile",
+          headerTintColor: colors.text,
+          headerTransparent: true,
+          headerBlurEffect: "prominent",
+          headerShadowVisible: false,
+          headerLargeStyle: {
+            backgroundColor: "rgba(0,0,0,0.2)",
+          },
+          // Customize the left side of the header
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ marginLeft: 5 }} // Adjust the position
+            >
+              <MaterialIcons
+                name="arrow-back-ios-new"
+                size={24}
+                color={colors.text}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen
         name="ProfileNameScreen"
+        options={({ navigation }) => ({
+          headerTitle: "Profile",
+          headerTintColor: colors.text,
+          headerTransparent: true,
+          headerBlurEffect: "prominent",
+          headerShadowVisible: false,
+          headerLargeStyle: {
+            backgroundColor: "rgba(0,0,0,0.2)",
+          },
+          // Customize the left side of the header
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ marginLeft: 5 }} // Adjust the position
+            >
+              <MaterialIcons
+                name="arrow-back-ios-new"
+                size={24}
+                color={colors.text}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen
+        name="ProfileDailyStepsScreen"
         options={({ navigation }) => ({
           headerTitle: "Profile",
           headerTintColor: colors.text,
