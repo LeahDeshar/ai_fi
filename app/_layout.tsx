@@ -60,6 +60,8 @@ import "react-native-reanimated";
 
 import { ThemeProvider, useTheme } from "@/constants/ThemeProvider";
 import { StackScreenWithSearchBar } from "@/constants/layout";
+import { TouchableOpacity } from "react-native";
+import { Ionicons, MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -164,17 +166,55 @@ const InnerStack = () => {
       />
       <Stack.Screen
         name="ProfileGender"
-        options={{
-          headerShown: false,
-        }}
+        options={({ navigation }) => ({
+          headerTitle: "Profile",
+          headerTintColor: colors.text,
+          headerTransparent: true,
+          headerBlurEffect: "prominent",
+          headerShadowVisible: false,
+          headerLargeStyle: {
+            backgroundColor: "rgba(0,0,0,0.2)",
+          },
+          // Customize the left side of the header
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ marginLeft: 5 }} // Adjust the position
+            >
+              <MaterialIcons
+                name="arrow-back-ios-new"
+                size={24}
+                color={colors.text}
+              />
+            </TouchableOpacity>
+          ),
+        })}
       />
       <Stack.Screen
         name="ProfileDOBScreen"
-        options={{
-          ...StackScreenWithSearchBar,
-
+        options={({ navigation }) => ({
           headerTitle: "Profile",
-        }}
+          headerTintColor: colors.text,
+          headerTransparent: true,
+          headerBlurEffect: "prominent",
+          headerShadowVisible: false,
+          headerLargeStyle: {
+            backgroundColor: "rgba(0,0,0,0.2)",
+          },
+          // Customize the left side of the header
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ marginLeft: 5 }} // Adjust the position
+            >
+              <MaterialIcons
+                name="arrow-back-ios-new"
+                size={24}
+                color={colors.text}
+              />
+            </TouchableOpacity>
+          ),
+        })}
       />
       <Stack.Screen
         name="ProfileUnitsScreen"

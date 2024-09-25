@@ -124,9 +124,11 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import Toast from "react-native-toast-message";
+import { useRouter } from "expo-router";
 
 const ProfileDOBScreen = () => {
   const { colors, dark } = useTheme();
+  const navigation = useRouter();
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
 
@@ -167,10 +169,7 @@ const ProfileDOBScreen = () => {
       <View
         style={[styles.buttonContainer, { backgroundColor: colors.background }]}
       >
-        <Button
-          title="SAVE"
-          style={{ backgroundColor: colors.primary, marginBottom: 0 }}
-        />
+        <Button title="SAVE" handlePress={() => navigation.push("")} />
       </View>
       <View style={styles.datePickerContainer}>
         <DateTimePicker
@@ -195,7 +194,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 30,
+    fontSize: 35,
     fontWeight: "bold",
     textAlign: "center",
     marginTop: 50,
@@ -203,6 +202,7 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 18,
     marginVertical: 20,
+    marginTop: 50,
   },
   buttonContainer: {
     top: 20,

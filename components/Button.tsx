@@ -18,7 +18,7 @@ const Button = ({ title, handlePress }: ButtonProps) => {
           color: "white",
           padding: 10,
           textAlign: "center",
-          marginTop: 10,
+          paddingVertical: 12,
           marginBottom: 10,
           borderRadius: 5,
         }}

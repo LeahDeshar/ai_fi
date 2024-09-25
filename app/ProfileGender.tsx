@@ -36,7 +36,7 @@ const ProfileGender = () => {
       <Text
         style={{
           color: colors.text,
-          fontSize: 30,
+          fontSize: 35,
           fontWeight: "bold",
           textAlign: "center",
           marginTop: 50,
