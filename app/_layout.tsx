@@ -116,11 +116,29 @@ const InnerStack = () => {
       />
       <Stack.Screen
         name="MyProfile"
-        options={{
-          ...StackScreenWithSearchBar,
-
+        options={({ navigation }) => ({
           headerTitle: "My Profile",
-        }}
+          headerTintColor: colors.text,
+          headerTransparent: true,
+          headerBlurEffect: "prominent",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "rgba(0, 0, 0, 0.2)",
+          },
+
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ marginLeft: 5 }}
+            >
+              <MaterialIcons
+                name="arrow-back-ios-new"
+                size={24}
+                color={colors.text}
+              />
+            </TouchableOpacity>
+          ),
+        })}
       />
       <Stack.Screen
         name="ProfileFitness"
@@ -176,11 +194,29 @@ const InnerStack = () => {
       />
       <Stack.Screen
         name="ProfileReminder"
-        options={{
-          ...StackScreenWithSearchBar,
-
+        options={({ navigation }) => ({
           headerTitle: "Reminder",
-        }}
+          headerTintColor: colors.text,
+          headerTransparent: true,
+          headerBlurEffect: "prominent",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "rgba(0, 0, 0, 0.2)",
+          },
+
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ marginLeft: 5 }}
+            >
+              <MaterialIcons
+                name="arrow-back-ios-new"
+                size={24}
+                color={colors.text}
+              />
+            </TouchableOpacity>
+          ),
+        })}
       />
       <Stack.Screen
         name="LoginScreen"
