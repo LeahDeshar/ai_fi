@@ -109,7 +109,7 @@ const ProfileDietType = () => {
         <Button
           title="Save"
           handlePress={() => {
-            navigation.push("ProfileDailyStepsScreen");
+            navigation.push("ProfileSummaryScreen");
           }}
         />
       </View>
