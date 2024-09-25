@@ -10,26 +10,22 @@ import {
 import React, { useState } from "react";
 import { useTheme } from "@/constants/ThemeProvider";
 import Button from "@/components/Button";
+import { useRouter } from "expo-router";
 
 const ProfileStartWeightScreen = () => {
   const { colors } = useTheme();
   const [weight, setWeight] = useState("");
   const [unit, setUnit] = useState("kg");
   const [error, setError] = useState("");
+  const navigation = useRouter();
   const handleSave = () => {
-    if (!weight || isNaN(weight)) {
-      setError("Enter a valid weight");
-    } else {
-      setError("");
-      // Handle save action here
-      console.log(`Weight: ${weight} ${unit}`);
-    }
+    navigation.push("ProfileTargetWeightScreen");
   };
 
   console.log(unit);
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: colors.background }}
+      style={{ flex: 1, backgroundColor: colors.background, paddingTop: 80 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >

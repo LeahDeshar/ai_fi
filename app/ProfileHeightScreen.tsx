@@ -11,28 +11,33 @@ import React, { useState } from "react";
 import { useTheme } from "@/constants/ThemeProvider";
 import { Picker } from "@react-native-picker/picker";
 import Button from "@/components/Button";
+import { useRouter } from "expo-router";
 const ProfileHeightScreen = () => {
   const { colors } = useTheme();
 
   const [weight, setWeight] = useState("");
   const [unit, setUnit] = useState("ft");
   const [error, setError] = useState("");
+  const navigation = useRouter();
   const handleSave = () => {
-    if (!weight || isNaN(weight)) {
-      setError("Enter a valid weight");
-    } else {
-      setError("");
-      // Handle save action here
-      console.log(`Weight: ${weight} ${unit}`);
-    }
+    // if (!weight || isNaN(weight)) {
+    //   setError("Enter a valid height");
+    // } else {
+    //   setError("");
+    navigation.push("ProfileStartWeightScreen");
+    // Handle save action here
+    console.log(`Height: ${weight} ${unit}`);
+    // }
   };
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: colors.background }}
+      style={{ flex: 1, backgroundColor: colors.background, paddingTop: 80 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
-      <Text style={[styles.title, { color: colors.text }]}>Your Height</Text>
+      <Text style={[styles.title, { color: colors.text }]}>
+        Your Current Height
+      </Text>
       <View style={styles.container}>
         <View
           style={{

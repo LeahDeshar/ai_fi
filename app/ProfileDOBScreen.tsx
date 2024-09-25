@@ -169,7 +169,10 @@ const ProfileDOBScreen = () => {
       <View
         style={[styles.buttonContainer, { backgroundColor: colors.background }]}
       >
-        <Button title="SAVE" handlePress={() => navigation.push("")} />
+        <Button
+          title="SAVE"
+          handlePress={() => navigation.push("ProfileHeightScreen")}
+        />
       </View>
       <View style={styles.datePickerContainer}>
         <DateTimePicker
