@@ -8,7 +8,7 @@ import { useRouter } from "expo-router";
 const ProfileGender = () => {
   const { colors } = useTheme();
   const navigation = useRouter();
-  const [selectedGender, setSelectedGender] = useState(null);
+  const [selectedGender, setSelectedGender] = useState("Male");
 
   const genders = [
     {
@@ -30,7 +30,8 @@ const ProfileGender = () => {
       style={{
         backgroundColor: colors.background,
         flex: 1,
-        justifyContent: "center",
+        paddingTop: 80,
+        // justifyContent: "center",
       }}
     >
       <Text
@@ -48,6 +49,7 @@ const ProfileGender = () => {
       <View
         style={{
           marginHorizontal: 20,
+          marginTop: 200,
         }}
       >
         {genders.map((gender) => (

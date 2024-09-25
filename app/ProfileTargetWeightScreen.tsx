@@ -9,19 +9,16 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { useTheme } from "@/constants/ThemeProvider";
+import { useRouter } from "expo-router";
 
 const ProfileTargetWeightScreen = () => {
   const { colors } = useTheme();
+  const navigation = useRouter();
   const [weight, setWeight] = useState("");
   const [unit, setUnit] = useState("kg");
   const [error, setError] = useState("");
   const handleSave = () => {
-    if (!weight || isNaN(weight)) {
-      setError("Enter a valid weight");
-    } else {
-      setError("");
-      console.log(`Weight: ${weight} ${unit}`);
-    }
+    navigation.push("ProfileFitness");
   };
   return (
     <KeyboardAvoidingView
@@ -135,7 +132,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 16,
+    // padding: 16,
   },
 
   activeUnitButton: {},
@@ -163,7 +160,8 @@ const styles = StyleSheet.create({
   saveButton: {
     width: "100%",
     padding: 16,
-    backgroundColor: "#ccc",
+    backgroundColor: "#DF4041",
+    top: 135,
     borderRadius: 8,
     alignItems: "center",
   },

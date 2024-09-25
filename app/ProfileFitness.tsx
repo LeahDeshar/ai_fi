@@ -162,18 +162,20 @@ const ProfileFitness = () => {
     <View
       style={{
         flex: 1,
-        justifyContent: "center",
+        // justifyContent: "center",
+        paddingTop: 130,
         alignItems: "center",
         backgroundColor: colors.background,
       }}
     >
       <Text
         style={{
-          fontSize: 30,
+          fontSize: 35,
           textAlign: "center",
           color: colors.text,
           marginTop: 30,
           fontWeight: "bold",
+          marginHorizontal: 15,
         }}
       >
         What's your current activity level?
@@ -183,9 +185,10 @@ const ProfileFitness = () => {
           justifyContent: "center",
           alignItems: "center",
           height: 200,
+          marginTop: 150,
         }}
       >
-        <Text style={[styles.emoji, { color: colors.text }]}>
+        <Text style={[styles.emoji, { color: colors.tabIconDefault }]}>
           {getComment(sliderValue)}
         </Text>
         <Slider
@@ -196,7 +199,7 @@ const ProfileFitness = () => {
           thumbTintColor="transparent"
           value={sliderValue}
           onValueChange={(value) => setSliderValue(value)}
-          minimumTrackTintColor="#1fb28a"
+          minimumTrackTintColor="#4D0101"
           maximumTrackTintColor="#d3d3d3"
           thumbImage={getThumbImage(sliderValue)}
         />
@@ -213,8 +216,26 @@ const ProfileFitness = () => {
             bottom: 30,
           }}
         >
-          <Text style={{ color: colors.text }}>NEWBIE</Text>
-          <Text style={{ color: colors.text }}>PRO</Text>
+          <Text
+            style={{
+              color: colors.text,
+              marginTop: 20,
+              fontSize: 10,
+              marginLeft: 10,
+            }}
+          >
+            NEWBIE
+          </Text>
+          <Text
+            style={{
+              color: colors.text,
+              marginTop: 20,
+              fontSize: 10,
+              marginRight: 10,
+            }}
+          >
+            PRO
+          </Text>
         </View>
         <View>
           <Button
@@ -240,7 +261,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   emoji: {
-    fontSize: 18,
+    fontSize: 14,
     marginBottom: 10,
   },
 });

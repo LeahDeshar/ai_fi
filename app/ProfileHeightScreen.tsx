@@ -12,6 +12,7 @@ import { useTheme } from "@/constants/ThemeProvider";
 import { Picker } from "@react-native-picker/picker";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
+import { Colors } from "@/constants/Colors";
 const ProfileHeightScreen = () => {
   const { colors } = useTheme();
 
@@ -203,7 +204,8 @@ const styles = StyleSheet.create({
   saveButton: {
     width: "100%",
     padding: 16,
-    backgroundColor: "#ccc",
+    backgroundColor: "#DF4041",
+    top: 135,
     borderRadius: 8,
     alignItems: "center",
   },

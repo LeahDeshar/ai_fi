@@ -30,7 +30,7 @@ const ProfileStartWeightScreen = () => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
       <Text style={[styles.title, { color: colors.text }]}>
-        Your Starting weight
+        Your Starting Weight
       </Text>
       <View style={styles.container}>
         <View
@@ -124,89 +124,6 @@ const ProfileStartWeightScreen = () => {
           <Text style={styles.saveButtonText}>SAVE</Text>
         </TouchableOpacity>
       </View>
-      {/* 
-      <View
-        style={
-          {
-            // width: 200,
-            // justifyContent: "center",
-          }
-        }
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            backgroundColor: colors.opacity,
-            borderRadius: 75,
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              paddingRight: 20,
-              backgroundColor: colors.primary,
-              // flex: 1
-            }}
-          >
-            <Text
-              style={{
-                color: colors.text,
-                fontSize: 30,
-              }}
-            >
-              lbs
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text
-              style={{
-                color: colors.text,
-                fontSize: 30,
-              }}
-            >
-              kg
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View
-        style={{
-          alignItems: "center",
-          justifyContent: "center",
-          flexDirection: "row",
-        }}
-      >
-        <TextInput
-          style={{
-            borderWidth: 1,
-            padding: 10,
-            fontSize: 18,
-            borderBottomColor: colors.text,
-            color: colors.text,
-            width: 100,
-          }}
-          autoFocus={true}
-          placeholderTextColor={colors.text}
-        />
-        <Text
-          style={{
-            color: colors.text,
-          }}
-        >
-          kg
-        </Text>
-      </View>
-      <View
-        style={[styles.buttonContainer, { backgroundColor: colors.background }]}
-      >
-        <Button
-          title="SAVE"
-          style={{
-            backgroundColor: colors.primary,
-          }}
-        />
-      </View> */}
     </KeyboardAvoidingView>
     // </View>
   );
@@ -219,7 +136,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 16,
+    // padding: 16,
   },
 
   activeUnitButton: {},
@@ -247,7 +164,8 @@ const styles = StyleSheet.create({
   saveButton: {
     width: "100%",
     padding: 16,
-    backgroundColor: "#ccc",
+    backgroundColor: "#DF4041",
+    top: 135,
     borderRadius: 8,
     alignItems: "center",
   },

@@ -79,7 +79,7 @@ const PersonalizeScreen = () => {
         >
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.push("ProfileGender")}
+            onPress={() => navigation.push("ProfileNameScreen")}
           >
             <Text style={styles.buttonText}>GET STARTED</Text>
           </TouchableOpacity>
