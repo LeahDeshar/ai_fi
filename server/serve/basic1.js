@@ -6,10 +6,7 @@ const { connectDB } = require("./db/config");
 const morgan = require("morgan");
 const cloudinary = require("cloudinary");
 const dotenv = require("dotenv");
-const productRouter = require("./routes/productRoutes");
 
-const Products = require("./models/productModel");
-const Cart = require("./models/cartModel");
 
 const app = express();
 app.use(express.json());
