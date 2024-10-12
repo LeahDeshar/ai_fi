@@ -106,6 +106,109 @@ export const loginController = async (req, res) => {
 };
 
 /**************PROFILE CONTROLLER*****************/
+export const createUserProfileController = async (req, res) => {
+  try {
+    const {
+      name,
+      gender,
+      birthday,
+      currentHeight,
+      currentWeight,
+      goalWeight,
+      activityLevel,
+      activitiesLiked,
+      specialPrograms,
+      dailySteps,
+      preferredDietType,
+    } = req.body;
+    const userId = req.user._id;
+
+    const existingProfile = await Profile.findOne({ user: userId });
+    if (existingProfile) {
+      return res
+        .status(400)
+        .json({ message: "Profile already exists for this user." });
+    }
+
+    let heightInCm = 0;
+
+    if (
+      currentHeight.feet !== undefined &&
+      currentHeight.inches !== undefined
+    ) {
+      heightInCm = currentHeight.feet * 30.48 + currentHeight.inches * 2.54;
+    } else if (currentHeight.centimeters !== undefined) {
+      heightInCm = currentHeight.centimeters;
+    } else {
+      return res.status(400).json({ message: "Height must be provided." });
+    }
+
+    // Convert weight to kilograms if provided in pounds
+    let weightInKg = 0;
+
+    if (weightUnit === "lbs") {
+      weightInKg = currentWeight * 0.453592; // Convert lbs to kg
+    } else if (weightUnit === "kg") {
+      weightInKg = currentWeight;
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Weight must be provided correctly." });
+    }
+
+    // Convert goal weight to kilograms if provided in pounds
+    let goalWeightInKg = 0;
+
+    if (weightUnit === "lbs") {
+      goalWeightInKg = goalWeight * 0.453592; // Convert lbs to kg
+    } else if (weightUnit === "kg") {
+      goalWeightInKg = goalWeight;
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Goal weight must be provided correctly." });
+    }
+
+    const file = getDataUri(req.file);
+
+    let profilePicData = {};
+    if (req.file) {
+      const result = await cloudinary.v2.uploader.upload(req.file.path);
+      profilePicData = {
+        public_id: result.public_id,
+        url: result.secure_url,
+      };
+    }
+
+    // Create a new profile
+    const newProfile = new Profile({
+      user: userId,
+      name,
+      gender,
+      birthday,
+      currentHeight: { centimeters: heightInCm },
+      currentWeight: weightInKg,
+      goalWeight: goalWeightInKg,
+      activityLevel,
+      activitiesLiked,
+      specialPrograms,
+      dailySteps,
+      preferredDietType,
+      profilePic: profilePicData,
+    });
+
+    await newProfile.save();
+
+    // Link the profile to the user
+    await Users.findByIdAndUpdate(userId, { profile: newProfile._id });
+
+    res
+      .status(201)
+      .json({ message: "Profile created successfully", profile: newProfile });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
 export const getUserProfileController = async (req, res) => {
   try {
     const user = await Users.findById(req.user._id).select("-password");

@@ -60,7 +60,7 @@ export const isAuth = async (req, res, next) => {
     }
 
     req.user = user;
-    req.role = user.role; // Assuming role is stored in the user object
+    // req.role = user.role;
 
     next();
   } catch (error) {
@@ -83,10 +83,10 @@ export const isAdmin = async (req, res, next) => {
 };
 
 export const isFarmer = async (req, res, next) => {
-  if (req.user.role !== "farmer") {
+  if (req.user.role !== "coach") {
     return res.status(401).send({
       success: false,
-      message: "Unauthorized user,only farmer",
+      message: "Unauthorized user,only coach",
     });
   }
   next();
