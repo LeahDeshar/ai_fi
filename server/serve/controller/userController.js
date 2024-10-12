@@ -1,4 +1,6 @@
 import Users from "../models/user.js";
+import Profile from "../models/profile.js";
+
 import cloudinary from "cloudinary";
 import { getDataUri } from "../util/features.js";
 export const registerController = async (req, res) => {
@@ -121,28 +123,41 @@ export const createUserProfileController = async (req, res) => {
       dailySteps,
       preferredDietType,
     } = req.body;
+
+    console.log(req.body);
     const userId = req.user._id;
 
     const existingProfile = await Profile.findOne({ user: userId });
+
     if (existingProfile) {
       return res
         .status(400)
         .json({ message: "Profile already exists for this user." });
     }
 
-    let heightInCm = 0;
+    // Parse currentHeight if it is sent as a string
+    let heightData;
+    if (typeof currentHeight === "string") {
+      try {
+        heightData = JSON.parse(currentHeight);
+      } catch (error) {
+        console.error("JSON parsing error:", error);
+        return res.status(400).json({ message: "Invalid height format." });
+      }
+    } else {
+      heightData = currentHeight;
+    }
 
-    if (
-      currentHeight.feet !== undefined &&
-      currentHeight.inches !== undefined
-    ) {
-      heightInCm = currentHeight.feet * 30.48 + currentHeight.inches * 2.54;
-    } else if (currentHeight.centimeters !== undefined) {
-      heightInCm = currentHeight.centimeters;
+    let heightInCm = 0;
+    if (heightData.feet !== undefined && heightData.inches !== undefined) {
+      heightInCm = heightData.feet * 30.48 + heightData.inches * 2.54;
+    } else if (heightData.centimeters !== undefined) {
+      heightInCm = heightData.centimeters;
     } else {
       return res.status(400).json({ message: "Height must be provided." });
     }
 
+    const weightUnit = "kg";
     // Convert weight to kilograms if provided in pounds
     let weightInKg = 0;
 
@@ -172,8 +187,8 @@ export const createUserProfileController = async (req, res) => {
     const file = getDataUri(req.file);
 
     let profilePicData = {};
-    if (req.file) {
-      const result = await cloudinary.v2.uploader.upload(req.file.path);
+    if (file) {
+      const result = await cloudinary.v2.uploader.upload(file.path);
       profilePicData = {
         public_id: result.public_id,
         url: result.secure_url,
@@ -206,6 +221,7 @@ export const createUserProfileController = async (req, res) => {
       .status(201)
       .json({ message: "Profile created successfully", profile: newProfile });
   } catch (error) {
+    console.error("Error in createUserProfileController:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };

@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  createUserProfileController,
   getUserProfileController,
   loginController,
   logoutController,
@@ -27,6 +28,7 @@ router.post("/login", limiter, loginController);
 // create a private route and verify them using the
 // token
 // create authentication middleware
+router.post("/profile", isAuth, singleUpload, createUserProfileController);
 
 router.get("/profile", isAuth, getUserProfileController);
 router.get("/logout", isAuth, logoutController);
