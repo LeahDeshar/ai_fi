@@ -1,12 +1,16 @@
-const express = require("express");
-const { mongoose } = require("mongoose");
-const { connectDB } = require("./db/config");
-const morgan = require("morgan");
-const cloudinary = require("cloudinary");
-const dotenv = require("dotenv");
-const fileRouter = require("./routes/fileRoutes");
+import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import { mongoose } from "mongoose";
+import morgan from "morgan";
+import cloudinary from "cloudinary";
+import dotenv from "dotenv";
+import connnectDB from "./db/config.js";
+import userRoutes from "./routes/userRoutes.js";
+
 const app = express();
 app.use(express.json());
+
 app.use(morgan("dev"));
 dotenv.config();
 
@@ -16,15 +20,24 @@ cloudinary.v2.config({
   api_secret: process.env.CLOUDINARY_SECRET,
 });
 
-connectDB();
+connnectDB();
+
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
+const PORT = process.env.PORT || 8080;
 
-app.get("/", (req, res) => {
-  res.send("Hello");
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: `http://localhost:${PORT}`,
+    methods: ["GET", "POST", "DELETE", "UPDATE"],
+  },
 });
 
-app.use("/api/v1/image", fileRouter);
-app.listen(8080, () => {
-  console.log("Server is running on port 8080");
+app.use("/api/v1/auth", userRoutes);
+
+io.on("connection", (socket) => {});
+
+httpServer.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

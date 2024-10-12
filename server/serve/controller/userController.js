@@ -1,13 +1,18 @@
-import Users from "../models/userModel.js";
-import { getDataUri } from "../utils/features.js";
+import Users from "../models/user.js";
 import cloudinary from "cloudinary";
-
+import { getDataUri } from "../util/features.js";
 export const registerController = async (req, res) => {
   try {
-    const { name, email, password, address, phone, role } = req.body;
+    const { email, password, confirmPassword } = req.body;
 
     console.log(req.body);
-    if (!name || !email || !password || !address || !phone) {
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    console.log(req.body);
+    if (!email || !password) {
       return res.status(400).json({
         msg: "Fill all the fields",
         success: false,
@@ -23,12 +28,8 @@ export const registerController = async (req, res) => {
     }
 
     const user = await Users.create({
-      name,
       email,
       password,
-      address,
-      phone,
-      role,
     });
     if (!user) {
       return res.status(400).json({
@@ -78,18 +79,7 @@ export const loginController = async (req, res) => {
         success: false,
       });
     }
-    // // create token
-    // const token = await user.generateToken()
-    // if(!token){
-    //     return res
-    //        .status(400)
-    //        .json({
-    //         msg: "Something went wrong",
-    //         success: false,
-    //     })
-    // }
-    // send response
-    // token
+
     const token = user.generateJWT();
     return res
       .status(200)
@@ -114,6 +104,8 @@ export const loginController = async (req, res) => {
     });
   }
 };
+
+/**************PROFILE CONTROLLER*****************/
 export const getUserProfileController = async (req, res) => {
   try {
     const user = await Users.findById(req.user._id).select("-password");

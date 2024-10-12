@@ -8,7 +8,7 @@ import {
   profileUpdateController,
   registerController,
   resetPasswordController,
-} from "../controllers/userController.js";
+} from "../controller/userController.js";
 import { isAuth } from "../middleware/authMiddleware.js";
 import { singleUpload } from "../middleware/multer.js";
 import { rateLimit } from "express-rate-limit";
