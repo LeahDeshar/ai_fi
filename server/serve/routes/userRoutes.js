@@ -1,14 +1,13 @@
 import express from "express";
 import {
+  accountDeleteController,
   createUserProfileController,
   getUserProfileController,
   loginController,
   logoutController,
-  passUpdateController,
   profilePicUpdateController,
-  profileUpdateController,
   registerController,
-  resetPasswordController,
+  updateProfileController,
 } from "../controller/userController.js";
 import { isAuth } from "../middleware/authMiddleware.js";
 import { singleUpload } from "../middleware/multer.js";
@@ -24,18 +23,19 @@ const limiter = rateLimit({
 const router = express.Router();
 router.post("/register", limiter, registerController);
 router.post("/login", limiter, loginController);
+router.get("/logout", isAuth, logoutController);
+// router.put("/passUpdate", isAuth, passUpdateController);
+// router.post("/resetPassword", resetPasswordController);
 
-// create a private route and verify them using the
-// token
-// create authentication middleware
+/************PROFILE ROUTES **************/
 router.post("/profile", isAuth, singleUpload, createUserProfileController);
 
 router.get("/profile", isAuth, getUserProfileController);
-router.get("/logout", isAuth, logoutController);
 
-router.put("/profileUpdate", isAuth, profileUpdateController);
-router.put("/passUpdate", isAuth, passUpdateController);
-router.put("/picUpdate", isAuth, singleUpload, profilePicUpdateController);
-router.post("/resetPassword", resetPasswordController);
+router.patch("/profileUpdate", isAuth, updateProfileController);
+
+router.patch("/picUpdate", isAuth, singleUpload, profilePicUpdateController);
+
+router.delete("/profileDelete", isAuth, accountDeleteController);
 
 export default router;
