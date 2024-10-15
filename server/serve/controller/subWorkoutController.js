@@ -59,3 +59,17 @@ export const createSubWorkoutController = async (req, res) => {
     });
   }
 };
+
+// get all the subworkout
+export const getAllSubWorkoutController = async (req, res) => {
+  try {
+    const subWorkouts = await SubWorkout.find();
+    res.status(200).json({ subWorkouts });
+  } catch (error) {
+    console.error("Error getting sub-workouts:", error);
+    res.status(500).json({
+      message: "Failed to get sub-workouts. Please try again later.",
+      error: error.message,
+    });
+  }
+};

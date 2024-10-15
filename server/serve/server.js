@@ -10,6 +10,7 @@ import userRoutes from "./routes/userRoutes.js";
 import workoutRoutes from "./routes/workoutRoutes.js";
 import subOutRoutes from "./routes/subWorkoutRoutes.js";
 import equipmentRoutes from "./routes/equipmentRoutes.js";
+import exerciseRoutes from "./routes/exeRoutes.js";
 
 const app = express();
 app.use(express.json());
@@ -41,6 +42,7 @@ app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/workout", workoutRoutes);
 app.use("/api/v1/subWorkout", subOutRoutes);
 app.use("/api/v1/equipment", equipmentRoutes);
+app.use("/api/v1/exercise", exerciseRoutes);
 
 io.on("connection", (socket) => {});
 

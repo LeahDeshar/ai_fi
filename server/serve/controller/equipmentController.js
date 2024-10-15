@@ -56,3 +56,29 @@ export const createEquipmentController = async (req, res) => {
     });
   }
 };
+// get all the equipment
+export const getAllEquipmentController = async (req, res) => {
+  try {
+    const equipment = await Equipment.find({});
+    res.status(200).json({ equipment });
+  } catch (error) {
+    console.error("Error getting all equipment:", error);
+    res.status(500).json({
+      message: "Failed to get all equipment. Please try again later.",
+      error: error.message,
+    });
+  }
+};
+// get the equipment by id
+export const getEquipmentByIdController = async (req, res) => {
+  try {
+    const equipment = await Equipment.findById(req.params.id);
+    res.status(200).json({ equipment });
+  } catch (error) {
+    console.error("Error getting equipment by id:", error);
+    res.status(500).json({
+      message: "Failed to get equipment by id. Please try again later.",
+      error: error.message,
+    });
+  }
+};
