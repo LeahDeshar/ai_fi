@@ -9,6 +9,7 @@ import connnectDB from "./db/config.js";
 import userRoutes from "./routes/userRoutes.js";
 import workoutRoutes from "./routes/workoutRoutes.js";
 import subOutRoutes from "./routes/subWorkoutRoutes.js";
+import equipmentRoutes from "./routes/equipmentRoutes.js";
 
 const app = express();
 app.use(express.json());
@@ -39,6 +40,7 @@ const io = new Server(httpServer, {
 app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/workout", workoutRoutes);
 app.use("/api/v1/subWorkout", subOutRoutes);
+app.use("/api/v1/equipment", equipmentRoutes);
 
 io.on("connection", (socket) => {});
 

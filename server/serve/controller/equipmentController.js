@@ -1,22 +1,23 @@
 import SubWorkout from "../models/subworkout.js";
 import Workout from "../models/workout.js";
+import Equipment from "../models/Equipment.js";
 
 import cloudinary from "cloudinary";
 import { getDataUri } from "../util/features.js";
 
-export const createSubWorkoutController = async (req, res) => {
+export const createEquipmentController = async (req, res) => {
   try {
-    const { name, duration, calorieBurn, focusZones, workoutId } = req.body;
+    const { name, suboutId } = req.body;
 
-    const workout = await Workout.findById(workoutId);
-    if (!workout) {
-      return res.status(404).json({ message: "Workout not found." });
+    const subWorkout = await SubWorkout.findById(suboutId);
+    if (!subWorkout) {
+      return res.status(404).json({ message: "Sub Workout not found." });
     }
 
     let workoutPicData = {};
     if (req.body.image) {
       const result = await cloudinary.v2.uploader.upload(req.body.image, {
-        folder: "subworkouts",
+        folder: "Equipment",
       });
       workoutPicData = {
         public_id: result.public_id,
@@ -25,7 +26,7 @@ export const createSubWorkoutController = async (req, res) => {
     } else if (req.file) {
       const file = getDataUri(req.file);
       const result = await cloudinary.v2.uploader.upload(file.content, {
-        folder: "subworkouts",
+        folder: "Equipment",
       });
       workoutPicData = {
         public_id: result.public_id,
@@ -34,22 +35,18 @@ export const createSubWorkoutController = async (req, res) => {
     }
 
     // Create the new sub-workout
-    const newSubWorkout = new SubWorkout({
+    const newEquipment = new Equipment({
       name,
-      duration,
-      calorieBurn,
-      focusZones,
       image: workoutPicData,
-      equipment: [],
-      workSession: [],
     });
 
-    const savedSubWorkout = await newSubWorkout.save();
-    workout.subWorkouts.push(savedSubWorkout._id);
-    await workout.save();
+    const savedEquipment = await newEquipment.save();
+    subWorkout.equipment.push(savedEquipment._id);
+    await subWorkout.save();
     res.status(201).json({
-      message: "Sub-workout created successfully!",
-      subWorkout: savedSubWorkout,
+      message: "Equipment created successfully!",
+      Equipment: subWorkout,
+      savedEquipment,
     });
   } catch (error) {
     console.error("Error creating sub-workout:", error);
