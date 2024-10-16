@@ -15,6 +15,7 @@ export const createWorkSessionController = async (req, res) => {
       tips,
       workType,
       suboutId,
+      sets,
     } = req.body;
 
     const subWorkout = await SubWorkout.findById(suboutId);
@@ -62,20 +63,6 @@ export const createWorkSessionController = async (req, res) => {
       };
     }
 
-    // let videoFile = {};
-    // if (req.files.video) {
-    //   const videoDataUri = getDataUri(req.files.video);
-    //   const uploadedVideo = await cloudinary.v2.uploader.upload(
-    //     videoDataUri.content,
-    //     { resource_type: "video" }
-    //   );
-    //   videoFile = {
-    //     public_id: uploadedVideo.public_id,
-    //     url: uploadedVideo.secure_url,
-    //   };
-    // }
-
-    // Create the new exercise
     const newExercise = new Exercises({
       title,
       image: workoutPicData,
@@ -86,6 +73,7 @@ export const createWorkSessionController = async (req, res) => {
       commonMistake,
       tips,
       workType,
+      sets,
     });
 
     const savedExercise = await newExercise.save();
