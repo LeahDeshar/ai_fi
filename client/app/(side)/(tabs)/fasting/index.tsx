@@ -6,7 +6,13 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import { defaultStyles } from "@/styles";
 import { screenPadding } from "@/constants/token";
 import { useTheme } from "@/constants/ThemeProvider";
@@ -17,9 +23,21 @@ import { AnimatedCircularProgress } from "react-native-circular-progress";
 import moment from "moment";
 import { Button, IconButton } from "react-native-paper";
 import Arc from "@/components/Arc";
-import { Path, Svg } from "react-native-svg";
+import BottomSheet from "@gorhom/bottom-sheet";
+import { BlurView } from "expo-blur";
 const FastingScreen = () => {
   const { colors, dark } = useTheme();
+  const bottomSheetRef = useRef(null);
+  const [selectedReading, setSelectedReading] = useState(null);
+
+  // Memoize bottom sheet snap points to optimize performance
+  const snapPoints = useMemo(() => ["25%", "50%", "90%"], []);
+
+  // Function to handle opening the bottom sheet with the selected content
+  const handlePresentBottomSheet = useCallback((reading) => {
+    setSelectedReading(reading);
+    bottomSheetRef.current?.expand();
+  }, []);
   return (
     <View
       style={[
@@ -29,13 +47,7 @@ const FastingScreen = () => {
         },
       ]}
     >
-      <ScrollView
-        style={{
-          paddingHorizontal: screenPadding.horizontal,
-        }}
-        contentInsetAdjustmentBehavior="automatic"
-      >
-        {/* <FastingTimer /> */}
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View
           style={{
             marginVertical: 50,
@@ -68,72 +80,100 @@ const FastingScreen = () => {
           <FastingReading colors={colors} dark={dark} />
           <FastingReading colors={colors} dark={dark} />
           <FastingReading colors={colors} dark={dark} /> */}
+          {[
+            "Welcome to fasting",
+            "Intermediate fasting",
+            "Advanced fasting",
+          ].map((title, index) => (
+            <FastingReading
+              key={index}
+              title={title}
+              colors={colors}
+              dark={dark}
+              onPress={() => handlePresentBottomSheet(title)}
+            />
+          ))}
         </View>
       </ScrollView>
+      <BlurView style={StyleSheet.absoluteFill} intensity={dark ? 95 : 60} />
+      <BottomSheet
+        bottomInset={50}
+        ref={bottomSheetRef}
+        enablePanDownToClose={true}
+        index={-1} // Keeps the sheet hidden initially
+        snapPoints={snapPoints}
+        backgroundStyle={{ backgroundColor: "transparent" }}
+        handleIndicatorStyle={{ backgroundColor: colors.text }}
+      >
+        <View style={styles.bottomSheetContent}>
+          <Text style={{ color: "black" }}>
+            {selectedReading || "Fasting Details"}
+          </Text>
+          <Text style={{ color: colors.text, marginTop: 10 }}>
+            Detailed information about {selectedReading || "fasting"} goes here.
+          </Text>
+        </View>
+      </BottomSheet>
     </View>
   );
 };
-function FastingReading({ colors, dark }) {
-  const navigation = useRouter();
+
+function FastingReading({ colors, dark, title, onPress }) {
   return (
-    <TouchableOpacity
-      onPress={() => {
-        navigation.navigate("FastingReadDetails");
-      }}
-      style={{
-        backgroundColor: colors.opacity,
-        padding: 10,
-        borderRadius: 15,
-        marginTop: 15,
-        flexDirection: "row",
-        alignItems: "center",
-      }}
-    >
-      <Image
-        source={require("@/assets/fasting/f1.jpg")}
-        style={{ width: 70, height: 70, borderRadius: 15 }}
-      />
-      <View
+    <>
+      <TouchableOpacity
+        onPress={onPress}
         style={{
-          flex: 1,
+          backgroundColor: colors.opacity,
+          padding: 10,
+          borderRadius: 15,
+          marginTop: 15,
           flexDirection: "row",
-          justifyContent: "space-between",
           alignItems: "center",
+          // position: "absolute",
         }}
       >
-        <View
-          style={{
-            marginLeft: 15,
-          }}
-        >
-          <Text
-            style={{
-              color: colors.text,
-              fontSize: 16,
-              fontWeight: "bold",
-            }}
-          >
-            Welcome to fasting
-          </Text>
-          <Text
-            style={{
-              color: "#b6b4b4",
-              fontSize: 14,
-              marginTop: 5,
-            }}
-          >
-            3 min read
-          </Text>
-        </View>
-        <View>
+        <Image
+          source={require("@/assets/fasting/f1.jpg")}
+          style={{ width: 70, height: 70, borderRadius: 15 }}
+        />
+        <View style={styles.contentContainer}>
+          <View style={styles.textContainer}>
+            <Text
+              style={{ color: colors.text, fontSize: 16, fontWeight: "bold" }}
+            >
+              {title}
+            </Text>
+            <Text style={styles.subText}>3 min read</Text>
+          </View>
           <AntDesign
             name="right"
             color={dark ? "#a5a5a5" : "black"}
             size={18}
           />
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+
+      {/* Bottom Sheet Component */}
+      {/* <BottomSheet
+        ref={bottomSheetRef}
+        index={-1} // Keeps the sheet hidden initially
+        snapPoints={snapPoints}
+        backgroundStyle={{ backgroundColor: colors.background }}
+        handleIndicatorStyle={{ backgroundColor: colors.text }}
+      >
+        <View style={styles.bottomSheetContent}>
+          <Text
+            style={{ color: colors.text, fontSize: 18, fontWeight: "bold" }}
+          >
+            Fasting Details
+          </Text>
+          <Text style={{ color: colors.text, marginTop: 10 }}>
+            Detailed information about fasting goes here.
+          </Text>
+        </View>
+      </BottomSheet> */}
+    </>
   );
 }
 const FastingTimer = () => {
@@ -205,6 +245,26 @@ const FastingTimer = () => {
 export default FastingScreen;
 
 const styles = StyleSheet.create({
+  contentContainer: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  textContainer: {
+    marginLeft: 15,
+  },
+  subText: {
+    color: "#b6b4b4",
+    fontSize: 14,
+    marginTop: 5,
+  },
+  bottomSheetContent: {
+    flex: 1,
+    alignItems: "center",
+    padding: 20,
+  },
+
   progressBarContainer: {
     height: 4,
     backgroundColor: "#e0e0e0",
@@ -284,3 +344,66 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
 });
+// function FastingReading({ colors, dark }) {
+//   const navigation = useRouter();
+//   return (
+//     <TouchableOpacity
+//       onPress={() => {
+//         navigation.navigate("FastingReadDetails");
+//       }}
+//       style={{
+//         backgroundColor: colors.opacity,
+//         padding: 10,
+//         borderRadius: 15,
+//         marginTop: 15,
+//         flexDirection: "row",
+//         alignItems: "center",
+//       }}
+//     >
+//       <Image
+//         source={require("@/assets/fasting/f1.jpg")}
+//         style={{ width: 70, height: 70, borderRadius: 15 }}
+//       />
+//       <View
+//         style={{
+//           flex: 1,
+//           flexDirection: "row",
+//           justifyContent: "space-between",
+//           alignItems: "center",
+//         }}
+//       >
+//         <View
+//           style={{
+//             marginLeft: 15,
+//           }}
+//         >
+//           <Text
+//             style={{
+//               color: colors.text,
+//               fontSize: 16,
+//               fontWeight: "bold",
+//             }}
+//           >
+//             Welcome to fasting
+//           </Text>
+//           <Text
+//             style={{
+//               color: "#b6b4b4",
+//               fontSize: 14,
+//               marginTop: 5,
+//             }}
+//           >
+//             3 min read
+//           </Text>
+//         </View>
+//         <View>
+//           <AntDesign
+//             name="right"
+//             color={dark ? "#a5a5a5" : "black"}
+//             size={18}
+//           />
+//         </View>
+//       </View>
+//     </TouchableOpacity>
+//   );
+// }

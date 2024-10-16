@@ -16,7 +16,7 @@ const FastingScreenLayout = () => {
           options={{
             headerTintColor: colors.text,
             headerTransparent: true,
-            headerBlurEffect: dark ? "prominent" : "systemChromeMaterialLight",
+            headerBlurEffect: dark ? "prominent" : "light",
             headerShadowVisible: false,
 
             headerTitle: "", // Set to an empty string to use custom headerLeft instead
