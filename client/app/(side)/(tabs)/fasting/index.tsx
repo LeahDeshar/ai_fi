@@ -16,6 +16,8 @@ import WeeklyStatsComponent from "@/components/WeeklyStatsComponent";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import moment from "moment";
 import { Button, IconButton } from "react-native-paper";
+import Arc from "@/components/Arc";
+import { Path, Svg } from "react-native-svg";
 const FastingScreen = () => {
   const { colors, dark } = useTheme();
   return (
@@ -33,7 +35,16 @@ const FastingScreen = () => {
         }}
         contentInsetAdjustmentBehavior="automatic"
       >
-        <FastingTimer />
+        {/* <FastingTimer /> */}
+        <View
+          style={{
+            marginVertical: 50,
+          }}
+        >
+          {/* max = 77 */}
+          <Arc progress={1} />
+        </View>
+
         <WeeklyStatsComponent />
         <View
           style={{
@@ -51,12 +62,12 @@ const FastingScreen = () => {
           >
             Read about fasting
           </Text>
+          {/* <FastingReading colors={colors} dark={dark} />
           <FastingReading colors={colors} dark={dark} />
           <FastingReading colors={colors} dark={dark} />
           <FastingReading colors={colors} dark={dark} />
           <FastingReading colors={colors} dark={dark} />
-          <FastingReading colors={colors} dark={dark} />
-          <FastingReading colors={colors} dark={dark} />
+          <FastingReading colors={colors} dark={dark} /> */}
         </View>
       </ScrollView>
     </View>
@@ -130,7 +141,7 @@ const FastingTimer = () => {
   const fastingEnd = fastingStart.clone().add(16, "hours");
   const fastingDuration = 16 * 60 * 60 * 1000;
 
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(30);
   const [isFasting, setIsFasting] = useState(false);
 
   useEffect(() => {

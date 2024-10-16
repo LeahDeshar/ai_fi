@@ -10,7 +10,7 @@ import React from "react";
 import { defaultStyles } from "@/styles";
 import { screenPadding } from "@/constants/token";
 import { useTheme } from "@/constants/ThemeProvider";
-import workouts from "@/components/data/workout";
+import workouts from "@/assets/data/workout";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 
