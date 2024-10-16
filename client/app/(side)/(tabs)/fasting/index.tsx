@@ -29,15 +29,56 @@ const FastingScreen = () => {
   const { colors, dark } = useTheme();
   const bottomSheetRef = useRef(null);
   const [selectedReading, setSelectedReading] = useState(null);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const snapPoints = useMemo(() => ["92%"], []);
+  const [selectedReadingIndex, setSelectedReadingIndex] = useState(0);
+  const fastingDetails = [
+    {
+      title: "Welcome To Fasting",
+      description:
+        "Fasting is your key to effective weight loss without the hassle of counting every calorie.Let us guide you step-by-step through all the fundamentals",
+      image: "",
+    },
+    {
+      title: "Intermediate Fasting",
+      description: "Details about intermediate fasting techniques.",
+    },
+    {
+      title: "Advanced Fasting",
+      description: "Strategies for advanced fasting routines.",
+    },
+  ];
+  const handleNextPress = () => {
+    // Move to the next item in the list, or loop back to the first item
+    console.log(selectedReadingIndex);
+    setSelectedReadingIndex((prevIndex) =>
+      prevIndex + 1 < fastingDetails.length ? prevIndex + 1 : 0
+    );
+  };
 
-  // Memoize bottom sheet snap points to optimize performance
-  const snapPoints = useMemo(() => ["25%", "50%", "90%"], []);
-
-  // Function to handle opening the bottom sheet with the selected content
   const handlePresentBottomSheet = useCallback((reading) => {
     setSelectedReading(reading);
-    bottomSheetRef.current?.expand();
+
+    setIsBottomSheetOpen(true);
+    setTimeout(() => {
+      bottomSheetRef.current?.snapToIndex(0);
+    }, 50);
   }, []);
+
+  const handleSheetChanges = useCallback((index) => {
+    if (index === -1) {
+      setIsBottomSheetOpen(false);
+    }
+  }, []);
+
+  const renderBackdrop = (props) => (
+    <View
+      style={[
+        { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
+        { backgroundColor: "rgba(0, 0, 0, 0.5)" }, // Customize your backdrop color and opacity here
+      ]}
+    />
+  );
   return (
     <View
       style={[
@@ -74,12 +115,7 @@ const FastingScreen = () => {
           >
             Read about fasting
           </Text>
-          {/* <FastingReading colors={colors} dark={dark} />
-          <FastingReading colors={colors} dark={dark} />
-          <FastingReading colors={colors} dark={dark} />
-          <FastingReading colors={colors} dark={dark} />
-          <FastingReading colors={colors} dark={dark} />
-          <FastingReading colors={colors} dark={dark} /> */}
+
           {[
             "Welcome to fasting",
             "Intermediate fasting",
@@ -95,23 +131,62 @@ const FastingScreen = () => {
           ))}
         </View>
       </ScrollView>
-      <BlurView style={StyleSheet.absoluteFill} intensity={dark ? 95 : 60} />
+      {isBottomSheetOpen && (
+        <BlurView style={StyleSheet.absoluteFill} intensity={dark ? 95 : 60} />
+      )}
+
       <BottomSheet
-        bottomInset={50}
         ref={bottomSheetRef}
-        enablePanDownToClose={true}
-        index={-1} // Keeps the sheet hidden initially
+        index={-1}
         snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        onChange={handleSheetChanges}
         backgroundStyle={{ backgroundColor: "transparent" }}
-        handleIndicatorStyle={{ backgroundColor: colors.text }}
+        handleIndicatorStyle={{ backgroundColor: "transparent" }}
+        animateOnMount={selectedReading ? true : false}
       >
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            marginBottom: 10,
+          }}
+        >
+          {fastingDetails.map((_, index) => (
+            <View
+              key={index}
+              style={{
+                height: 2,
+                width: selectedReadingIndex == index ? 18 : 8,
+                backgroundColor:
+                  selectedReadingIndex == index ? "white" : "#ffffffab",
+                marginHorizontal: 4,
+                borderRadius: 5,
+              }}
+            />
+          ))}
+        </View>
+
         <View style={styles.bottomSheetContent}>
-          <Text style={{ color: "black" }}>
-            {selectedReading || "Fasting Details"}
+          <Text style={{ color: "black", fontSize: 18, fontWeight: "bold" }}>
+            {fastingDetails[selectedReadingIndex]?.title || "Fasting Details"}
           </Text>
           <Text style={{ color: colors.text, marginTop: 10 }}>
-            Detailed information about {selectedReading || "fasting"} goes here.
+            {fastingDetails[selectedReadingIndex]?.description ||
+              "Detailed information about fasting goes here."}
           </Text>
+          <TouchableOpacity onPress={handleNextPress}>
+            <Text
+              style={{
+                color: colors.text,
+                marginTop: 10,
+                fontWeight: "bold",
+              }}
+            >
+              {selectedReadingIndex === 0 ? " Getting Started" : "Next"}
+            </Text>
+          </TouchableOpacity>
         </View>
       </BottomSheet>
     </View>
