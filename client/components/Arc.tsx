@@ -1,7 +1,7 @@
 import { useTheme } from "@/constants/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Svg, { Circle, G } from "react-native-svg";
 import Button from "./Button";
 
@@ -106,17 +106,27 @@ const Arc = ({ progress = 50, size = 250, strokeWidth = 15 }) => {
           </Text>
         </View>
       </View>
-      <Button
-        title="Start Fasting"
-        handlePress={() => {}}
+      <TouchableOpacity
+        onPress={() => {}}
         style={{
           marginHorizontal: 20,
-          marginTop: 10,
+          marginTop: 20,
           padding: 15,
           borderRadius: 25,
           backgroundColor: "#b50101",
+          width: "90%",
         }}
-      />
+      >
+        <Text
+          style={{
+            textAlign: "center",
+            color: "white",
+            fontWeight: "bold",
+          }}
+        >
+          Start Fasting
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };

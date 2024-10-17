@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginHorizontal: 20,
     marginTop: 15,
-    marginBottom: 25,
+    // marginBottom: 25,
   },
   header: {
     flexDirection: "row",

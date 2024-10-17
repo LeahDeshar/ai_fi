@@ -17,45 +17,232 @@ import { defaultStyles } from "@/styles";
 import { screenPadding } from "@/constants/token";
 import { useTheme } from "@/constants/ThemeProvider";
 import { useRouter } from "expo-router";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import WeeklyStatsComponent from "@/components/WeeklyStatsComponent";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import moment from "moment";
 import { Button, IconButton } from "react-native-paper";
 import Arc from "@/components/Arc";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { BlurView } from "expo-blur";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+import { LinearGradient } from "expo-linear-gradient";
+
 const FastingScreen = () => {
   const { colors, dark } = useTheme();
   const bottomSheetRef = useRef(null);
   const [selectedReading, setSelectedReading] = useState(null);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const snapPoints = useMemo(() => ["92%"], []);
+  const snapPoints = useMemo(() => ["85%"], []);
   const [selectedReadingIndex, setSelectedReadingIndex] = useState(0);
+  const [selectedPageIndex, setSelectedPageIndex] = useState(0);
+
   const fastingDetails = [
     {
-      title: "Welcome To Fasting",
-      description:
-        "Fasting is your key to effective weight loss without the hassle of counting every calorie.Let us guide you step-by-step through all the fundamentals",
-      image: "",
+      title: "Welcome to fasting",
+      image:
+        "https://www.raowellness.com/wp-content/uploads/Intermittent-Fasting.jpg",
+      readTime: "3",
+      pages: [
+        {
+          title: "Welcome To Fasting",
+          description:
+            "Fasting is your key to effective weight loss without the hassle of counting every calorie.Let us guide you step-by-step through all the fundamentals",
+          image:
+            "https://opt.toiimg.com/recuperator/img/toi/m-63299283/63299283.jpg&width=500&resizemode=4",
+        },
+        {
+          title: "How it works",
+          description:
+            "Learn the basics of intermittent fasting and how it can help you lose weight and improve your health.",
+
+          image:
+            "https://static.oprah.com/2018/08/201808-orig-intermittent-fasting-949x534.jpg",
+        },
+        {
+          title: "Building a fasting habit",
+          description:
+            "Learn how to build a fasting habit that works for you and fits your lifestyle.",
+          image:
+            "https://cdn.prod.website-files.com/5f64a4eb5a48d21969aa774a/5fa6a3022f679e25a91d4702_image7.png",
+        },
+        {
+          title: "What to eat before fasting?",
+          description:
+            "Your pre-fast meal choices can make or break whole fasting experience",
+          image:
+            "https://www.foodpoisoningnews.com/wp-content/uploads/2024/09/useful-cut-vegetables-on-a-plate-in-the-form-of-heart-on-wooden-table-top-view-stockpack-deposit-photos-1536x1024.jpg",
+        },
+        {
+          title: "Is it ok to work out while fasting?",
+          description:
+            "Sure! Combine fasting with your favorite workouts to burn fat more efficiently.",
+
+          image:
+            "https://static01.nyt.com/images/2022/12/27/well/15SCAM-STRETCHING/15SCAM-STRETCHING-superJumbo.jpg",
+        },
+      ],
     },
     {
-      title: "Intermediate Fasting",
-      description: "Details about intermediate fasting techniques.",
+      title: "Master Your First Fast",
+      image:
+        "https://img.freepik.com/free-vector/hand-drawn-intermittent-fasting-illustration_52683-141818.jpg",
+      readTime: "3",
+      pages: [
+        {
+          title: "Welcome To Fasting",
+          description:
+            "Fasting is your key to effective weight loss without the hassle of counting every calorie.Let us guide you step-by-step through all the fundamentals",
+          image:
+            "https://opt.toiimg.com/recuperator/img/toi/m-63299283/63299283.jpg&width=500&resizemode=4",
+        },
+        {
+          title: "How it works",
+          description:
+            "Learn the basics of intermittent fasting and how it can help you lose weight and improve your health.",
+
+          image:
+            "https://static.oprah.com/2018/08/201808-orig-intermittent-fasting-949x534.jpg",
+        },
+        {
+          title: "Building a fasting habit",
+          description:
+            "Learn how to build a fasting habit that works for you and fits your lifestyle.",
+          image:
+            "https://cdn.prod.website-files.com/5f64a4eb5a48d21969aa774a/5fa6a3022f679e25a91d4702_image7.png",
+        },
+        {
+          title: "What to eat before fasting?",
+          description:
+            "Your pre-fast meal choices can make or break whole fasting experience",
+          image:
+            "https://www.foodpoisoningnews.com/wp-content/uploads/2024/09/useful-cut-vegetables-on-a-plate-in-the-form-of-heart-on-wooden-table-top-view-stockpack-deposit-photos-1536x1024.jpg",
+        },
+        {
+          title: "Is it ok to work out while fasting?",
+          description:
+            "Sure! Combine fasting with your favorite workouts to burn fat more efficiently.",
+
+          image:
+            "https://static01.nyt.com/images/2022/12/27/well/15SCAM-STRETCHING/15SCAM-STRETCHING-superJumbo.jpg",
+        },
+      ],
     },
     {
-      title: "Advanced Fasting",
-      description: "Strategies for advanced fasting routines.",
+      title: "What is intermittent fasting?",
+      image:
+        "https://media.istockphoto.com/id/1335324665/vector/woman-eating-salad-after-fasting-intermittent-fasting.jpg?s=612x612&w=0&k=20&c=L3AiK13kZd3j1W5h68lpE4w72uiOr_RXcQ8pqS-Zx7w=",
+      readTime: "3",
+      pages: [
+        {
+          title: "Welcome To Fasting",
+          description:
+            "Fasting is your key to effective weight loss without the hassle of counting every calorie.Let us guide you step-by-step through all the fundamentals",
+          image:
+            "https://opt.toiimg.com/recuperator/img/toi/m-63299283/63299283.jpg&width=500&resizemode=4",
+        },
+        {
+          title: "How it works",
+          description:
+            "Learn the basics of intermittent fasting and how it can help you lose weight and improve your health.",
+
+          image:
+            "https://static.oprah.com/2018/08/201808-orig-intermittent-fasting-949x534.jpg",
+        },
+        {
+          title: "Building a fasting habit",
+          description:
+            "Learn how to build a fasting habit that works for you and fits your lifestyle.",
+          image:
+            "https://cdn.prod.website-files.com/5f64a4eb5a48d21969aa774a/5fa6a3022f679e25a91d4702_image7.png",
+        },
+        {
+          title: "What to eat before fasting?",
+          description:
+            "Your pre-fast meal choices can make or break whole fasting experience",
+          image:
+            "https://www.foodpoisoningnews.com/wp-content/uploads/2024/09/useful-cut-vegetables-on-a-plate-in-the-form-of-heart-on-wooden-table-top-view-stockpack-deposit-photos-1536x1024.jpg",
+        },
+        {
+          title: "Is it ok to work out while fasting?",
+          description:
+            "Sure! Combine fasting with your favorite workouts to burn fat more efficiently.",
+
+          image:
+            "https://static01.nyt.com/images/2022/12/27/well/15SCAM-STRETCHING/15SCAM-STRETCHING-superJumbo.jpg",
+        },
+      ],
+    },
+    {
+      title: "Intermittent fasting vs calorie restriction",
+      image:
+        "https://thumbs.dreamstime.com/b/dietary-trends-flat-vector-illustration-intermittent-fasting-concept-person-incorporating-time-restricted-eating-focus-316626989.jpg",
+      readTime: "3",
+      pages: [
+        {
+          title: "Welcome To Fasting",
+          description:
+            "Fasting is your key to effective weight loss without the hassle of counting every calorie.Let us guide you step-by-step through all the fundamentals",
+          image:
+            "https://opt.toiimg.com/recuperator/img/toi/m-63299283/63299283.jpg&width=500&resizemode=4",
+        },
+        {
+          title: "How it works",
+          description:
+            "Learn the basics of intermittent fasting and how it can help you lose weight and improve your health.",
+
+          image:
+            "https://static.oprah.com/2018/08/201808-orig-intermittent-fasting-949x534.jpg",
+        },
+        {
+          title: "Building a fasting habit",
+          description:
+            "Learn how to build a fasting habit that works for you and fits your lifestyle.",
+          image:
+            "https://cdn.prod.website-files.com/5f64a4eb5a48d21969aa774a/5fa6a3022f679e25a91d4702_image7.png",
+        },
+        {
+          title: "What to eat before fasting?",
+          description:
+            "Your pre-fast meal choices can make or break whole fasting experience",
+          image:
+            "https://www.foodpoisoningnews.com/wp-content/uploads/2024/09/useful-cut-vegetables-on-a-plate-in-the-form-of-heart-on-wooden-table-top-view-stockpack-deposit-photos-1536x1024.jpg",
+        },
+        {
+          title: "Is it ok to work out while fasting?",
+          description:
+            "Sure! Combine fasting with your favorite workouts to burn fat more efficiently.",
+
+          image:
+            "https://static01.nyt.com/images/2022/12/27/well/15SCAM-STRETCHING/15SCAM-STRETCHING-superJumbo.jpg",
+        },
+      ],
     },
   ];
+  // const handleNextPress = () => {
+  //   if (selectedReadingIndex + 1 < fastingDetails.length) {
+  //     setSelectedReadingIndex((prevIndex) => prevIndex + 1);
+  //   } else {
+  //     bottomSheetRef.current?.close();
+  //     setSelectedReadingIndex(0);
+  //   }
+  // };
   const handleNextPress = () => {
-    // Move to the next item in the list, or loop back to the first item
-    console.log(selectedReadingIndex);
-    setSelectedReadingIndex((prevIndex) =>
-      prevIndex + 1 < fastingDetails.length ? prevIndex + 1 : 0
-    );
+    if (
+      selectedPageIndex + 1 <
+      fastingDetails[selectedReadingIndex]?.pages.length
+    ) {
+      setSelectedPageIndex(selectedPageIndex + 1);
+    } else if (selectedReadingIndex + 1 < fastingDetails.length) {
+      setSelectedReadingIndex(selectedReadingIndex + 1);
+      setSelectedPageIndex(0); // Reset to the first page of the next fasting detail
+    } else {
+      bottomSheetRef.current?.close(); // Close the BottomSheet if at the last page
+    }
   };
-
   const handlePresentBottomSheet = useCallback((reading) => {
     setSelectedReading(reading);
 
@@ -70,15 +257,11 @@ const FastingScreen = () => {
       setIsBottomSheetOpen(false);
     }
   }, []);
+  const handleBottomSheetClose = () => {
+    bottomSheetRef.current?.close();
+    setSelectedReadingIndex(0);
+  };
 
-  const renderBackdrop = (props) => (
-    <View
-      style={[
-        { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
-        { backgroundColor: "rgba(0, 0, 0, 0.5)" }, // Customize your backdrop color and opacity here
-      ]}
-    />
-  );
   return (
     <View
       style={[
@@ -91,17 +274,20 @@ const FastingScreen = () => {
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View
           style={{
-            marginVertical: 50,
+            marginTop: 50,
+            marginBottom: 30,
           }}
         >
           {/* max = 77 */}
           <Arc progress={1} />
         </View>
-
         <WeeklyStatsComponent />
         <View
           style={{
-            marginHorizontal: 10,
+            paddingHorizontal: 20,
+            backgroundColor: "#f5f5f5",
+            paddingVertical: 10,
+            paddingBottom: 80,
           }}
         >
           <Text
@@ -111,95 +297,186 @@ const FastingScreen = () => {
               fontWeight: "bold",
               marginTop: 20,
               marginLeft: 5,
+              marginBottom: 5,
             }}
           >
             Read about fasting
           </Text>
 
-          {[
-            "Welcome to fasting",
-            "Intermediate fasting",
-            "Advanced fasting",
-          ].map((title, index) => (
+          {fastingDetails.map((detail, index) => (
             <FastingReading
               key={index}
-              title={title}
+              detail={detail}
               colors={colors}
               dark={dark}
-              onPress={() => handlePresentBottomSheet(title)}
+              onPress={() => handlePresentBottomSheet(detail)}
             />
           ))}
         </View>
       </ScrollView>
-      {isBottomSheetOpen && (
-        <BlurView style={StyleSheet.absoluteFill} intensity={dark ? 95 : 60} />
-      )}
 
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
         snapPoints={snapPoints}
-        enablePanDownToClose={true}
         onChange={handleSheetChanges}
-        backgroundStyle={{ backgroundColor: "transparent" }}
-        handleIndicatorStyle={{ backgroundColor: "transparent" }}
-        animateOnMount={selectedReading ? true : false}
+        backgroundStyle={{ backgroundColor: "#eaeaea" }}
+        handleIndicatorStyle={{
+          display: "none",
+        }}
+        handleStyle={{
+          display: "none",
+        }}
       >
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            marginBottom: 10,
-          }}
-        >
-          {fastingDetails.map((_, index) => (
-            <View
-              key={index}
+        <View style={{}}>
+          <Image
+            source={{
+              uri: fastingDetails[selectedReadingIndex]?.pages[
+                selectedReadingIndex
+              ]?.image,
+            }}
+            style={{
+              width: "100%",
+              height: 300,
+              borderTopRightRadius: 15,
+              borderTopLeftRadius: 15,
+
+              marginBottom: 10,
+            }}
+          />
+
+          <View
+            style={{
+              position: "absolute",
+              width: "100%",
+            }}
+          >
+            <LinearGradient
+              colors={["#0000007c", "transparent"]}
               style={{
-                height: 2,
-                width: selectedReadingIndex == index ? 18 : 8,
-                backgroundColor:
-                  selectedReadingIndex == index ? "white" : "#ffffffab",
-                marginHorizontal: 4,
-                borderRadius: 5,
+                ...StyleSheet.absoluteFillObject,
+                borderTopRightRadius: 15,
+                borderTopLeftRadius: 15,
+                height: 80,
+                width: "100%",
               }}
             />
-          ))}
-        </View>
-
-        <View style={styles.bottomSheetContent}>
-          <Text style={{ color: "black", fontSize: 18, fontWeight: "bold" }}>
-            {fastingDetails[selectedReadingIndex]?.title || "Fasting Details"}
-          </Text>
-          <Text style={{ color: colors.text, marginTop: 10 }}>
-            {fastingDetails[selectedReadingIndex]?.description ||
-              "Detailed information about fasting goes here."}
-          </Text>
-          <TouchableOpacity onPress={handleNextPress}>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                marginBottom: 10,
+                marginTop: 20,
+              }}
+            >
+              {/* {fastingDetails.map((details, index) =>
+                details?.pages.map((page, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      height: selectedReadingIndex == index ? 3 : 2,
+                      width: selectedReadingIndex == index ? 18 : 8,
+                      backgroundColor:
+                        selectedReadingIndex == index ? "white" : "#ffffffab",
+                      marginHorizontal: 4,
+                      borderRadius: 5,
+                    }}
+                  />
+                ))
+              )} */}
+              {fastingDetails[selectedReadingIndex]?.pages.map((_, index) => (
+                <View
+                  key={index}
+                  style={{
+                    height: selectedPageIndex === index ? 3 : 2,
+                    width: selectedPageIndex === index ? 18 : 8,
+                    backgroundColor:
+                      selectedPageIndex === index ? "white" : "#ffffffab",
+                    marginHorizontal: 4,
+                    borderRadius: 5,
+                    transition:
+                      "width 0.3s ease-in-out, height 0.3s ease-in-out", // for smoother transition
+                  }}
+                />
+              ))}
+            </View>
+            <TouchableOpacity
+              onPress={handleBottomSheetClose}
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 10,
+              }}
+            >
+              <Ionicons name="close" color={"white"} size={20} />
+            </TouchableOpacity>
+          </View>
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 50,
+            }}
+          >
             <Text
               style={{
-                color: colors.text,
-                marginTop: 10,
+                color: "#000000",
+                fontSize: 25,
                 fontWeight: "bold",
               }}
             >
-              {selectedReadingIndex === 0 ? " Getting Started" : "Next"}
+              {fastingDetails[selectedReadingIndex]?.title}
             </Text>
-          </TouchableOpacity>
+            <Text
+              style={{
+                marginTop: 20,
+                textAlign: "center",
+                fontSize: 16,
+                color: "#454545",
+                width: "90%",
+                lineHeight: 22,
+              }}
+            >
+              {fastingDetails[selectedReadingIndex]?.description ||
+                "Detailed information about fasting goes here."}
+            </Text>
+            <TouchableOpacity
+              onPress={handleNextPress}
+              style={{
+                backgroundColor: "#da0d0d",
+                padding: 10,
+                borderRadius: 15,
+                marginTop: 30,
+
+                width: "80%",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  color: "white",
+                  fontWeight: "bold",
+                }}
+              >
+                {selectedReadingIndex === 0 ? " Getting Started" : "Next"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </BottomSheet>
     </View>
   );
 };
 
-function FastingReading({ colors, dark, title, onPress }) {
+function FastingReading({ colors, dark, detail, onPress }) {
+  console.log(detail.title);
   return (
     <>
       <TouchableOpacity
         onPress={onPress}
         style={{
-          backgroundColor: colors.opacity,
+          backgroundColor: "white",
           padding: 10,
           borderRadius: 15,
           marginTop: 15,
@@ -209,7 +486,7 @@ function FastingReading({ colors, dark, title, onPress }) {
         }}
       >
         <Image
-          source={require("@/assets/fasting/f1.jpg")}
+          source={{ uri: detail?.image }}
           style={{ width: 70, height: 70, borderRadius: 15 }}
         />
         <View style={styles.contentContainer}>
@@ -217,37 +494,17 @@ function FastingReading({ colors, dark, title, onPress }) {
             <Text
               style={{ color: colors.text, fontSize: 16, fontWeight: "bold" }}
             >
-              {title}
+              {detail.title}
             </Text>
             <Text style={styles.subText}>3 min read</Text>
           </View>
           <AntDesign
             name="right"
-            color={dark ? "#a5a5a5" : "black"}
+            color={dark ? "#a5a5a5" : "#838383"}
             size={18}
           />
         </View>
       </TouchableOpacity>
-
-      {/* Bottom Sheet Component */}
-      {/* <BottomSheet
-        ref={bottomSheetRef}
-        index={-1} // Keeps the sheet hidden initially
-        snapPoints={snapPoints}
-        backgroundStyle={{ backgroundColor: colors.background }}
-        handleIndicatorStyle={{ backgroundColor: colors.text }}
-      >
-        <View style={styles.bottomSheetContent}>
-          <Text
-            style={{ color: colors.text, fontSize: 18, fontWeight: "bold" }}
-          >
-            Fasting Details
-          </Text>
-          <Text style={{ color: colors.text, marginTop: 10 }}>
-            Detailed information about fasting goes here.
-          </Text>
-        </View>
-      </BottomSheet> */}
     </>
   );
 }
@@ -330,14 +587,14 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   subText: {
-    color: "#b6b4b4",
+    color: "#838383",
     fontSize: 14,
     marginTop: 5,
   },
   bottomSheetContent: {
-    flex: 1,
-    alignItems: "center",
-    padding: 20,
+    // flex: 1,
+    // alignItems: "center",
+    // padding: 20,
   },
 
   progressBarContainer: {
@@ -419,66 +676,3 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
 });
-// function FastingReading({ colors, dark }) {
-//   const navigation = useRouter();
-//   return (
-//     <TouchableOpacity
-//       onPress={() => {
-//         navigation.navigate("FastingReadDetails");
-//       }}
-//       style={{
-//         backgroundColor: colors.opacity,
-//         padding: 10,
-//         borderRadius: 15,
-//         marginTop: 15,
-//         flexDirection: "row",
-//         alignItems: "center",
-//       }}
-//     >
-//       <Image
-//         source={require("@/assets/fasting/f1.jpg")}
-//         style={{ width: 70, height: 70, borderRadius: 15 }}
-//       />
-//       <View
-//         style={{
-//           flex: 1,
-//           flexDirection: "row",
-//           justifyContent: "space-between",
-//           alignItems: "center",
-//         }}
-//       >
-//         <View
-//           style={{
-//             marginLeft: 15,
-//           }}
-//         >
-//           <Text
-//             style={{
-//               color: colors.text,
-//               fontSize: 16,
-//               fontWeight: "bold",
-//             }}
-//           >
-//             Welcome to fasting
-//           </Text>
-//           <Text
-//             style={{
-//               color: "#b6b4b4",
-//               fontSize: 14,
-//               marginTop: 5,
-//             }}
-//           >
-//             3 min read
-//           </Text>
-//         </View>
-//         <View>
-//           <AntDesign
-//             name="right"
-//             color={dark ? "#a5a5a5" : "black"}
-//             size={18}
-//           />
-//         </View>
-//       </View>
-//     </TouchableOpacity>
-//   );
-// }
