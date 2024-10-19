@@ -8,6 +8,7 @@ import { ThemeProvider, useTheme } from "@/constants/ThemeProvider";
 import { StackScreenWithSearchBar } from "@/constants/layout";
 import { TouchableOpacity } from "react-native";
 import { Ionicons, MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
+import { Text, View } from "react-native";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -35,14 +36,14 @@ export default function RootLayout() {
 }
 
 const InnerStack = () => {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
 
   return (
     <Stack
       screenOptions={{
-        headerStyle: {
-          backgroundColor: colors.primary,
-        },
+        // headerStyle: {
+        //   backgroundColor: colors.primary,
+        // },
         // remove the text from header left
         headerLeft: () => null,
       }}
@@ -547,7 +548,15 @@ const InnerStack = () => {
       <Stack.Screen
         name="ChallengeDetails"
         options={{
-          headerTitle: "Challenge",
+          // headerTintColor: colors.text,
+          headerTransparent: true,
+          headerBlurEffect: "light",
+          headerShadowVisible: false,
+
+          headerTitle: "",
+          // headerShown: false,
+
+          headerLeft: () => null,
         }}
       />
       <Stack.Screen

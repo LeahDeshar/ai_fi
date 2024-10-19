@@ -1,4 +1,11 @@
-import { StyleSheet, Text, View, Image, ScrollView } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import React from "react";
 import { useTheme } from "@/constants/ThemeProvider";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
@@ -22,10 +29,12 @@ const ChallengeDetails = () => {
       <ParallaxScrollView
         headerImage={
           <Image
-            source={require("../assets/cha1.jpg")}
+            source={{
+              uri: "https://res.cloudinary.com/hydrow/image/upload/f_auto/w_1000/q_100/v1693335737/Blog/workout-alone.jpg",
+            }}
             style={{
               width: "100%",
-              height: 270,
+              height: "100%",
               resizeMode: "cover",
             }}
           />
@@ -47,7 +56,7 @@ const ChallengeDetails = () => {
           >
             30-Day Pilates Challenge
           </Text>
-          <Button
+          {/* <Button
             handlePress={() => {}}
             title="Join Challenge"
             style={{
@@ -55,9 +64,33 @@ const ChallengeDetails = () => {
               marginTop: 20,
               backgroundColor: colors.primary,
             }}
-          />
-
-          <View>
+          /> */}
+          <TouchableOpacity
+            onPress={() => {}}
+            style={{
+              marginHorizontal: 20,
+              marginTop: 20,
+              padding: 15,
+              borderRadius: 25,
+              backgroundColor: "#b50101",
+              width: "90%",
+            }}
+          >
+            <Text
+              style={{
+                textAlign: "center",
+                color: "white",
+                fontWeight: "bold",
+              }}
+            >
+              JOIN CHALLENGE
+            </Text>
+          </TouchableOpacity>
+          <View
+            style={{
+              marginTop: 20,
+            }}
+          >
             <Text
               style={{
                 color: colors.text,

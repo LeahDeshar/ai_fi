@@ -1,5 +1,16 @@
-import type { PropsWithChildren, ReactElement } from "react";
-import { StyleSheet, useColorScheme } from "react-native";
+import {
+  useCallback,
+  useState,
+  type PropsWithChildren,
+  type ReactElement,
+} from "react";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+} from "react-native";
 import Animated, {
   interpolate,
   useAnimatedRef,
@@ -8,6 +19,8 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { ThemedView } from "@/components/ThemedView";
+import { useFocusEffect, useNavigation } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 const HEADER_HEIGHT = 250;
 
@@ -32,7 +45,7 @@ export default function ParallaxScrollView({
           translateY: interpolate(
             scrollOffset.value,
             [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
-            [-HEADER_HEIGHT / 2, 0, HEADER_HEIGHT * 0.75]
+            [-HEADER_HEIGHT / 2, 0, HEADER_HEIGHT * 0.9]
           ),
         },
         {
@@ -46,9 +59,55 @@ export default function ParallaxScrollView({
     };
   });
 
+  const [showHeader, setShowHeader] = useState(false);
+  const navigation = useNavigation();
+  const handleScroll = (event) => {
+    const scrollY = event.nativeEvent.contentOffset.y;
+    if (scrollY > 350 && !showHeader) {
+      setShowHeader(true);
+      navigation.setOptions({
+        headerShown: true,
+        headerLeft: () => (
+          <TouchableOpacity
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="chevron-back" size={20} color="black" />
+            <Text
+              style={{
+                fontSize: 18,
+                marginLeft: 10,
+              }}
+            >
+              Challenges
+            </Text>
+          </TouchableOpacity>
+        ),
+      });
+    } else if (scrollY <= 250 && showHeader) {
+      setShowHeader(false);
+      navigation.setOptions({
+        headerShown: false,
+      });
+    }
+  };
+  useFocusEffect(
+    useCallback(() => {
+      navigation.setOptions({
+        headerShown: false,
+      });
+    }, [navigation])
+  );
   return (
     <ThemedView style={styles.container}>
-      <Animated.ScrollView ref={scrollRef} scrollEventThrottle={16}>
+      <Animated.ScrollView
+        ref={scrollRef}
+        scrollEventThrottle={16}
+        onScroll={handleScroll}
+      >
         <Animated.View
           style={[
             styles.header,
@@ -67,7 +126,7 @@ export default function ParallaxScrollView({
           style={[
             styles.content,
             {
-              borderWidth: 1,
+              // borderWidth: 1,
               borderTopLeftRadius: 25,
               borderTopRightRadius: 25,
             },
@@ -83,6 +142,7 @@ export default function ParallaxScrollView({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    // backgroundColor: "red",
   },
   header: {
     height: 450,

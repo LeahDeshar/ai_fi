@@ -2,10 +2,11 @@
 
 <!-- check the todo ui-->
 
+- [x] challenge screen
 - [x] challenge details
-- [ ] Fasting screen
-- [ ] Read fasting information
-- [ ] fasting settings
+- [x] Fasting screen
+- [x] Read fasting information
+- [x] fasting settings
 - [ ] workout listing
 - [ ] nested listing
 - [ ] workout detail page
