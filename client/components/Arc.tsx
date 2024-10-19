@@ -1,5 +1,11 @@
 import { useTheme } from "@/constants/ThemeProvider";
-import { Ionicons } from "@expo/vector-icons";
+import {
+  FontAwesome,
+  FontAwesome5,
+  Fontisto,
+  Ionicons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Svg, { Circle, G } from "react-native-svg";
@@ -47,9 +53,73 @@ const Arc = ({ progress = 50, size = 250, strokeWidth = 15 }) => {
             />
           </G>
         </Svg>
+
         <View style={styles.textContainer}>
           <Text style={styles.titleText}>Upcoming fast</Text>
           <Text style={styles.progressText}>16 hours</Text>
+        </View>
+      </View>
+      <View
+        style={{
+          position: "absolute",
+          width: "58%",
+          height: 250,
+          left: 90,
+          top: -12,
+        }}
+      >
+        <View style={{}}>
+          <View
+            style={{
+              top: 205,
+              left: 23,
+              backgroundColor: "#dcdcdc",
+              padding: 2,
+              position: "absolute",
+              borderRadius: 25,
+            }}
+          >
+            <MaterialIcons name="bloodtype" size={33} color="#b50101" />
+          </View>
+          <View
+            style={{
+              top: 90,
+              right: 215,
+              backgroundColor: "#dcdcdc",
+              paddingVertical: 5,
+              paddingHorizontal: 10,
+              position: "absolute",
+              borderRadius: 55,
+            }}
+          >
+            <Fontisto name="blood-drop" size={28} color="#b50101" />
+          </View>
+          <View
+            style={{
+              left: 100,
+              // bottom: ,
+              backgroundColor: "#dcdcdc",
+              paddingVertical: 5,
+              paddingHorizontal: 10,
+              position: "absolute",
+              borderRadius: 25,
+            }}
+          >
+            <FontAwesome5 name="fire" size={28} color="#b50101" />
+          </View>
+          <View
+            style={{
+              right: 0,
+              top: 165,
+              backgroundColor: "#dcdcdc",
+              paddingVertical: 5,
+              paddingHorizontal: 12,
+              position: "absolute",
+              borderRadius: 25,
+            }}
+          >
+            <FontAwesome name="flash" size={25} color="#b50101" />
+          </View>
         </View>
       </View>
       <View

@@ -241,6 +241,9 @@ const FastingScreenLayout = () => {
         backgroundStyle={{ backgroundColor: "#eaeaea" }}
         handleIndicatorStyle={{ backgroundColor: colors.text }}
         enablePanDownToClose
+        handleStyle={{
+          display: "none",
+        }}
       >
         <View style={{ padding: 20 }}>
           <GroupedFastingData data={fastingType} />
@@ -279,10 +282,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#555",
   },
-  howToPrepTitle: {
-    marginTop: 10,
-    fontWeight: "bold",
-  },
+  howToPrepTitle: {},
   step: {
     marginTop: 2,
     fontSize: 14,
@@ -296,7 +296,6 @@ const GroupedFastingData = ({ data }) => {
     setBottomSheetScreen(screenName);
     setSelectedFasting(item);
   };
-  console.log(selectedFasting);
   return (
     <View style={styles.container}>
       {bottomSheetScreen === "data" ? (
@@ -402,20 +401,99 @@ const GroupedFastingData = ({ data }) => {
                 flexDirection: "row",
                 justifyContent: "space-between",
                 alignItems: "center",
-                bottom: 25,
+                bottom: 8,
                 // backgroundColor: "red",
                 width: "59%",
               }}
             >
-              <AntDesign name="arrowleft" size={24} color="black" />
+              <TouchableOpacity onPress={() => setBottomSheetScreen("data")}>
+                <AntDesign name="arrowleft" size={20} color="black" />
+              </TouchableOpacity>
               <Text
                 style={{
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: "600",
                 }}
               >
                 {selectedFasting?.hour}:{selectedFasting?.minute}{" "}
               </Text>
+            </View>
+            <View
+              style={{
+                marginTop: 50,
+              }}
+            >
+              <Text
+                style={{
+                  marginVertical: 10,
+                  fontSize: 16,
+                }}
+              >
+                {selectedFasting?.desc}
+              </Text>
+
+              <Text
+                style={{
+                  marginVertical: 10,
+                  fontWeight: "bold",
+                  fontSize: 18,
+                }}
+              >
+                How To Prepare
+              </Text>
+              {selectedFasting?.howToPrep.map((item, index) => (
+                <View
+                  key={index}
+                  style={{
+                    flexDirection: "row",
+                    // alignItems: "center",
+                    marginVertical: 5,
+                    width: "96%",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      marginRight: 5,
+                    }}
+                  >
+                    {index + 1}.
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                    }}
+                  >
+                    {item}
+                  </Text>
+                </View>
+              ))}
+            </View>
+            <View
+              style={{
+                alignItems: "center",
+                marginTop: 250,
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#e40f0f",
+                  width: "80%",
+                  paddingVertical: 8,
+                  borderRadius: 25,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#fff",
+                    textAlign: "center",
+                    fontWeight: 600,
+                    fontSize: 16,
+                  }}
+                >
+                  CHOOSE
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </>
