@@ -6,24 +6,45 @@ import { StackScreenWithSearchBar } from "@/constants/layout";
 import { useTheme } from "@/constants/ThemeProvider";
 
 const moreLayout = () => {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   return (
     <View style={[defaultStyles.container]}>
       <Stack>
         <Stack.Screen
           name="index"
+          // options={{
+          //   ...StackScreenWithSearchBar,
+          //   headerTitle: "Profile",
+          //   headerLargeStyle: {
+          //     backgroundColor: colors.opacity,
+          //   },
+
+          //   headerLargeTitleStyle: {
+          //     color: colors.text,
+          //   },
+
+          //   headerTintColor: colors.text,
+          // }}
           options={{
-            ...StackScreenWithSearchBar,
-            headerTitle: "Profile",
-            headerLargeStyle: {
-              backgroundColor: colors.opacity,
-            },
-
-            headerLargeTitleStyle: {
-              color: colors.text,
-            },
-
             headerTintColor: colors.text,
+            headerTransparent: true,
+            headerBlurEffect: dark ? "prominent" : "light",
+            headerShadowVisible: false,
+
+            headerTitle: "",
+
+            headerLeft: () => (
+              <View>
+                <Text
+                  style={{
+                    fontSize: 25,
+                    color: colors.text,
+                  }}
+                >
+                  Profile
+                </Text>
+              </View>
+            ),
           }}
         />
       </Stack>

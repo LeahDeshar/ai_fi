@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StatusBar, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { defaultStyles } from "@/styles";
 import { Stack } from "expo-router";
@@ -9,6 +9,10 @@ const challengeLayout = () => {
   const { colors, dark } = useTheme();
   return (
     <View style={defaultStyles.container}>
+      <StatusBar
+        backgroundColor={colors.opacity}
+        barStyle={dark ? "light-content" : "dark-content"}
+      />
       <Stack>
         <Stack.Screen
           name="index"

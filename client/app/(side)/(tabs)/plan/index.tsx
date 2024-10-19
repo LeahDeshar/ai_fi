@@ -76,7 +76,7 @@ const planScreen = () => {
         contentInsetAdjustmentBehavior="automatic"
       >
         <View>
-          <View
+          {/* <View
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
@@ -111,7 +111,7 @@ const planScreen = () => {
                 <AntDesign name="message1" size={20} color={colors.icon} />
               </TouchableOpacity>
             </View>
-          </View>
+          </View> */}
           <View>
             {itemSet.map((item, index) => (
               <TouchableOpacity
