@@ -1,57 +1,3 @@
-// import { useFonts } from "expo-font";
-// import { Stack } from "expo-router";
-// import * as SplashScreen from "expo-splash-screen";
-// import { useEffect } from "react";
-// import "react-native-reanimated";
-
-// import { ThemeProvider, useTheme } from "@/constants/ThemeProvider";
-
-// // Prevent the splash screen from auto-hiding before asset loading is complete.
-// SplashScreen.preventAutoHideAsync();
-
-// export default function RootLayout() {
-//   const [loaded] = useFonts({
-//     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-//   });
-
-//   useEffect(() => {
-//     if (loaded) {
-//       SplashScreen.hideAsync();
-//     }
-//   }, [loaded]);
-
-//   if (!loaded) {
-//     return null;
-//   }
-
-//   const { colors } = useTheme();
-
-//   return (
-//     <ThemeProvider>
-//       <Stack
-//         screenOptions={{
-//           headerStyle: {
-//             backgroundColor: colors.primary,
-//           },
-//           // remove the text from header left
-//           headerLeft: () => null,
-//         }}
-//       >
-//         <Stack.Screen name="index" options={{ headerShown: false }} />
-//         <Stack.Screen name="(side)" options={{ headerShown: false }} />
-//         <Stack.Screen
-//           name="MyProfile"
-//           options={{
-//             headerTitle: "My Profile",
-//           }}
-//         />
-
-//         <Stack.Screen name="+not-found" />
-//       </Stack>
-//     </ThemeProvider>
-//   );
-// }
-
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -101,13 +47,13 @@ const InnerStack = () => {
         headerLeft: () => null,
       }}
     >
-      <Stack.Screen
+      {/* <Stack.Screen
         name="index"
         options={{
           ...StackScreenWithSearchBar,
           // headerShown: false,
         }}
-      />
+      /> */}
       <Stack.Screen
         name="(side)"
         options={{

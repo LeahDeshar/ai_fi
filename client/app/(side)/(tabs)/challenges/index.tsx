@@ -11,30 +11,134 @@ import { defaultStyles } from "@/styles";
 import { screenPadding } from "@/constants/token";
 import { useTheme } from "@/constants/ThemeProvider";
 import { useRouter } from "expo-router";
-const ChallengeItem = ({
-  image,
-  title,
-  participants,
-  price,
-  navigation,
-}: {
-  image: any;
-  title: string;
-  participants: string;
-  price: string;
-  navigation: any;
-}) => (
+import { LinearGradient } from "expo-linear-gradient";
+
+const challengeData = [
+  {
+    image:
+      "https://cdn.pixabay.com/photo/2020/11/03/13/04/yoga-5709767_640.png",
+    title: "30-Day Pilates Challenge",
+    participants: "39.7k",
+    price: "11.99",
+  },
+  {
+    image:
+      "https://static.vecteezy.com/system/resources/thumbnails/019/617/125/small/healthy-heart-cartoon-png.png",
+    title: "21-Day Sugar Free",
+    participants: "39.7k",
+    price: "11.99",
+  },
+  {
+    image:
+      "https://images.vexels.com/content/258271/preview/body-parts-belly-edb849.png",
+    title: "28-Day Flatter Belly",
+    participants: "39.7k",
+    price: "11.99",
+  },
+  {
+    image:
+      "https://www.wholesomefood.org/images/xbridge.png.pagespeed.ic.Zx7oyDyyY2.png",
+    title: "21-Day Defined Butt",
+    participants: "39.7k",
+    price: "11.99",
+  },
+  {
+    image:
+      "https://png.pngtree.com/png-clipart/20220419/original/pngtree-man-doing-walking-exercise-png-image_7538567.png",
+    title: "30-Day Walking Challenge",
+    participants: "39.7k",
+    price: "11.99",
+  },
+];
+
+const ChallengeItem = ({ data, navigation, colors }) => (
   <TouchableOpacity
-    style={styles.challengeItem}
+    style={{
+      marginBottom: 30,
+      borderRadius: 25,
+      overflow: "hidden",
+      marginHorizontal: 16,
+      height: 350,
+    }}
     onPress={() => navigation.navigate("ChallengeDetails")}
   >
-    <Image source={image} style={styles.challengeImage} />
-    <View style={styles.challengeInfo}>
-      <Text style={styles.challengeTitle}>{title}</Text>
-      <Text style={styles.challengeParticipants}>{participants}</Text>
-      <Text style={styles.challengePrice}>{price}</Text>
-      <TouchableOpacity style={styles.joinButton}>
-        <Text style={styles.joinButtonText}>JOIN NOW!</Text>
+    <View
+      style={{
+        backgroundColor: "red",
+        borderRadius: 25,
+      }}
+    >
+      <LinearGradient
+        colors={["rgba(209, 192, 221, 0.6)", "rgba(218, 198, 250,0.9)"]}
+        style={{
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          borderRadius: 25,
+        }}
+      />
+      <Image source={{ uri: data.image }} style={styles.challengeImage} />
+    </View>
+    <View
+      style={{
+        marginLeft: 5,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 25,
+          fontWeight: 600,
+          color: colors.text,
+          marginVertical: 10,
+        }}
+      >
+        {data.title}
+      </Text>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          // marginVertical: 10,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 14,
+            color: "#777",
+          }}
+        >
+          {data.participants} Participants
+        </Text>
+        <Text
+          style={{
+            fontSize: 14,
+            color: "#777",
+            marginLeft: 10,
+          }}
+        >
+          US$ {data.price}
+        </Text>
+      </View>
+      <TouchableOpacity
+        onPress={() => {}}
+        style={{
+          // marginHorizontal: 20,
+          marginTop: 20,
+          padding: 15,
+          borderRadius: 25,
+          backgroundColor: "#c7c7c7",
+          width: "100%",
+          paddingBottom: 10,
+        }}
+      >
+        <Text
+          style={{
+            textAlign: "center",
+            fontWeight: "bold",
+          }}
+        >
+          JOIN NOW!
+        </Text>
       </TouchableOpacity>
     </View>
   </TouchableOpacity>
@@ -52,26 +156,21 @@ const challengeScreen = () => {
       ]}
     >
       <ScrollView
-        style={{
-          paddingHorizontal: screenPadding.horizontal,
-        }}
+        // style={{
+        //   paddingHorizontal: screenPadding.horizontal,
+        // }}
         contentInsetAdjustmentBehavior="automatic"
       >
         <Text style={styles.discoverText}>DISCOVER</Text>
-        <ChallengeItem
-          image={{ uri: "https://path-to-your-image/pilates.jpg" }} // replace with actual image path
-          title="30-Day Pilates Challenge"
-          participants="37.2K Participants"
-          price="US$11.99"
-          navigation={navigation}
-        />
-        <ChallengeItem
-          image={{ uri: "https://path-to-your-image/sugar-free.jpg" }} // replace with actual image path
-          title="21-Day Sugar Free"
-          participants="24.3K Participants"
-          price="US$8.99"
-          navigation={navigation}
-        />
+        {challengeData?.map((item, index) => (
+          <View key={index}>
+            <ChallengeItem
+              data={item}
+              navigation={navigation}
+              colors={colors}
+            />
+          </View>
+        ))}
       </ScrollView>
     </View>
   );
@@ -99,32 +198,18 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     margin: 16,
   },
-  challengeItem: {
-    marginBottom: 16,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    overflow: "hidden",
-    marginHorizontal: 16,
-  },
+  challengeItem: {},
   challengeImage: {
     width: "100%",
     height: 200,
+    resizeMode: "contain",
   },
   challengeInfo: {
     padding: 16,
   },
-  challengeTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  challengeParticipants: {
-    fontSize: 14,
-    color: "#777",
-  },
-  challengePrice: {
-    fontSize: 14,
-    color: "#777",
-  },
+  challengeTitle: {},
+  challengeParticipants: {},
+  challengePrice: {},
   joinButton: {
     marginTop: 16,
     backgroundColor: "#000",
