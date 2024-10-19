@@ -93,41 +93,48 @@ const FastingScreen = () => {
       readTime: "3",
       pages: [
         {
-          title: "Welcome To Fasting",
+          title: "You're fasting now!",
           description:
-            "Fasting is your key to effective weight loss without the hassle of counting every calorie.Let us guide you step-by-step through all the fundamentals",
+            "The hardest part is to start,so you are already on the right path.Let's go over the basics together to set you up for a successful fast.",
           image:
-            "https://opt.toiimg.com/recuperator/img/toi/m-63299283/63299283.jpg&width=500&resizemode=4",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSoqK_3K_dk58u_ROU7eM9ssdnDWJ3sLQqE5g&s",
         },
         {
-          title: "How it works",
+          title: "What happens to your body when you fast?",
           description:
             "Learn the basics of intermittent fasting and how it can help you lose weight and improve your health.",
 
           image:
-            "https://static.oprah.com/2018/08/201808-orig-intermittent-fasting-949x534.jpg",
+            "https://static.wixstatic.com/media/810832_3e48c272314149d388f0cba6ab62e726~mv2.jpg/v1/fill/w_612,h_612,al_c,q_85,enc_auto/810832_3e48c272314149d388f0cba6ab62e726~mv2.jpg",
         },
         {
-          title: "Building a fasting habit",
-          description:
-            "Learn how to build a fasting habit that works for you and fits your lifestyle.",
+          title: "How to curb hunger?",
+          description: "It's okay to feel hungry but don't give up.",
           image:
-            "https://cdn.prod.website-files.com/5f64a4eb5a48d21969aa774a/5fa6a3022f679e25a91d4702_image7.png",
+            "https://media.post.rvohealth.io/wp-content/uploads/sites/3/2023/11/fast_day_GettyImages1272635085_Header-1024x575.jpg",
         },
         {
-          title: "What to eat before fasting?",
+          title: "What to drink while fasting?",
           description:
-            "Your pre-fast meal choices can make or break whole fasting experience",
+            "Stick to water, herbal teas, or black coffee. Avoid any drinks with calories to stay in a fasted state.",
           image:
-            "https://www.foodpoisoningnews.com/wp-content/uploads/2024/09/useful-cut-vegetables-on-a-plate-in-the-form-of-heart-on-wooden-table-top-view-stockpack-deposit-photos-1536x1024.jpg",
+            "https://tandobeverage.com/wp-content/uploads/2021/08/kind-of-healthy-drinks-to-do-sell.jpg",
         },
         {
-          title: "Is it ok to work out while fasting?",
+          title: "When should you break your fast?",
           description:
-            "Sure! Combine fasting with your favorite workouts to burn fat more efficiently.",
+            "Break your fast with something light like nuts or fruit, then gradually move to a balanced meal.",
 
           image:
             "https://static01.nyt.com/images/2022/12/27/well/15SCAM-STRETCHING/15SCAM-STRETCHING-superJumbo.jpg",
+        },
+        {
+          title: "First fast done! What's next?",
+          description:
+            "Congrats! Now focus on consistency and gradually increase your fasting duration for better results.",
+
+          image:
+            "https://img.freepik.com/premium-photo/photo-happy-young-athletic-woman-girl-female-drinking-smoothie-healthy-drink_763111-58967.jpg",
         },
       ],
     },
@@ -222,30 +229,20 @@ const FastingScreen = () => {
       ],
     },
   ];
-  // const handleNextPress = () => {
-  //   if (selectedReadingIndex + 1 < fastingDetails.length) {
-  //     setSelectedReadingIndex((prevIndex) => prevIndex + 1);
-  //   } else {
-  //     bottomSheetRef.current?.close();
-  //     setSelectedReadingIndex(0);
-  //   }
-  // };
+
   const handleNextPress = () => {
     if (
       selectedPageIndex + 1 <
       fastingDetails[selectedReadingIndex]?.pages.length
     ) {
       setSelectedPageIndex(selectedPageIndex + 1);
-    } else if (selectedReadingIndex + 1 < fastingDetails.length) {
-      setSelectedReadingIndex(selectedReadingIndex + 1);
-      setSelectedPageIndex(0); // Reset to the first page of the next fasting detail
     } else {
-      bottomSheetRef.current?.close(); // Close the BottomSheet if at the last page
+      bottomSheetRef.current?.close();
+      setSelectedPageIndex(0);
     }
   };
-  const handlePresentBottomSheet = useCallback((reading) => {
-    setSelectedReading(reading);
-
+  const handlePresentBottomSheet = useCallback((reading, index) => {
+    setSelectedReadingIndex(index);
     setIsBottomSheetOpen(true);
     setTimeout(() => {
       bottomSheetRef.current?.snapToIndex(0);
@@ -260,6 +257,7 @@ const FastingScreen = () => {
   const handleBottomSheetClose = () => {
     bottomSheetRef.current?.close();
     setSelectedReadingIndex(0);
+    setSelectedPageIndex(0);
   };
 
   return (
@@ -309,7 +307,7 @@ const FastingScreen = () => {
               detail={detail}
               colors={colors}
               dark={dark}
-              onPress={() => handlePresentBottomSheet(detail)}
+              onPress={() => handlePresentBottomSheet(detail, index)}
             />
           ))}
         </View>
@@ -332,7 +330,7 @@ const FastingScreen = () => {
           <Image
             source={{
               uri: fastingDetails[selectedReadingIndex]?.pages[
-                selectedReadingIndex
+                selectedPageIndex
               ]?.image,
             }}
             style={{
@@ -395,8 +393,6 @@ const FastingScreen = () => {
                       selectedPageIndex === index ? "white" : "#ffffffab",
                     marginHorizontal: 4,
                     borderRadius: 5,
-                    transition:
-                      "width 0.3s ease-in-out, height 0.3s ease-in-out", // for smoother transition
                   }}
                 />
               ))}
@@ -426,7 +422,10 @@ const FastingScreen = () => {
                 fontWeight: "bold",
               }}
             >
-              {fastingDetails[selectedReadingIndex]?.title}
+              {
+                fastingDetails[selectedReadingIndex]?.pages[selectedPageIndex]
+                  ?.title
+              }
             </Text>
             <Text
               style={{
@@ -438,7 +437,8 @@ const FastingScreen = () => {
                 lineHeight: 22,
               }}
             >
-              {fastingDetails[selectedReadingIndex]?.description ||
+              {fastingDetails[selectedReadingIndex]?.pages[selectedPageIndex]
+                ?.description ||
                 "Detailed information about fasting goes here."}
             </Text>
             <TouchableOpacity
@@ -459,7 +459,7 @@ const FastingScreen = () => {
                   fontWeight: "bold",
                 }}
               >
-                {selectedReadingIndex === 0 ? " Getting Started" : "Next"}
+                {selectedPageIndex === 0 ? "Getting Started" : "Next"}
               </Text>
             </TouchableOpacity>
           </View>
