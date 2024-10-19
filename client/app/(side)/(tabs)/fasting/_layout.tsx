@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
 
 import { StackScreenWithSearchBar } from "@/constants/layout";
@@ -240,6 +240,7 @@ const FastingScreenLayout = () => {
         snapPoints={["90%"]} // Adjust the snap points as needed
         backgroundStyle={{ backgroundColor: "#eaeaea" }}
         handleIndicatorStyle={{ backgroundColor: colors.text }}
+        enablePanDownToClose
       >
         <View style={{ padding: 20 }}>
           <GroupedFastingData data={fastingType} />
@@ -253,7 +254,7 @@ export default FastingScreenLayout;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
+    // padding: 10,
   },
   groupContainer: {
     marginBottom: 20,
@@ -261,18 +262,18 @@ const styles = StyleSheet.create({
   groupTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 20,
+    marginLeft: 3,
   },
   itemContainer: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#ffffff",
     borderRadius: 8,
     padding: 10,
     marginBottom: 10,
+    width: 280,
+    marginRight: 10,
   },
-  time: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
+  time: {},
   desc: {
     marginTop: 5,
     fontSize: 14,
@@ -289,25 +290,136 @@ const styles = StyleSheet.create({
   },
 });
 const GroupedFastingData = ({ data }) => {
+  const [bottomSheetScreen, setBottomSheetScreen] = useState("data");
+  const [selectedFasting, setSelectedFasting] = useState({});
+  const openBottomSheetWithScreen = (screenName, item) => {
+    setBottomSheetScreen(screenName);
+    setSelectedFasting(item);
+  };
+  console.log(selectedFasting);
   return (
     <View style={styles.container}>
-      {data.map((group, groupIndex) => (
-        <View key={groupIndex} style={styles.groupContainer}>
-          <Text style={styles.groupTitle}>{group.title}</Text>
-          <FlatList
-            data={group.types}
-            horizontal
-            keyExtractor={(item, index) => `${groupIndex}-${index}`}
-            renderItem={({ item }) => (
-              <View style={styles.itemContainer}>
-                <Text style={styles.time}>
-                  {item.hour}:{item.minute}
-                </Text>
-              </View>
-            )}
-          />
-        </View>
-      ))}
+      {bottomSheetScreen === "data" ? (
+        <>
+          {data.map((group, groupIndex) => (
+            <View key={groupIndex} style={styles.groupContainer}>
+              <Text style={styles.groupTitle}>{group.title}</Text>
+              <FlatList
+                data={group.types}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                keyExtractor={(item, index) => `${groupIndex}-${index}`}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.itemContainer}
+                    onPress={() => openBottomSheetWithScreen("howTo", item)}
+                  >
+                    <View
+                      style={{
+                        borderBottomColor: "#aaaaaa6d",
+                        borderBottomWidth: 1,
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        paddingBottom: 12,
+                        marginHorizontal: 10,
+                        paddingTop: 20,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 25,
+                          fontWeight: "500",
+                        }}
+                      >
+                        {item.hour}:{item.minute}
+                      </Text>
+
+                      <AntDesign name="right" size={18} color="#696969a6" />
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginTop: 10,
+                        marginHorizontal: 10,
+                        marginBottom: 10,
+                      }}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          marginTop: 10,
+                        }}
+                      >
+                        <View
+                          style={{
+                            width: 5,
+                            height: 5,
+                            borderRadius: 5,
+                            backgroundColor: "blue",
+                            marginRight: 4,
+                          }}
+                        />
+                        <Text style={{ fontWeight: "600" }}>
+                          {item.hour} hours fasting
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          marginTop: 10,
+                        }}
+                      >
+                        <View
+                          style={{
+                            width: 5,
+                            height: 5,
+                            borderRadius: 5,
+                            backgroundColor: "green",
+                            marginRight: 4,
+                          }}
+                        />
+                        <Text style={{ fontWeight: "600" }}>
+                          {item.minute} hours fasting
+                        </Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          ))}
+        </>
+      ) : (
+        <>
+          <View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                bottom: 25,
+                // backgroundColor: "red",
+                width: "59%",
+              }}
+            >
+              <AntDesign name="arrowleft" size={24} color="black" />
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "600",
+                }}
+              >
+                {selectedFasting?.hour}:{selectedFasting?.minute}{" "}
+              </Text>
+            </View>
+          </View>
+        </>
+      )}
     </View>
   );
 };
