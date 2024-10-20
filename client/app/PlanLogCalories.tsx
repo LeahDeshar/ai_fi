@@ -7,14 +7,37 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "@/constants/ThemeProvider";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { Calendar } from "react-native-calendars";
 import { Circle, G, Rect, Svg } from "react-native-svg";
+import { Image } from "react-native";
 
+const meals = [
+  {
+    title: "Breakfast",
+    images: require("@/assets/calorie/1.png"),
+    color: "#93de8d",
+  },
+  {
+    title: "Lunch",
+    images: require("@/assets/calorie/2.png"),
+    color: "#93de8d",
+  },
+  {
+    title: "Dinner",
+    images: require("@/assets/calorie/3.png"),
+    color: "#93de8d",
+  },
+  {
+    title: "Snacks",
+    images: require("@/assets/calorie/4.png"),
+    color: "#93de8d",
+  },
+];
 const PlanLogCalories = () => {
   const { colors } = useTheme();
   const navigation = useNavigation();
@@ -120,6 +143,52 @@ const PlanLogCalories = () => {
               }}
             >
               <Text>Daily meals</Text>
+              {meals?.map((item, index) => (
+                <View
+                  key={index}
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    backgroundColor: colors.background,
+                    marginVertical: 5,
+                    marginHorizontal: 15,
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  <View>
+                    <View
+                      style={{
+                        backgroundColor: "#93de8d",
+                        width: 32,
+                        height: 32,
+                        borderRadius: 25,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        padding: 20,
+                      }}
+                    >
+                      <Image
+                        source={item.images}
+                        style={{
+                          width: 28,
+                          height: 28,
+                        }}
+                      />
+                    </View>
+                  </View>
+                  <Text>{item.title}</Text>
+                  <TouchableOpacity
+                    style={{
+                      borderWidth: 1,
+                      borderColor: "#66bb6ac6",
+                      borderRadius: 25,
+                    }}
+                  >
+                    <Ionicons name="add" color={"#66BB6A"} size={20} />
+                  </TouchableOpacity>
+                </View>
+              ))}
             </View>
           </View>
 
