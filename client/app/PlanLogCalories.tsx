@@ -10,7 +10,10 @@ import { useTheme } from "@/constants/ThemeProvider";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import {
+  GestureHandlerRootView,
+  ScrollView,
+} from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { Calendar } from "react-native-calendars";
 import { Circle, G, Rect, Svg } from "react-native-svg";
@@ -25,17 +28,17 @@ const meals = [
   {
     title: "Lunch",
     images: require("@/assets/calorie/2.png"),
-    color: "#93de8d",
+    color: "#ded78d",
   },
   {
     title: "Dinner",
     images: require("@/assets/calorie/3.png"),
-    color: "#93de8d",
+    color: "#de8da8",
   },
   {
     title: "Snacks",
     images: require("@/assets/calorie/4.png"),
-    color: "#93de8d",
+    color: "#8dc2de",
   },
 ];
 const PlanLogCalories = () => {
@@ -67,7 +70,6 @@ const PlanLogCalories = () => {
           <View
             style={{
               backgroundColor: colors.background,
-              paddingTop: 20,
 
               paddingBottom: 10,
             }}
@@ -78,118 +80,175 @@ const PlanLogCalories = () => {
               bottomSheetRef={bottomSheetRef}
             />
 
-            <View style={{ justifyContent: "center", alignItems: "center" }}>
-              <Svg width={size} height={size}>
-                <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
-                  <Circle
-                    cx={size / 2}
-                    cy={size / 2}
-                    r={radius}
-                    stroke="#ffffff"
-                    strokeWidth={strokeWidth}
-                    fill="none"
-                  />
-                  <Circle
-                    cx={size / 2}
-                    cy={size / 2}
-                    r={radius}
-                    stroke="#eaeaeb"
-                    strokeWidth={strokeWidth}
-                    strokeLinecap="round"
-                    // strokeDasharray={circumference}
-                    strokeDashoffset={170}
-                    fill="none"
-                  />
-                  <Circle
-                    cx={size / 2}
-                    cy={size / 2}
-                    r={radius}
-                    stroke="#66BB6A"
-                    strokeWidth={strokeWidth}
-                    strokeLinecap="round"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={strokeDashoffset}
-                    fill="none"
-                  />
-                </G>
-              </Svg>
+            <ScrollView
+              style={{
+                height: "100%",
+                backgroundColor: "#f5f5f5",
+              }}
+            >
               <View
                 style={{
-                  position: "absolute",
-                  alignItems: "center",
+                  borderBottomLeftRadius: 25,
+                  borderBottomRightRadius: 25,
+                  backgroundColor: colors.background,
+                  paddingVertical: 25,
                 }}
               >
-                <Text style={{}}>0</Text>
-                <Text style={{}}>of 1,569 kcal</Text>
-                <TouchableOpacity>
-                  <Text style={{}}>Edit</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            <View
-              style={{
-                alignItems: "center",
-              }}
-            >
-              <NutrientProgressBars carbs={carbs} fat={fat} protein={protein} />
-            </View>
-
-            <View
-              style={{
-                borderTopLeftRadius: 25,
-                borderTopRightRadius: 25,
-                backgroundColor: "#f5f5f5",
-                paddingTop: 20,
-              }}
-            >
-              <Text>Daily meals</Text>
-              {meals?.map((item, index) => (
                 <View
-                  key={index}
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    backgroundColor: colors.background,
-                    marginVertical: 5,
-                    marginHorizontal: 15,
-                    paddingHorizontal: 10,
-                  }}
+                  style={{ justifyContent: "center", alignItems: "center" }}
                 >
-                  <View>
-                    <View
-                      style={{
-                        backgroundColor: "#93de8d",
-                        width: 32,
-                        height: 32,
-                        borderRadius: 25,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        padding: 20,
-                      }}
-                    >
-                      <Image
-                        source={item.images}
-                        style={{
-                          width: 28,
-                          height: 28,
-                        }}
+                  <Svg width={size} height={size}>
+                    <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
+                      <Circle
+                        cx={size / 2}
+                        cy={size / 2}
+                        r={radius}
+                        stroke="#ffffff"
+                        strokeWidth={strokeWidth}
+                        fill="none"
                       />
-                    </View>
-                  </View>
-                  <Text>{item.title}</Text>
-                  <TouchableOpacity
+                      <Circle
+                        cx={size / 2}
+                        cy={size / 2}
+                        r={radius}
+                        stroke="#eaeaeb"
+                        strokeWidth={strokeWidth}
+                        strokeLinecap="round"
+                        // strokeDasharray={circumference}
+                        strokeDashoffset={170}
+                        fill="none"
+                      />
+                      <Circle
+                        cx={size / 2}
+                        cy={size / 2}
+                        r={radius}
+                        stroke="#66BB6A"
+                        strokeWidth={strokeWidth}
+                        strokeLinecap="round"
+                        strokeDasharray={circumference}
+                        strokeDashoffset={strokeDashoffset}
+                        fill="none"
+                      />
+                    </G>
+                  </Svg>
+                  <View
                     style={{
-                      borderWidth: 1,
-                      borderColor: "#66bb6ac6",
-                      borderRadius: 25,
+                      position: "absolute",
+                      alignItems: "center",
                     }}
                   >
-                    <Ionicons name="add" color={"#66BB6A"} size={20} />
-                  </TouchableOpacity>
+                    <Text
+                      style={{
+                        fontSize: 44,
+                        fontWeight: 500,
+                      }}
+                    >
+                      0
+                    </Text>
+                    <Text style={{}}>of 1,569 kcal</Text>
+                    <TouchableOpacity>
+                      <Text style={{}}>Edit</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              ))}
-            </View>
+                <View
+                  style={{
+                    alignItems: "center",
+                    marginTop: 25,
+                  }}
+                >
+                  <NutrientProgressBars
+                    carbs={carbs}
+                    fat={fat}
+                    protein={protein}
+                  />
+                </View>
+              </View>
+              <View
+                style={{
+                  // borderTopLeftRadius: 25,
+                  // borderTopRightRadius: 25,
+                  // backgroundColor: "#f5f5f5",
+                  paddingTop: 20,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontWeight: "bold",
+                    marginHorizontal: 15,
+                    marginBottom: 10,
+                    marginTop: 20,
+                    marginLeft: 18,
+                  }}
+                >
+                  Daily meals
+                </Text>
+                {meals?.map((item, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      backgroundColor: colors.background,
+                      marginVertical: 5,
+                      marginHorizontal: 15,
+                      paddingHorizontal: 10,
+                      paddingVertical: 15,
+                      borderRadius: 15,
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <View
+                        style={{
+                          backgroundColor: item.color,
+                          width: 35,
+                          height: 35,
+                          borderRadius: 25,
+                          justifyContent: "center",
+                          alignItems: "center",
+                          padding: 20,
+                        }}
+                      >
+                        <Image
+                          source={item.images}
+                          style={{
+                            width: 32,
+                            height: 32,
+                            resizeMode: "contain",
+                          }}
+                        />
+                      </View>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 500,
+                          marginLeft: 10,
+                        }}
+                      >
+                        {item.title}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={{
+                        borderWidth: 1,
+                        borderColor: "#66bb6ac6",
+                        borderRadius: 25,
+                        padding: 8,
+                      }}
+                    >
+                      <Ionicons name="add" color={"#66BB6A"} size={25} />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
           </View>
 
           <BottomSheetModal
