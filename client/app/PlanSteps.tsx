@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "@/constants/ThemeProvider";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -18,6 +18,8 @@ import { Calendar } from "react-native-calendars";
 
 import { LineChart, ProgressChart } from "react-native-chart-kit";
 import { Button } from "react-native";
+import { Circle, G, Rect, Svg } from "react-native-svg";
+import { IconButton } from "react-native-paper";
 const PlanSteps = () => {
   const { colors } = useTheme();
   const navigation = useNavigation();
@@ -27,6 +29,12 @@ const PlanSteps = () => {
     bottomSheetRef.current?.present();
   };
   const [selectedDate, setSelectedDate] = useState(null);
+  const progress = 1;
+  const size = 185;
+  const strokeWidth = 8;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (circumference * progress) / 100;
   return (
     <GestureHandlerRootView>
       <BottomSheetModalProvider>
@@ -43,9 +51,9 @@ const PlanSteps = () => {
                 justifyContent: "space-between",
                 alignItems: "center",
                 paddingHorizontal: 20,
-                borderBottomColor: "#80808051",
+                borderBottomColor: "#acacac47",
                 paddingBottom: 3,
-                borderWidth: 1,
+                borderBottomWidth: 1,
               }}
             >
               <TouchableOpacity
@@ -70,6 +78,129 @@ const PlanSteps = () => {
                 <AntDesign name="calendar" size={20} color={colors.icon} />
               </TouchableOpacity>
             </View>
+
+            <View
+              style={{
+                borderBottomLeftRadius: 25,
+                borderBottomRightRadius: 25,
+                backgroundColor: colors.background,
+                paddingVertical: 25,
+              }}
+            >
+              <View style={{ justifyContent: "center", alignItems: "center" }}>
+                <Svg width={size} height={size}>
+                  <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
+                    <Circle
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={radius}
+                      stroke="#ffffff"
+                      strokeWidth={strokeWidth}
+                      fill="none"
+                    />
+                    <Circle
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={radius}
+                      stroke="#eaeaeb"
+                      strokeWidth={strokeWidth}
+                      strokeLinecap="round"
+                      // strokeDasharray={circumference}
+                      strokeDashoffset={170}
+                      fill="none"
+                    />
+                    <Circle
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={radius}
+                      stroke="#b50101"
+                      strokeWidth={strokeWidth}
+                      strokeLinecap="round"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={strokeDashoffset}
+                      fill="none"
+                    />
+                  </G>
+                </Svg>
+                <View
+                  style={{
+                    position: "absolute",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 44,
+                      fontWeight: 500,
+                    }}
+                  >
+                    113
+                  </Text>
+                  <Text style={{}}>of 9000 steps</Text>
+                  <TouchableOpacity>
+                    <Text style={{}}>Edit</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-around",
+                marginHorizontal: 15,
+                gap: 10,
+                marginTop: 10,
+                borderBottomWidth: 1,
+                borderBottomColor: "#dcdcdc93",
+                paddingBottom: 30,
+              }}
+            >
+              <View
+                style={{
+                  backgroundColor: "#c0c0c095",
+                  borderRadius: 15,
+                  flex: 1,
+                  padding: 20,
+                }}
+              >
+                <FontAwesome5 name="fire" size={20} color="black" />
+                <Text
+                  style={{
+                    fontSize: 18,
+                    marginTop: 9,
+                    fontWeight: "bold",
+                  }}
+                >
+                  4 kcal
+                </Text>
+                <Text>Calories</Text>
+              </View>
+              <View
+                style={{
+                  flex: 1,
+                  padding: 20,
+
+                  backgroundColor: "#c0c0c095",
+
+                  borderRadius: 15,
+                }}
+              >
+                <FontAwesome6 name="person-running" size={20} color="black" />
+                <Text
+                  style={{
+                    fontSize: 18,
+                    marginTop: 9,
+                    fontWeight: "bold",
+                  }}
+                >
+                  0.08 km
+                </Text>
+                <Text>Distance</Text>
+              </View>
+            </View>
+
+            <WeeklyStatsComponent />
           </View>
 
           <BottomSheetModal
@@ -179,6 +310,130 @@ const CalendarPicker = ({ selectedDate, setSelectedDate }) => {
   );
 };
 
+const WeeklyStatsComponent = ({
+  stats = [50, 70, 30, 80, 60, 90, 100],
+  days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+}) => {
+  const barWidth = 10;
+  const barSpacing = 43;
+
+  return (
+    <View
+      style={{
+        paddingBottom: 20,
+        marginTop: 20,
+      }}
+    >
+      <View
+        style={{
+          paddingHorizontal: 25,
+          paddingTop: 20,
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "bold",
+          }}
+        >
+          WEEK
+        </Text>
+
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 5,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: 500,
+            }}
+          >
+            Goal
+          </Text>
+          <Text
+            style={{
+              fontSize: 13,
+              fontWeight: 500,
+              color: "gray",
+            }}
+          >
+            9000 steps
+          </Text>
+        </View>
+      </View>
+      <View
+        style={{
+          backgroundColor: "#e7e7e7",
+          borderRadius: 12,
+          marginHorizontal: 20,
+          marginTop: 15,
+          paddingTop: 20,
+        }}
+      >
+        <View
+          style={{
+            alignItems: "center",
+            marginBottom: 10,
+            marginLeft: 10,
+          }}
+        >
+          <Svg height="110" width={`${(barWidth + barSpacing) * days.length}`}>
+            {stats.map((value, index) => (
+              <G key={index}>
+                <Rect
+                  x={index * (barWidth + barSpacing) + 15}
+                  y={0}
+                  width={barWidth}
+                  height={100}
+                  fill={"#afafafed"}
+                  rx={6}
+                  ry={6}
+                />
+                <Rect
+                  x={index * (barWidth + barSpacing) + 15}
+                  // y={value === 0 ? 10 : 150 - value}
+                  y={value === 0 ? 10 : 100 - value}
+                  width={barWidth}
+                  height={value === 0 ? 100 : value}
+                  fill={value === 0 ? "#afafafed" : "#b50101"}
+                  rx={6}
+                  ry={6}
+                />
+              </G>
+            ))}
+          </Svg>
+        </View>
+
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            marginBottom: 10,
+          }}
+        >
+          {days.map((day, index) => (
+            <Text
+              key={index}
+              style={[
+                { fontSize: 13, color: "#5b5b5bec" },
+                { width: barWidth + barSpacing, textAlign: "center" },
+              ]}
+            >
+              {day}
+            </Text>
+          ))}
+        </View>
+      </View>
+    </View>
+  );
+};
 export default PlanSteps;
 
 const styles = StyleSheet.create({

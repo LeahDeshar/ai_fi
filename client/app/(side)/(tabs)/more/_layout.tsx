@@ -12,19 +12,6 @@ const moreLayout = () => {
       <Stack>
         <Stack.Screen
           name="index"
-          // options={{
-          //   ...StackScreenWithSearchBar,
-          //   headerTitle: "Profile",
-          //   headerLargeStyle: {
-          //     backgroundColor: colors.opacity,
-          //   },
-
-          //   headerLargeTitleStyle: {
-          //     color: colors.text,
-          //   },
-
-          //   headerTintColor: colors.text,
-          // }}
           options={{
             headerTintColor: colors.text,
             headerTransparent: true,

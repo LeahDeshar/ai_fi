@@ -2,7 +2,6 @@ import React, { useState, useRef } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -11,10 +10,6 @@ import {
 import { useTheme } from "@/constants/ThemeProvider";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation, useRouter } from "expo-router";
-import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { Calendar } from "react-native-calendars";
 import { TextInput } from "react-native";
 
 const PlanWeight = () => {
@@ -228,71 +223,6 @@ const PlanWeight = () => {
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
-    // <GestureHandlerRootView>
-    //   <BottomSheetModalProvider>
-    //     <SafeAreaView
-    //       style={{
-    //         flex: 1,
-    //         backgroundColor: colors.background,
-    //       }}
-    //     >
-    //       <View>
-    //         <View
-    //           style={{
-    //             flexDirection: "row",
-    //             justifyContent: "space-between",
-    //             alignItems: "center",
-    //             paddingHorizontal: 20,
-    //             borderBottomColor: "#80808051",
-    //             paddingBottom: 3,
-    //             borderWidth: 1,
-    //           }}
-    //         >
-    //           <TouchableOpacity
-    //             onPress={() => {
-    //               navigation.goBack();
-    //             }}
-    //           >
-    //             <AntDesign name="arrowleft" size={20} color={colors.icon} />
-    //           </TouchableOpacity>
-    //           <Text
-    //             style={{
-    //               color: colors.text,
-    //               fontSize: 20,
-    //               fontWeight: "semibold",
-    //               textAlign: "center",
-    //               marginVertical: 16,
-    //             }}
-    //           >
-    //             Water Tracker
-    //           </Text>
-    //           <TouchableOpacity onPress={openBottomSheet}>
-    //             <AntDesign name="calendar" size={20} color={colors.icon} />
-    //           </TouchableOpacity>
-    //         </View>
-    //       </View>
-
-    //       <BottomSheetModal
-    //         snapPoints={["20%", "50%"]}
-    //         ref={bottomSheetRef}
-    //         index={1}
-    //         backdropComponent={BottomSheetBackdrop}
-    //         handleComponent={() => <View />}
-    //       >
-    //         <View
-    //           style={{
-    //             marginTop: 15,
-    //           }}
-    //         >
-    //           <CalendarPicker
-    //             selectedDate={selectedDate}
-    //             setSelectedDate={setSelectedDate}
-    //           />
-    //         </View>
-    //       </BottomSheetModal>
-    //     </SafeAreaView>
-    //   </BottomSheetModalProvider>
-    // </GestureHandlerRootView>
   );
 };
 

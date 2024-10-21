@@ -18,7 +18,7 @@ const Arc = ({ progress = 50, size = 250, strokeWidth = 15 }) => {
   const { colors, dark } = useTheme();
   return (
     <View>
-      <View style={styles.container}>
+      <View style={{ justifyContent: "center", alignItems: "center" }}>
         <Svg width={size} height={size}>
           <G rotation="-230" origin={`${size / 2}, ${size / 2}`}>
             <Circle
@@ -54,9 +54,11 @@ const Arc = ({ progress = 50, size = 250, strokeWidth = 15 }) => {
           </G>
         </Svg>
 
-        <View style={styles.textContainer}>
-          <Text style={styles.titleText}>Upcoming fast</Text>
-          <Text style={styles.progressText}>16 hours</Text>
+        <View style={{ position: "absolute", alignItems: "center" }}>
+          <Text style={{ fontSize: 18, color: "#6e6e6e" }}>Upcoming fast</Text>
+          <Text style={{ fontSize: 28, fontWeight: "bold", color: "#000" }}>
+            16 hours
+          </Text>
         </View>
       </View>
       <View
@@ -202,14 +204,8 @@ const Arc = ({ progress = 50, size = 250, strokeWidth = 15 }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  textContainer: {
-    position: "absolute",
-    alignItems: "center",
-  },
+  container: {},
+  textContainer: {},
   titleText: {
     fontSize: 18,
     color: "#6e6e6e",

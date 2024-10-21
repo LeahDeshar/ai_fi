@@ -18,7 +18,7 @@ const planLayout = () => {
             headerBlurEffect: dark ? "prominent" : "light",
             headerShadowVisible: false,
 
-            headerTitle: "", // Set to an empty string to use custom headerLeft instead
+            headerTitle: "",
             headerLeft: () => (
               <View>
                 <Text
