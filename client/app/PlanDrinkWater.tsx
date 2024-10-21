@@ -6,6 +6,9 @@ import {
   Button,
   TouchableOpacity,
   View,
+  ListRenderItemInfo,
+  ViewStyle,
+  FlatList,
 } from "react-native";
 import { useTheme } from "@/constants/ThemeProvider";
 import { AntDesign } from "@expo/vector-icons";
@@ -17,12 +20,18 @@ import { Calendar } from "react-native-calendars";
 import { ProgressChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
+import { Circle, G, Rect, Svg } from "react-native-svg";
 
 const PlanDrinkWater = () => {
   const { colors } = useTheme();
   const navigation = useNavigation();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
-
+  const progress = 1;
+  const size = 185;
+  const strokeWidth = 8;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (circumference * progress) / 100;
   const openBottomSheet = () => {
     bottomSheetRef.current?.present();
   };
@@ -37,7 +46,7 @@ const PlanDrinkWater = () => {
           }}
         >
           <View>
-            <View
+            {/* <View
               style={{
                 flexDirection: "row",
                 justifyContent: "space-between",
@@ -69,9 +78,86 @@ const PlanDrinkWater = () => {
               <TouchableOpacity onPress={openBottomSheet}>
                 <AntDesign name="calendar" size={20} color={colors.icon} />
               </TouchableOpacity>
+            </View> */}
+            <TrackerHeader
+              navigation={navigation}
+              colors={colors}
+              bottomSheetRef={bottomSheetRef}
+            />
+          </View>
+          <View
+            style={{
+              borderBottomLeftRadius: 25,
+              borderBottomRightRadius: 25,
+              backgroundColor: colors.background,
+              paddingVertical: 25,
+            }}
+          >
+            <View style={{ justifyContent: "center", alignItems: "center" }}>
+              <Svg width={size} height={size}>
+                <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
+                  <Circle
+                    cx={size / 2}
+                    cy={size / 2}
+                    r={radius}
+                    stroke="#ffffff"
+                    strokeWidth={strokeWidth}
+                    fill="none"
+                  />
+                  <Circle
+                    cx={size / 2}
+                    cy={size / 2}
+                    r={radius}
+                    stroke="#eaeaeb"
+                    strokeWidth={strokeWidth}
+                    strokeLinecap="round"
+                    // strokeDasharray={circumference}
+                    strokeDashoffset={170}
+                    fill="none"
+                  />
+                  <Circle
+                    cx={size / 2}
+                    cy={size / 2}
+                    r={radius}
+                    stroke="#3D5AFE"
+                    strokeWidth={strokeWidth}
+                    strokeLinecap="round"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    fill="none"
+                  />
+                </G>
+              </Svg>
+              <View
+                style={{
+                  position: "absolute",
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 44,
+                    fontWeight: 500,
+                  }}
+                >
+                  0
+                </Text>
+                <Text style={{}}>of 2,000 ml</Text>
+                <TouchableOpacity>
+                  <Text style={{}}>Edit</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-          <CircularProgressBar />
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "flex-end",
+            }}
+          >
+            <HorizontalPicker />
+          </View>
+          <WeeklyStatsComponent />
 
           <BottomSheetModal
             snapPoints={["20%", "50%"]}
@@ -96,9 +182,185 @@ const PlanDrinkWater = () => {
     </GestureHandlerRootView>
   );
 };
+const HorizontalPicker = () => {
+  const [selectedValue, setSelectedValue] = useState(null);
 
-const screenWidth = Dimensions.get("window").width;
+  // Water quantity options
+  const options = ["150ml", "250ml", "350ml", "500ml", "750ml", "1000ml"];
 
+  // Handle the selection of a water quantity
+  const handleSelect = (value) => {
+    setSelectedValue(value);
+  };
+
+  return (
+    <View
+      style={{
+        height: 100,
+        width: "80%",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingTop: 10,
+      }}
+    >
+      <FlatList
+        data={options}
+        horizontal
+        keyExtractor={(item) => item}
+        renderItem={({ item }) => {
+          const isSelected = selectedValue === item;
+          return (
+            <TouchableOpacity
+              style={[styles.item, isSelected ? styles.selectedItem : null]}
+              onPress={() => handleSelect(item)}
+            >
+              <Text
+                style={[
+                  {
+                    fontSize: 16,
+                    fontWeight: "bold",
+                  },
+                  isSelected
+                    ? {
+                        color: "white",
+                      }
+                    : styles.text,
+                ]}
+              >
+                {item}
+              </Text>
+            </TouchableOpacity>
+          );
+        }}
+        showsHorizontalScrollIndicator={false}
+      />
+    </View>
+  );
+};
+const WeeklyStatsComponent = ({
+  stats = [50, 70, 30, 80, 60, 90, 100],
+  days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+}) => {
+  const barWidth = 10;
+  const barSpacing = 43;
+
+  return (
+    <View
+      style={{
+        paddingBottom: 20,
+        marginTop: 20,
+      }}
+    >
+      <View
+        style={{
+          paddingHorizontal: 25,
+          paddingTop: 20,
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "bold",
+          }}
+        >
+          WEEK
+        </Text>
+
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 5,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: 500,
+            }}
+          >
+            Average
+          </Text>
+          <Text
+            style={{
+              fontSize: 13,
+              fontWeight: 500,
+              color: "gray",
+            }}
+          >
+            0 L
+          </Text>
+        </View>
+      </View>
+      <View
+        style={{
+          backgroundColor: "#e7e7e7",
+          borderRadius: 12,
+          marginHorizontal: 20,
+          marginTop: 15,
+          paddingTop: 20,
+        }}
+      >
+        <View
+          style={{
+            alignItems: "center",
+            marginBottom: 10,
+            marginLeft: 10,
+          }}
+        >
+          <Svg height="110" width={`${(barWidth + barSpacing) * days.length}`}>
+            {stats.map((value, index) => (
+              <G key={index}>
+                <Rect
+                  x={index * (barWidth + barSpacing) + 15}
+                  y={0}
+                  width={barWidth}
+                  height={100}
+                  fill={"#afafafed"}
+                  rx={6}
+                  ry={6}
+                />
+                <Rect
+                  x={index * (barWidth + barSpacing) + 15}
+                  // y={value === 0 ? 10 : 150 - value}
+                  y={value === 0 ? 10 : 100 - value}
+                  width={barWidth}
+                  height={value === 0 ? 100 : value}
+                  fill={value === 0 ? "#afafafed" : "#3D5AFE"}
+                  rx={6}
+                  ry={6}
+                />
+              </G>
+            ))}
+          </Svg>
+        </View>
+
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            marginBottom: 10,
+          }}
+        >
+          {days.map((day, index) => (
+            <Text
+              key={index}
+              style={[
+                { fontSize: 13, color: "#5b5b5bec" },
+                { width: barWidth + barSpacing, textAlign: "center" },
+              ]}
+            >
+              {day}
+            </Text>
+          ))}
+        </View>
+      </View>
+    </View>
+  );
+};
 const CircularProgressBar = () => {
   const [progress, setProgress] = useState<number[]>([0]);
 
@@ -147,7 +409,46 @@ const CircularProgressBar = () => {
     </View>
   );
 };
-
+const TrackerHeader = ({ navigation, colors, bottomSheetRef }) => {
+  const openBottomSheet = () => {
+    bottomSheetRef.current?.present();
+  };
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingHorizontal: 20,
+        borderBottomColor: "#acacac47",
+        paddingBottom: 3,
+        borderBottomWidth: 1,
+      }}
+    >
+      <TouchableOpacity
+        onPress={() => {
+          navigation.goBack();
+        }}
+      >
+        <AntDesign name="arrowleft" size={20} color={colors.icon} />
+      </TouchableOpacity>
+      <Text
+        style={{
+          color: colors.text,
+          fontSize: 20,
+          fontWeight: "semibold",
+          textAlign: "center",
+          marginVertical: 16,
+        }}
+      >
+        Water Tracker
+      </Text>
+      <TouchableOpacity onPress={openBottomSheet}>
+        <AntDesign name="calendar" size={20} color={colors.icon} />
+      </TouchableOpacity>
+    </View>
+  );
+};
 const chartConfig = {
   backgroundGradientFrom: "#1E2923",
   backgroundGradientFromOpacity: 0,
@@ -266,6 +567,19 @@ const pickerSelectStyles = StyleSheet.create({
   },
 });
 const styles = StyleSheet.create({
+  item: {
+    padding: 10,
+    marginHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    height: 50,
+  },
+  selectedItem: {
+    backgroundColor: "#007AFF",
+  },
   container: {
     flex: 1,
     justifyContent: "center",
