@@ -11,7 +11,10 @@ import workoutRoutes from "./routes/workoutRoutes.js";
 import subOutRoutes from "./routes/subWorkoutRoutes.js";
 import equipmentRoutes from "./routes/equipmentRoutes.js";
 import exerciseRoutes from "./routes/exeRoutes.js";
-import axios from "axios";
+import recomRoutes from "./routes/recommendation.js";
+import { test } from "./controller/recommendation.js";
+
+// import recomRouter
 
 const app = express();
 app.use(express.json());
@@ -45,45 +48,8 @@ app.use("/api/v1/subWorkout", subOutRoutes);
 app.use("/api/v1/equipment", equipmentRoutes);
 app.use("/api/v1/exercise", exerciseRoutes);
 
-app.get("/api/v1/predict-fitness", async (req, res) => {
-  try {
-    const { fitnessData } = req.body;
-
-    console.log(fitnessData);
-
-    console.log(
-      `http://localhost:8000/recommend-exes?target_input=${fitnessData}`
-    );
-
-    const response = await axios.get("http://localhost:8000/recommend-exes", {
-      params: { target_input: fitnessData },
-    });
-
-    res.json({
-      exeData: response.data.recommendations,
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Error processing data with FastAPI" });
-  }
-});
-
-app.get("/api/v1/test", async (req, res) => {
-  try {
-    const response = await axios.get("http://localhost:8000/");
-    console.log("Test");
-
-    res.json({
-      message: "teset",
-    });
-  } catch (error) {
-    console.error("Error fetching data from FastAPI:", error.message);
-    if (error.response) {
-      console.error("Response data:", error.response.data);
-      console.error("Response status:", error.response.status);
-      console.error("Response headers:", error.response.headers);
-    }
-  }
-});
+// Recommendation
+app.use("/api/v1/fitness", recomRoutes);
 
 io.on("connection", (socket) => {});
 
