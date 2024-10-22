@@ -20,4 +20,12 @@
   - [x] sleep
   - [x] calorie intake recommend
 - [x] test the api
-- [ ] Integrate with ml and express server
+  - [ ] Integrate with ml and express server
+  - [x] Excercise recom
+  - [ ] Diet recom
+  - [ ] sleep recom
+  - [ ] calorie intake recommend
+  - [ ] water intake
+  - [ ] bmi calculator
+  - [ ] daily steps calculator
+  - [ ] when does user lose the weight ?

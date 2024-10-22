@@ -5,10 +5,21 @@ from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel
 
 app = FastAPI()
+# cors setup
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 
 model_filename = 'exercise_recommender_model.pkl'
-encoder_filename = 'label_encoders.pkl'
+encoder_filename = 'exe_label_encoders.pkl'
 model = joblib.load(model_filename)
 label_encoders = joblib.load(encoder_filename)
 
@@ -25,6 +36,8 @@ def read_root():
 @app.get("/recommend-exes")
 async def recommend_exercises(target_input: str, k: int = 5):
     try:
+       
+
         available_targets = label_encoders['target'].classes_
         
         if target_input not in available_targets:
@@ -43,41 +56,41 @@ async def recommend_exercises(target_input: str, k: int = 5):
         return {"recommendations": recommendations_dict}
 
     except ValueError as e:
-        return {"error": f"Value error occurred: {str(e)}"}
+        return {"errorssss": f"Value error occurred: {str(e)}"}
     except Exception as e:
-        return {"error": str(e)}
+        return {"errorsss": str(e)}
 
-@app.get("/recommend-exe")
-async def recommend_exercises(target_input: str, k: int = 5):
-    try:
-        available_targets = label_encoders['target'].classes_
+# @app.get("/recommend-exe")
+# async def recommend_exercises(target_input: str, k: int = 5):
+#     try:
+#         available_targets = label_encoders['target'].classes_
         
-        print("target_input",target_input)
+#         print("target_input",target_input)
         
-        if target_input not in available_targets:
-            return {"error": f"Target input '{target_input}' not found in available target classes: {list(available_targets)}"}
+#         if target_input not in available_targets:
+#             return {"error": f"Target input '{target_input}' not found in available target classes: {list(available_targets)}"}
 
       
-        target_encoded = label_encoders['target'].transform([target_input])[0]
-        print(target_encoded)
+#         target_encoded = label_encoders['target'].transform([target_input])[0]
+#         print(target_encoded)
 
         
-        df['target'] = label_encoders['target'].transform(df['target'].astype(str))
+#         df['target'] = label_encoders['target'].transform(df['target'].astype(str))
 
-        similar_exercises = df[df['target'] == target_encoded]
+#         similar_exercises = df[df['target'] == target_encoded]
 
-        if similar_exercises.empty:
-            return {"error": f"No exercises found for the target '{target_input}' (encoded as {target_encoded})."}
+#         if similar_exercises.empty:
+#             return {"error": f"No exercises found for the target '{target_input}' (encoded as {target_encoded})."}
 
-        recommendations = similar_exercises.head(k)
-        recommendations_dict = recommendations.fillna("N/A").to_dict(orient='records')
-        return {"recommendations": recommendations_dict}
+#         recommendations = similar_exercises.head(k)
+#         recommendations_dict = recommendations.fillna("N/A").to_dict(orient='records')
+#         return {"recommendations": recommendations_dict}
 
-    except ValueError as e:
-        return {"error": f"Value error occurred: {str(e)}"}
+#     except ValueError as e:
+#         return {"error": f"Value error occurred: {str(e)}"}
 
-    except Exception as e:
-        return {"error": str(e)}
+#     except Exception as e:
+#         return {"error": str(e)}
 
 
 
@@ -87,42 +100,28 @@ async def recommend_exercises(target_input: str, k: int = 5):
 
 # SLEEP RECOMENDATION==================================
 
-# Load the saved model, scaler, and label encoders
-model = joblib.load("sleep_duration_model.pkl")
-scaler = joblib.load("scaler.pkl")
-label_encoders = joblib.load("label_encoders.pkl")
-
-
-
-# Define the input structure for the API
-class UserInput(BaseModel):
+model1 = joblib.load("sleep_duration_model1.pkl")
+class SleepData(BaseModel):
     Gender: int  # 0 for Male, 1 for Female
     Age: int
     Occupation: int
     Physical_Activity_Level: int
     Stress_Level: int
-    BMI_Category: int  # Encoded BMI Category
+    BMI_Category: int
 
-# API root endpoint
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to the Sleep Recommendation API!"}
 
-@app.post("/predict")
-def predict_sleep_duration(user_input: UserInput):
-    input_data = np.array([[user_input.Gender, user_input.Age, 
-                            user_input.Occupation, user_input.Physical_Activity_Level, 
-                            user_input.Stress_Level, user_input.BMI_Category]])
+@app.post("/predict-sleep")
+def predict_sleep_duration(data: SleepData):
+    # Extract data as a numpy array
+    input_data = np.array([[data.Gender, data.Age, data.Occupation,
+                            data.Physical_Activity_Level, data.Stress_Level, data.BMI_Category]])
     
-    # Scale the input data
-    scaled_data = scaler.transform(input_data)
+    # Make a prediction
+    prediction = model1.predict(input_data)
     
-    # Predict sleep duration
-    predicted_sleep_duration = model.predict(scaled_data)
-    
-    return {"predicted_sleep_duration": predicted_sleep_duration[0]}
+    # Return the predicted sleep duration
+    return {"predicted_sleep_duration": prediction[0]}
 
-# To retrieve label encoding for occupation and BMI categories
 @app.get("/encodings")
 def get_encodings():
     encodings = {}
@@ -136,8 +135,8 @@ def get_encodings():
 # CALORIE INTAKE RECOMENDATION==================================
 
 # Load the pre-trained model and scaler
-model = joblib.load('calorie_model.joblib')
-scaler = joblib.load('calorie_scaler.joblib')
+model2 = joblib.load('calorie_model.joblib')
+scaler2 = joblib.load('calorie_scaler.joblib')
 
 # Define the input data model
 class CalorieInput(BaseModel):
@@ -163,10 +162,10 @@ async def predict_calories(input_data: CalorieInput):
     })
 
     # Scale the input data
-    new_data_scaled = scaler.transform(new_data)
+    new_data_scaled = scaler2.transform(new_data)
 
     # Make predictions
-    predicted_calories = model.predict(new_data_scaled)
+    predicted_calories = model2.predict(new_data_scaled)
 
     # Return the prediction result
     return {"predicted_calories": predicted_calories[0]}
