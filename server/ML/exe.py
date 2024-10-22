@@ -181,36 +181,82 @@ async def predict_calories(input_data: CalorieInput):
 # DIET RECOMENDATION==================================
 
 # Load the model
+# model_filename = 'recipe_recommender_knn.pkl'
+# model3 = joblib.load(model_filename)
+
+# # Define request body
+# class RecipeRequest(BaseModel):
+#     recipe_id: int
+#     k: int = 5  
+# @app.post("/recommend-diet")
+# async def recommend_recipes(request: RecipeRequest):
+#     try:
+        
+#         diet_data = pd.read_csv("diet/recipes.csv")
+#         nutritional_cols = ["RecipeId", "Calories", "FatContent", "SaturatedFatContent", 
+#                             "CholesterolContent", "SodiumContent", "CarbohydrateContent", 
+#                             "FiberContent", "SugarContent", "ProteinContent"]
+        
+#         nutritional_df = diet_data[nutritional_cols]
+        
+#         input_recipe = nutritional_df[nutritional_df["RecipeId"] == request.recipe_id]
+#         if input_recipe.empty:
+#             raise HTTPException(status_code=404, detail="Recipe not found")
+
+#         distances, indices = model3.kneighbors(input_recipe[nutritional_cols[1:]], n_neighbors=request.k + 1)
+        
+#         closest_indices = indices[0][1:]  
+#         closest_recipes = diet_data.iloc[closest_indices]
+       
+#         closest_recipes = closest_recipes.replace([np.inf, -np.inf], 0).fillna(0)
+
+#         return closest_recipes.to_dict(orient='records')
+    
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+from fastapi.responses import JSONResponse
+
 model_filename = 'recipe_recommender_knn.pkl'
-model = joblib.load(model_filename)
+try:
+    model3 = joblib.load(model_filename)
+except FileNotFoundError:
+    raise HTTPException(status_code=500, detail="Model file not found.")
+
+# Load the dataset once globally
+diet_data = pd.read_csv("diet/recipes.csv")
+nutritional_cols = ["RecipeId", "Calories", "FatContent", "SaturatedFatContent", 
+                    "CholesterolContent", "SodiumContent", "CarbohydrateContent", 
+                    "FiberContent", "SugarContent", "ProteinContent"]
+nutritional_df = diet_data[nutritional_cols]
 
 # Define request body
 class RecipeRequest(BaseModel):
     recipe_id: int
-    k: int = 5  
+    k: int = 5  # Default value of 5 if not provided
+
 @app.post("/recommend-diet")
-async def recommend_recipes(request: RecipeRequest):
+async def recommend_recipes(request: RecipeRequest) -> JSONResponse:
     try:
-        
-        diet_data = pd.read_csv("diet/recipes.csv")
-        nutritional_cols = ["RecipeId", "Calories", "FatContent", "SaturatedFatContent", 
-                            "CholesterolContent", "SodiumContent", "CarbohydrateContent", 
-                            "FiberContent", "SugarContent", "ProteinContent"]
-        
-        nutritional_df = diet_data[nutritional_cols]
-        
+        # Find the input recipe
         input_recipe = nutritional_df[nutritional_df["RecipeId"] == request.recipe_id]
         if input_recipe.empty:
             raise HTTPException(status_code=404, detail="Recipe not found")
-
-        distances, indices = model.kneighbors(input_recipe[nutritional_cols[1:]], n_neighbors=request.k + 1)
         
-        closest_indices = indices[0][1:]  
+        # Prepare input data for the model
+        input_data = input_recipe[nutritional_cols[1:]].replace([np.inf, -np.inf], 0).fillna(0)
+        
+        # Get the nearest neighbors (k+1 because the first result will be the input recipe itself)
+        distances, indices = model3.kneighbors(input_data, n_neighbors=request.k + 1)
+        
+        # Exclude the first match (which is the recipe itself)
+        closest_indices = indices[0][1:]
         closest_recipes = diet_data.iloc[closest_indices]
-       
+        
+        # Clean up the data (replace inf and NaN values with 0)
         closest_recipes = closest_recipes.replace([np.inf, -np.inf], 0).fillna(0)
-
-        return closest_recipes.to_dict(orient='records')
+        
+        # Return the closest recipes as a JSON response
+        return JSONResponse(content=closest_recipes.to_dict(orient='records'))
     
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")

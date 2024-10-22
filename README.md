@@ -22,9 +22,9 @@
 - [x] test the api
   - [ ] Integrate with ml and express server
   - [x] Excercise recom
-  - [ ] Diet recom
-  - [ ] sleep recom
-  - [ ] calorie intake recommend
+  - [x] Diet recom
+  - [x] sleep recom
+  - [x] calorie intake recommend
   - [ ] water intake
   - [ ] bmi calculator
   - [ ] daily steps calculator
