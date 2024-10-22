@@ -20,7 +20,9 @@ df['target'] = label_encoders['target'].transform(df['target'])
 def read_root():
     return {"message": "Welcome to the Exercise Recommender API"}
 
-@app.get("/recommend-exe")
+# exercise recommendation
+
+@app.get("/recommend-exes")
 async def recommend_exercises(target_input: str, k: int = 5):
     try:
         available_targets = label_encoders['target'].classes_

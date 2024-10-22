@@ -11,7 +11,7 @@
 - [ ] nested listing
 - [ ] workout detail page
 - [ ] workout page
-- [ ] plan page
+- [x] plan page
 
 - [x] personalize model training
 - [x] deploy the model
@@ -20,3 +20,4 @@
   - [x] sleep
   - [x] calorie intake recommend
 - [x] test the api
+- [ ] Integrate with ml and express server
