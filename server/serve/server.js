@@ -12,11 +12,8 @@ import subOutRoutes from "./routes/subWorkoutRoutes.js";
 import equipmentRoutes from "./routes/equipmentRoutes.js";
 import exerciseRoutes from "./routes/exeRoutes.js";
 import recomRoutes from "./routes/recommendation.js";
-import { test } from "./controller/recommendation.js";
 
-// import recomRouter
-
-const app = express();
+export const app = express();
 app.use(express.json());
 
 app.use(morgan("dev"));
@@ -32,7 +29,7 @@ connnectDB();
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8083;
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
