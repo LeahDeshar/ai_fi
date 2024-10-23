@@ -52,7 +52,7 @@ const ProfileNameScreen = () => {
     }
 
     dispatch(setName(userName));
-    navigation.push("ProfileGender");
+    navigation.push("ProfileUnitsScreen");
     // navigation.navigate("MyProfile");
   };
 

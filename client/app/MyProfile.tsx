@@ -257,7 +257,7 @@ const ProfileScreen = () => {
           value={
             profile?.profileOfUsers?.preferredUnits === "metric"
               ? `${profile?.profileOfUsers?.currentHeight.centimeters} cm`
-              : `handle this `
+              : `${profile?.profileOfUsers?.currentHeight.feet} ft ${profile?.profileOfUsers?.currentHeight.inches} in `
           }
           onPress={() => navigation.navigate("ProfileHeightScreen")}
         />
@@ -266,7 +266,7 @@ const ProfileScreen = () => {
           value={
             profile?.profileOfUsers?.preferredUnits === "metric"
               ? `${profile?.profileOfUsers?.currentWeight.kilograms} kg`
-              : `handle this `
+              : `${profile?.profileOfUsers?.currentWeight.pounds} lbs `
           }
           onPress={() => navigation.navigate("ProfileStartWeightScreen")}
         />
@@ -275,7 +275,7 @@ const ProfileScreen = () => {
           value={
             profile?.profileOfUsers?.preferredUnits === "metric"
               ? `${profile?.profileOfUsers?.goalWeight.kilograms} kg`
-              : `handle this `
+              : `${profile?.profileOfUsers?.goalWeight.pounds} lbs`
           }
           onPress={() => navigation.navigate("ProfileTargetWeightScreen")}
         />

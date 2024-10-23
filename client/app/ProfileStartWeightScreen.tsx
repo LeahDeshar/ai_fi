@@ -40,9 +40,7 @@ const ProfileStartWeightScreen = () => {
         setWeight(profile.profileOfUsers.currentWeight.kilograms.toString());
       } else if (preferredUnits === "imperial") {
         setUnit("lbs");
-        // const heightParts = profile.profileOfUsers.currentWeight.split(" ");
-        // setWeight(heightParts[0]);
-        // setInches(heightParts[1] || "");
+        setWeight(profile.profileOfUsers.currentWeight.pounds.toString());
       }
     }
   }, [profile]);

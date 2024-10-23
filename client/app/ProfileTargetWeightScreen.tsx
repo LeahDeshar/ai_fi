@@ -34,10 +34,11 @@ const ProfileTargetWeightScreen = () => {
 
       if (preferredUnits === "metric") {
         setUnit("kg");
-        setWeight(profile.profileOfUsers.currentWeight.kilograms.toString());
+        setWeight(profile.profileOfUsers.goalWeight.kilograms.toString());
       } else if (preferredUnits === "imperial") {
         setUnit("lbs");
-        // const heightParts = profile.profileOfUsers.currentWeight.split(" ");
+        setWeight(profile.profileOfUsers.goalWeight.pounds.toString());
+
         // setWeight(heightParts[0]);
         // setInches(heightParts[1] || "");
       }

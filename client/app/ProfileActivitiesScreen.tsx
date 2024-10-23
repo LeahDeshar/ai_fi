@@ -33,7 +33,6 @@ const ProfileActivitiesScreen = () => {
   useEffect(() => {
     if (profile && profile.profileOfUsers) {
       setSelectedActivities(profile.profileOfUsers.activitiesLiked);
-      // refetch();
     }
   }, [profile]);
 

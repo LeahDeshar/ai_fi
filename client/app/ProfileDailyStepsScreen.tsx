@@ -1,14 +1,54 @@
 import { StyleSheet, Text, View } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Picker } from "@react-native-picker/picker";
 import { useTheme } from "@/constants/ThemeProvider";
 import { useRouter } from "expo-router";
 import Button from "@/components/Button";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+} from "@/redux/api/apiClient";
+import { setDailySteps } from "@/redux/slices/profileSlice";
 
 const ProfileDailyStepsScreen = () => {
   const { colors } = useTheme();
   const navigation = useRouter();
   const [dailyGoal, setDailyGoal] = useState(3000);
+  const dispatch = useDispatch();
+
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+
+  useEffect(() => {
+    if (profile && profile.profileOfUsers) {
+      setDailyGoal(profile.profileOfUsers.dailySteps);
+      refetch();
+    }
+  }, [profile]);
+
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
+
+  const handleNext = async () => {
+    if (isLoggedIn) {
+      const profileData = {
+        dailySteps: dailyGoal,
+      };
+
+      try {
+        await updateProfile(profileData).unwrap();
+        await refetch();
+        navigation.navigate("MyProfile");
+      } catch (error) {
+        console.error("Error saving profile:", error);
+      }
+    } else if (!isLoggedIn) {
+      dispatch(setDailySteps(dailyGoal));
+
+      navigation.push("ProfileDietType");
+    }
+  };
 
   const generateStepOptions = () => {
     let options = [];
@@ -51,7 +91,8 @@ const ProfileDailyStepsScreen = () => {
             textAlign: "center",
           }}
         >
-          Your Recommended Daily Steps is 10000
+          Your Recommended Daily Steps is{" "}
+          {profile?.calculations.dailyStepRecommendation}
         </Text>
       </View>
 
@@ -115,12 +156,7 @@ const ProfileDailyStepsScreen = () => {
           marginBottom: 50,
         }}
       >
-        <Button
-          title="Save"
-          handlePress={() => {
-            navigation.push("ProfileDietType");
-          }}
-        />
+        <Button title="Save" handlePress={handleNext} />
       </View>
     </View>
   );

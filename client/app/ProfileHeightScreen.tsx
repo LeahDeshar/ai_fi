@@ -25,6 +25,7 @@ const ProfileHeightScreen = () => {
   const { colors } = useTheme();
 
   const [weight, setWeight] = useState("");
+  const [feet, setFeet] = useState("");
   const [inches, setInches] = useState("");
   const [unit, setUnit] = useState("ft");
   // const [error, setError] = useState("");/
@@ -43,9 +44,8 @@ const ProfileHeightScreen = () => {
         setWeight(profile.profileOfUsers.currentHeight.centimeters.toString());
       } else if (preferredUnits === "imperial") {
         setUnit("ft");
-        const heightParts = profile.profileOfUsers.currentHeight.split(" ");
-        setWeight(heightParts[0]);
-        setInches(heightParts[1] || "");
+        setFeet(profile.profileOfUsers.currentHeight.feet.toString());
+        setInches(profile.profileOfUsers.currentHeight.inches.toString());
       }
     }
   }, [profile]);
@@ -58,6 +58,21 @@ const ProfileHeightScreen = () => {
         const profileData = {
           currentHeight: {
             centimeters: weight,
+          },
+        };
+
+        try {
+          await updateProfile(profileData).unwrap();
+          await refetch();
+          navigation.navigate("MyProfile");
+        } catch (error) {
+          console.error("Error saving profile:", error);
+        }
+      } else if (profile.profileOfUsers.preferredUnits == "imperial") {
+        const profileData = {
+          currentHeight: {
+            feet: feet,
+            inches: inches,
           },
         };
 
@@ -157,10 +172,18 @@ const ProfileHeightScreen = () => {
           <TextInput
             style={[{ color: "white" }, styles.input]}
             keyboardType="numeric"
-            value={weight}
+            value={
+              profile.profileOfUsers.preferredUnits === "imperial"
+                ? feet
+                : weight
+            }
             placeholderTextColor={"white"}
             autoFocus={true}
-            onChangeText={setWeight}
+            onChangeText={
+              profile.profileOfUsers.preferredUnits === "imperial"
+                ? setFeet
+                : setWeight
+            }
           />
           <Text
             style={{
@@ -176,8 +199,8 @@ const ProfileHeightScreen = () => {
               <TextInput
                 style={styles.input}
                 keyboardType="numeric"
-                value={weight}
-                onChangeText={setWeight}
+                value={inches}
+                onChangeText={setInches}
               />
               <Text
                 style={{
