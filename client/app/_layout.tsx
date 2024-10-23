@@ -9,8 +9,11 @@ import { StackScreenWithSearchBar } from "@/constants/layout";
 import { TouchableOpacity } from "react-native";
 import { Ionicons, MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
 import { Text, View } from "react-native";
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Provider } from "react-redux";
+import queryClient from "@/redux/queryClient";
+import { persistor, store } from "@/redux/store";
+import { PersistGate } from "redux-persist/integration/react";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -29,9 +32,15 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <InnerStack />
-    </ThemeProvider>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <InnerStack />
+          </ThemeProvider>
+        </QueryClientProvider>
+      </PersistGate>
+    </Provider>
   );
 }
 
