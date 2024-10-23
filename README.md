@@ -28,4 +28,12 @@
   - [x] water intake
   - [x] bmi calculator
   - [x] daily steps calculator
-  - [ ] when does user lose the weight ?
+  - [x] when does user lose the weight ?
+
+Full Application Integration
+
+- [ ] react query
+- [ ] auth success
+- [ ] profile operations
+- [ ] profile update
+- [ ] delete account
