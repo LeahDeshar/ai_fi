@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { ThemeProvider, useTheme } from "@/constants/ThemeProvider";
 import { ThemedView } from "@/components/ThemedView";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
@@ -20,6 +20,8 @@ import { useDispatch } from "react-redux";
 import { logout } from "@/redux/slices/userSlice";
 import { useGetProfileQuery } from "@/redux/api/apiClient";
 import { birthday } from "@/utils/birthday";
+import * as ImagePicker from "expo-image-picker";
+
 const MyProfile = () => {
   const { colors, dark } = useTheme();
   const navigation = useRouter();
@@ -30,6 +32,30 @@ const MyProfile = () => {
 
   const handleLoginPress = () => {
     navigation.push("LoginScreen");
+  };
+  const [selectedImage, setSelectedImage] = useState(null);
+  const handleSelectImage = async () => {
+    try {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        alert("Permission to access camera roll is required!");
+        return;
+      }
+
+      const pickerResult = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (!pickerResult.canceled && pickerResult.assets.length > 0) {
+        const firstAsset = pickerResult.assets[0];
+        setSelectedImage(firstAsset.uri);
+      }
+    } catch (error) {
+      console.log("Error picking an image:", error);
+    }
   };
 
   // console.log(token);
@@ -189,13 +215,6 @@ const ProfileItem = ({
     </TouchableOpacity>
   );
 };
-// const birthday = (birthday) => {
-//   return new Date(birthday).toLocaleDateString("en-GB", {
-//     day: "numeric",
-//     month: "short",
-//     year: "numeric",
-//   });
-// };
 
 const ProfileScreen = () => {
   const { colors } = useTheme();
