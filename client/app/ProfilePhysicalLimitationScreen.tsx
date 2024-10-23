@@ -5,45 +5,84 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "@/constants/ThemeProvider";
-import { AntDesign, Feather } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Feather,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
+import {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+} from "@/redux/api/apiClient";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { setSpecialPrograms } from "@/redux/slices/profileSlice";
 
 const ProfilePhysicalLimitationScreen = () => {
   const { colors } = useTheme();
   const [selectedActivity, setSelectedActivity] = useState(null); // Only one activity
   const navigation = useRouter();
+  const dispatch = useDispatch();
+
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+  console.log(selectedActivity);
+
+  useEffect(() => {
+    if (profile && profile.profileOfUsers) {
+      setSelectedActivity(profile.profileOfUsers.specialPrograms[0]);
+      // refetch();
+    }
+  }, [profile]);
+
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
+
+  const handleNext = async () => {
+    if (isLoggedIn) {
+      const profileData = {
+        specialPrograms: selectedActivity,
+      };
+
+      try {
+        await updateProfile(profileData).unwrap();
+        await refetch();
+        navigation.navigate("MyProfile");
+      } catch (error) {
+        console.error("Error saving profile:", error);
+      }
+    } else if (!isLoggedIn) {
+      dispatch(setSpecialPrograms(selectedActivity));
+
+      navigation.push("ProfileDailyStepsScreen");
+    }
+  };
 
   const activities = [
     {
       name: "No Thanks",
-      icon: "🚫",
     },
     {
       name: "Sensitive Back",
-      icon: "🏃‍♂️",
     },
     {
       name: "Sensitive Knees",
-      icon: "🚴‍♂️",
     },
     {
       name: "Limited Mobility",
-      icon: "🏊‍♂️",
     },
     {
       name: "Limb Loss",
-      icon: "🧘‍♂️",
     },
     {
       name: "Prenatal",
-      icon: "🏋️‍♂️",
     },
     {
       name: "Postnatal",
-      icon: "🧘‍♂️",
     },
   ];
 
@@ -70,50 +109,73 @@ const ProfilePhysicalLimitationScreen = () => {
         Do you want to include special programs?
       </Text>
       <ScrollView>
-        {activities.map((activity) => (
-          <View
-            key={activity.name}
-            style={[
-              styles.activityContainer,
-              {
-                backgroundColor:
-                  selectedActivity === activity.name
-                    ? "rgba(128, 128, 128,0.2)"
-                    : colors.background,
-                borderBottomColor: colors.text,
-                marginHorizontal: 15,
-                borderRadius: 20,
-                paddingVertical: 20,
-                marginVertical: 2,
-              },
-            ]}
-          >
-            <Text style={{ color: colors.text, fontSize: 20 }}>
-              {activity.icon} {activity.name}
-            </Text>
-            <TouchableOpacity
-              onPress={() => toggleActivitySelection(activity.name)}
+        {activities.map((activity, index) => {
+          console.log(
+            selectedActivity,
+            activity.name,
+            selectedActivity === activity.name
+          );
+          return (
+            <View
+              key={activity.name}
+              style={[
+                styles.activityContainer,
+                {
+                  backgroundColor:
+                    selectedActivity === activity.name
+                      ? "rgba(128, 128, 128,0.2)"
+                      : colors.background,
+                  borderBottomColor: colors.text,
+                  marginHorizontal: 15,
+                  borderRadius: 20,
+                  paddingVertical: 20,
+                  marginVertical: 2,
+                },
+              ]}
             >
-              {selectedActivity === activity.name ? (
-                <AntDesign name="checkcircle" size={24} color={colors.text} />
-              ) : (
-                <Feather name="circle" size={24} color={colors.text} />
-              )}
-            </TouchableOpacity>
-          </View>
-        ))}
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 10,
+                }}
+              >
+                {index == 0 ? (
+                  <MaterialIcons
+                    name="do-not-disturb"
+                    size={24}
+                    color="white"
+                  />
+                ) : (
+                  <MaterialCommunityIcons
+                    name="human-wheelchair"
+                    size={24}
+                    color="white"
+                  />
+                )}
+                <Text style={{ color: colors.text, fontSize: 20 }}>
+                  {activity.name}
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                onPress={() => toggleActivitySelection(activity.name)}
+              >
+                {selectedActivity === activity.name ? (
+                  <AntDesign name="checkcircle" size={24} color={colors.text} />
+                ) : (
+                  <Feather name="circle" size={24} color={colors.text} />
+                )}
+              </TouchableOpacity>
+            </View>
+          );
+        })}
       </ScrollView>
       <View
         style={{
           marginBottom: 50,
         }}
       >
-        <Button
-          title="Save"
-          handlePress={() => {
-            navigation.push("ProfileDailyStepsScreen");
-          }}
-        />
+        <Button title="Save" handlePress={handleNext} />
       </View>
     </View>
   );

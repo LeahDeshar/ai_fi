@@ -5,16 +5,59 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "@/constants/ThemeProvider";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
+import {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+} from "@/redux/api/apiClient";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { setActivitiesLiked } from "@/redux/slices/profileSlice";
 
 const ProfileActivitiesScreen = () => {
   const { colors } = useTheme();
   const navigation = useRouter();
   const [selectedActivities, setSelectedActivities] = useState([]);
+  console.log(selectedActivities);
+
+  const dispatch = useDispatch();
+
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+  console.log(profile);
+
+  useEffect(() => {
+    if (profile && profile.profileOfUsers) {
+      setSelectedActivities(profile.profileOfUsers.activitiesLiked);
+      // refetch();
+    }
+  }, [profile]);
+
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
+
+  const handleNext = async () => {
+    if (isLoggedIn) {
+      const profileData = {
+        activitiesLiked: selectedActivities,
+      };
+
+      try {
+        await updateProfile(profileData).unwrap();
+        await refetch();
+        navigation.navigate("MyProfile");
+      } catch (error) {
+        console.error("Error saving profile:", error);
+      }
+    } else if (!isLoggedIn) {
+      dispatch(setActivitiesLiked(selectedActivities));
+
+      navigation.push("ProfilePhysicalLimitationScreen");
+    }
+  };
 
   const activities = [
     {
@@ -117,12 +160,7 @@ const ProfileActivitiesScreen = () => {
             marginBottom: 50,
           }}
         >
-          <Button
-            title="Save"
-            handlePress={() => {
-              navigation.push("ProfilePhysicalLimitationScreen");
-            }}
-          />
+          <Button title="Save" handlePress={handleNext} />
         </View>
       </View>
     </View>
