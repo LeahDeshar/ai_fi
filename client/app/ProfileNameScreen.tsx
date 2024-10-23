@@ -6,7 +6,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "@/constants/ThemeProvider";
 import Button from "@/components/Button";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -14,16 +14,28 @@ import { useRouter } from "expo-router";
 import { useDispatch } from "react-redux";
 import { setName } from "@/redux/slices/profileSlice";
 import { useSelector } from "react-redux";
-import { useUpdateProfileMutation } from "@/redux/api/apiClient";
+import {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+} from "@/redux/api/apiClient";
 
 const ProfileNameScreen = () => {
   const { colors } = useTheme();
   const navigation = useRouter();
-  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
-  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
-
   const [userName, setUserName] = useState("");
   const dispatch = useDispatch();
+
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+  console.log(profile);
+
+  useEffect(() => {
+    if (profile && profile?.profileOfUsers && profile.profileOfUsers.name) {
+      setUserName(profile.profileOfUsers.name);
+    }
+  }, [profile]);
+
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
 
   const handleNext = async () => {
     if (isLoggedIn) {
@@ -33,10 +45,12 @@ const ProfileNameScreen = () => {
 
       try {
         await updateProfile(profileData).unwrap();
+        await refetch();
       } catch (error) {
         console.error("Error saving profile:", error);
       }
     }
+
     dispatch(setName(userName));
     // navigation.push("ProfileGender");
     navigation.navigate("MyProfile");

@@ -24,15 +24,12 @@ const MyProfile = () => {
   const { colors, dark } = useTheme();
   const navigation = useRouter();
   const dispatch = useDispatch();
-  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
 
-  const handlePress = () => {
-    if (isLoggedIn) {
-      dispatch(logout());
-      Alert.alert("Logged out", "You have been logged out successfully.");
-    } else {
-      navigation.push("LoginScreen");
-    }
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { data: profile, error, isLoading } = useGetProfileQuery();
+
+  const handleLoginPress = () => {
+    navigation.push("LoginScreen");
   };
 
   // console.log(token);
@@ -63,7 +60,9 @@ const MyProfile = () => {
               }}
             >
               <Image
-                source={require("@/assets/images/avatar/female1.png")}
+                source={{
+                  uri: profile?.profileOfUsers?.profilePic.url,
+                }}
                 style={{ width: 80, height: 80, borderRadius: 75 }}
               />
               <Ionicons
@@ -84,39 +83,60 @@ const MyProfile = () => {
                 color: colors.text,
               }}
             >
-              Leah
+              {profile?.profileOfUsers?.name}
             </Text>
-            <Button
-              title={isLoggedIn ? "Logout" : "Login"}
-              handlePress={handlePress}
-            />
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "center",
-                padding: 16,
-              }}
-            >
-              <Text
+            {!isLoggedIn ? (
+              <>
+                <Button title={"Login"} handlePress={handleLoginPress} />
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: 16,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: colors.text,
+                    }}
+                  >
+                    Don't have an account?
+                  </Text>
+                  <Text
+                    style={{
+                      color: colors.text,
+                      marginLeft: 5,
+                    }}
+                  >
+                    Sign Up
+                  </Text>
+                </View>
+              </>
+            ) : (
+              <View
                 style={{
-                  color: colors.text,
+                  marginBottom: 15,
                 }}
               >
-                Don't have an account?
-              </Text>
-              <Text
-                style={{
-                  color: colors.text,
-                  marginLeft: 5,
-                }}
-              >
-                Sign Up
-              </Text>
-            </View>
+                <Text
+                  style={{
+                    color: "gray",
+                    fontSize: 15,
+                    marginTop: 3,
+                  }}
+                >
+                  {user?.email}
+                </Text>
+              </View>
+            )}
           </View>
         </ThemedView>
         <ProfileScreen />
+        {isLoggedIn && (
+          <Button title={"Logout"} handlePress={handleLoginPress} />
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -174,7 +194,6 @@ const ProfileScreen = () => {
   const { colors } = useTheme();
   const navigation = useRouter();
   const { data: profile, error, isLoading } = useGetProfileQuery();
-  console.log(profile);
 
   if (isLoading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
