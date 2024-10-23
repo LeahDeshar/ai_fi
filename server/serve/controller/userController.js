@@ -33,6 +33,7 @@ export const registerController = async (req, res) => {
       email,
       password,
     });
+    const token = user.generateJWT();
     if (!user) {
       return res.status(400).json({
         msg: "Something went wrong",
@@ -44,6 +45,7 @@ export const registerController = async (req, res) => {
       msg: "User created successfully",
       success: true,
       user,
+      token,
     });
   } catch (error) {
     console.log(error);

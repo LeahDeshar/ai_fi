@@ -32,8 +32,8 @@
 
 Full Application Integration
 
-- [ ] react query
-- [ ] auth success
+- [x] react query
+- [x] auth success (login/register)
 - [ ] profile operations
 - [ ] profile update
 - [ ] delete account

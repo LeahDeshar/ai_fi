@@ -7,16 +7,56 @@ import {
   TouchableOpacity,
   Dimensions,
   Image,
+  Alert,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
 import { checkPersistence } from "@/redux/api/checkPersistence";
+import { useDispatch } from "react-redux";
+import { useRegisterMutation } from "@/redux/api/apiClient";
+import { loginSuccess } from "@/redux/slices/userSlice";
 
 const { width, height } = Dimensions.get("window");
 
 const RegisterScreen = () => {
   const navigation = useRouter();
-  // checkPersistence();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const dispatch = useDispatch();
+  const [register, { isLoading }] = useRegisterMutation();
+
+  const handleRegister = async () => {
+    // if (!email || !password || !confirmPassword) {
+    //   Alert.alert("Error", "Please enter all fields");
+    //   return;
+    // }
+
+    // try {
+    // const response = await register({
+    //   email,
+    //   password,
+    //   confirmPassword,
+    // }).unwrap();
+
+    // if (response.success) {
+    //   dispatch(loginSuccess(response));
+    //   Alert.alert("Success", "Registration successfully");
+    navigation.navigate("PersonalizeScreen");
+    //   } else {
+    //     Alert.alert("Error", response.message || "Registration failed");
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    //   Alert.alert(
+    //     "Error",
+    //     error.message || "An error occurred. Please try again."
+    //   );
+    // }
+  };
+
   return (
     <View style={styles.container}>
       <Image
@@ -88,15 +128,18 @@ const RegisterScreen = () => {
         >
           <Text style={styles.title}>REGISTER</Text>
 
-          <TextInput
+          {/* <TextInput
             style={styles.input}
             placeholder="Username"
             placeholderTextColor="#7e7e7e"
-          />
+          /> */}
           <TextInput
             style={styles.input}
             placeholder="Email"
             placeholderTextColor="#7e7e7e"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
             keyboardType="email-address"
           />
           <TextInput
@@ -104,18 +147,19 @@ const RegisterScreen = () => {
             placeholder="Password"
             placeholderTextColor="#7e7e7e"
             secureTextEntry
+            value={password}
+            onChangeText={setPassword}
           />
           <TextInput
             style={styles.input}
             placeholder="Confirm Password"
             placeholderTextColor="#7e7e7e"
             secureTextEntry
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
           />
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate("PersonalizeScreen")}
-            style={styles.button}
-          >
+          <TouchableOpacity onPress={handleRegister} style={styles.button}>
             <Text style={styles.buttonText}>REGISTER</Text>
           </TouchableOpacity>
 
@@ -205,7 +249,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.6)", // Transparent white
     marginBottom: 15,
     paddingHorizontal: 15,
-    color: "#fff",
+    // color: "#fff",
   },
   button: {
     width: "100%",

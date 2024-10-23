@@ -14,6 +14,7 @@ import { Provider } from "react-redux";
 import queryClient from "@/redux/queryClient";
 import { persistor, store } from "@/redux/store";
 import { PersistGate } from "redux-persist/integration/react";
+import { useSelector } from "react-redux";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -46,6 +47,7 @@ export default function RootLayout() {
 
 const InnerStack = () => {
   const { colors, dark } = useTheme();
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
 
   return (
     <Stack
@@ -330,22 +332,26 @@ const InnerStack = () => {
           headerTransparent: true,
           headerBlurEffect: "prominent",
           headerShadowVisible: false,
+          gestureEnabled: false,
           headerLargeStyle: {
             backgroundColor: "rgba(0,0,0,0.2)",
           },
           // Customize the left side of the header
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ marginLeft: 5 }} // Adjust the position
-            >
-              <MaterialIcons
-                name="arrow-back-ios-new"
-                size={24}
-                color={colors.text}
-              />
-            </TouchableOpacity>
-          ),
+          headerLeft: () =>
+            isLoggedIn && (
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.goBack();
+                }}
+                style={{ marginLeft: 5 }} // Adjust the position
+              >
+                <MaterialIcons
+                  name="arrow-back-ios-new"
+                  size={24}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            ),
         })}
       />
       <Stack.Screen

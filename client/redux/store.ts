@@ -5,6 +5,7 @@ import { combineReducers } from "redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { authApi } from "./api/apiClient";
 import authReducer from "./slices/userSlice";
+import profileReducer from "./slices/profileSlice";
 import { createLogger } from "redux-logger";
 const persistConfig = {
   key: "root",
@@ -14,6 +15,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authReducer,
   [authApi.reducerPath]: authApi.reducer,
+  profile: profileReducer,
 });
 const logger = createLogger();
 const persistedReducer = persistReducer(persistConfig, rootReducer);

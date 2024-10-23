@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Alert,
   Image,
   SafeAreaView,
@@ -17,6 +18,7 @@ import { useNavigation, useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { logout } from "@/redux/slices/userSlice";
+import { useGetProfileQuery } from "@/redux/api/apiClient";
 
 const MyProfile = () => {
   const { colors, dark } = useTheme();
@@ -171,6 +173,17 @@ const ProfileItem = ({
 const ProfileScreen = () => {
   const { colors } = useTheme();
   const navigation = useRouter();
+  const { data: profile, error, isLoading } = useGetProfileQuery();
+  console.log(profile);
+
+  if (isLoading) {
+    return <ActivityIndicator size="large" color="#0000ff" />;
+  }
+
+  if (error) {
+    return <Text>Error fetching profile: {error.message}</Text>;
+  }
+
   return (
     <View
       style={{
@@ -205,52 +218,83 @@ const ProfileScreen = () => {
         <Text style={styles.sectionTitle}>PERSONAL DETAILS</Text>
         <ProfileItem
           title="Name"
-          value="Leah"
+          value={profile?.profileOfUsers?.name}
           onPress={() => navigation.navigate("ProfileNameScreen")}
         />
         <ProfileItem
           title="Date of Birth"
-          value="6 Jul 1999"
+          value={new Date(profile?.profileOfUsers?.birthday).toLocaleDateString(
+            "en-GB",
+            {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            }
+          )}
           onPress={() => navigation.navigate("ProfileDOBScreen")}
         />
         <ProfileItem
           title="Height"
-          value="167 cm"
+          value={
+            profile?.profileOfUsers?.preferredUnits === "metric"
+              ? `${profile?.profileOfUsers?.currentHeight.centimeters} cm`
+              : `handle this `
+          }
           onPress={() => navigation.navigate("ProfileHeightScreen")}
         />
         <ProfileItem
           title="Starting Weight"
-          value="57 kg"
+          value={
+            profile?.profileOfUsers?.preferredUnits === "metric"
+              ? `${profile?.profileOfUsers?.currentWeight.kilograms} kg`
+              : `handle this `
+          }
           onPress={() => navigation.navigate("ProfileStartWeightScreen")}
         />
         <ProfileItem
           title="Target Weight"
-          value="53 kg"
+          value={
+            profile?.profileOfUsers?.preferredUnits === "metric"
+              ? `${profile?.profileOfUsers?.goalWeight.kilograms} kg`
+              : `handle this `
+          }
           onPress={() => navigation.navigate("ProfileTargetWeightScreen")}
         />
         <ProfileItem
           title="Fitness Level"
-          value="Medium"
+          value={
+            profile.profileOfUsers?.activityLevel <= 30
+              ? "Newbie"
+              : profile.profileOfUsers?.activityLevel <= 70
+              ? "Medium"
+              : "Advanced"
+          }
           onPress={() => navigation.navigate("ProfileFitness")}
         />
         <ProfileItem
           title="Classes"
-          value="Dancing, HIIT, Running"
+          value={profile?.profileOfUsers?.activitiesLiked?.join(", ")}
           onPress={() => navigation.navigate("ProfileActivitiesScreen")}
         />
         <ProfileItem
           title="Special Programs"
-          value="None"
+          // specialPrograms
+          value={profile?.profileOfUsers?.specialPrograms?.join(", ")}
           onPress={() => navigation.navigate("ProfilePhysicalLimitationScreen")}
         />
         <ProfileItem
           title="Daily Step Goal"
-          value="8,500 steps"
+          // dailySteps
+          value={`${profile?.profileOfUsers?.dailySteps} steps`}
           onPress={() => navigation.navigate("ProfileDailyStepsScreen")}
         />
         <ProfileItem
           title="Units"
-          value="Meters and Grams"
+          value={`${
+            profile?.profileOfUsers?.preferredUnits === "metric"
+              ? "Meters and Grams"
+              : "Pounds and feet"
+          }`}
           haveBorderBottom={false}
           onPress={() => navigation.navigate("ProfileUnitsScreen")}
         />
