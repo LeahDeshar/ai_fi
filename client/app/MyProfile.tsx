@@ -75,7 +75,8 @@ const MyProfile = () => {
               padding: 16,
             }}
           >
-            <View
+            <TouchableOpacity
+              onPress={handleSelectImage}
               style={{
                 backgroundColor: colors.opacity,
                 width: 95,
@@ -85,12 +86,17 @@ const MyProfile = () => {
                 borderRadius: 75,
               }}
             >
-              <Image
-                source={{
-                  uri: profile?.profileOfUsers?.profilePic.url,
-                }}
-                style={{ width: 80, height: 80, borderRadius: 75 }}
-              />
+              {selectedImage ? (
+                <Image
+                  source={{ uri: selectedImage }}
+                  style={{ width: 80, height: 80, borderRadius: 75 }}
+                />
+              ) : (
+                <Image
+                  source={{ uri: profile?.profileOfUsers?.profilePic?.url }}
+                  style={{ width: 80, height: 80, borderRadius: 75 }}
+                />
+              )}
               <Ionicons
                 name="camera-outline"
                 size={24}
@@ -99,7 +105,7 @@ const MyProfile = () => {
                   position: "absolute",
                 }}
               />
-            </View>
+            </TouchableOpacity>
 
             <Text
               style={{
