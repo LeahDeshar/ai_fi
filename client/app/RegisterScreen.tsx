@@ -10,11 +10,13 @@ import {
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
+import { checkPersistence } from "@/redux/api/checkPersistence";
 
 const { width, height } = Dimensions.get("window");
 
 const RegisterScreen = () => {
   const navigation = useRouter();
+  // checkPersistence();
   return (
     <View style={styles.container}>
       <Image

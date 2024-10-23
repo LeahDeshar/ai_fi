@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   SafeAreaView,
   ScrollView,
@@ -13,11 +14,26 @@ import { ThemedView } from "@/components/ThemedView";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import Button from "@/components/Button";
 import { useNavigation, useRouter } from "expo-router";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { logout } from "@/redux/slices/userSlice";
 
 const MyProfile = () => {
   const { colors, dark } = useTheme();
   const navigation = useRouter();
+  const dispatch = useDispatch();
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
 
+  const handlePress = () => {
+    if (isLoggedIn) {
+      dispatch(logout());
+      Alert.alert("Logged out", "You have been logged out successfully.");
+    } else {
+      navigation.push("LoginScreen");
+    }
+  };
+
+  // console.log(token);
   return (
     <SafeAreaView
       style={{
@@ -69,8 +85,8 @@ const MyProfile = () => {
               Leah
             </Text>
             <Button
-              title="Login"
-              handlePress={() => navigation.push("LoginScreen")}
+              title={isLoggedIn ? "Logout" : "Login"}
+              handlePress={handlePress}
             />
             <View
               style={{

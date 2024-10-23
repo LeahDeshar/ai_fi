@@ -7,14 +7,49 @@ import {
   TouchableOpacity,
   Dimensions,
   Image,
+  Alert,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
+import { useDispatch } from "react-redux";
+import { useLoginMutation } from "@/redux/api/apiClient";
+import { loginSuccess } from "@/redux/slices/userSlice";
 
 const { width, height } = Dimensions.get("window");
 
 const LoginScreen = () => {
   const navigation = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const dispatch = useDispatch();
+  const [login, { isLoading }] = useLoginMutation();
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter both email and password");
+      return;
+    }
+
+    try {
+      const response = await login({ email, password }).unwrap();
+
+      if (response.success) {
+        dispatch(loginSuccess(response));
+        Alert.alert("Success", "Logged in successfully");
+        navigation.navigate("MyProfile");
+      } else {
+        Alert.alert("Error", response.message || "Login failed");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        "Error",
+        error.message || "An error occurred. Please try again."
+      );
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -91,12 +126,18 @@ const LoginScreen = () => {
             style={styles.input}
             placeholder="Email"
             placeholderTextColor="#7e7e7e"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
           />
           <TextInput
             style={styles.input}
             placeholder="Password"
             placeholderTextColor="#7e7e7e"
             secureTextEntry
+            value={password}
+            onChangeText={setPassword}
           />
           <TouchableOpacity
             style={{
@@ -106,8 +147,14 @@ const LoginScreen = () => {
             <Text>Forgot Password ? </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>LOGIN</Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleLogin}
+            disabled={isLoading}
+          >
+            <Text style={styles.buttonText}>
+              {isLoading ? "Logging in..." : "LOGIN"}
+            </Text>
           </TouchableOpacity>
 
           <Text
@@ -196,7 +243,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.6)", // Transparent white
     marginBottom: 15,
     paddingHorizontal: 15,
-    color: "#fff",
+    color: "black",
   },
   button: {
     width: "100%",
