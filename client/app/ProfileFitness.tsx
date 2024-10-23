@@ -1,14 +1,33 @@
 import { StyleSheet, Text, View } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "@/constants/ThemeProvider";
 import Slider from "@react-native-community/slider";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+} from "@/redux/api/apiClient";
+import { setActivityLevel } from "@/redux/slices/profileSlice";
 
 const ProfileFitness = () => {
   const { colors } = useTheme();
   const navigation = useRouter();
   const [sliderValue, setSliderValue] = useState(0);
+
+  const dispatch = useDispatch();
+
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+
+  useEffect(() => {
+    if (profile && profile.profileOfUsers) {
+      setSliderValue(profile.profileOfUsers.activityLevel);
+    }
+  }, [profile]);
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
 
   const getComment = (value) => {
     if (value < 20) return "I need to catch my breath";
@@ -26,6 +45,24 @@ const ProfileFitness = () => {
     return require("@/assets/smirk.png"); // Very Happy
   };
 
+  const handleNext = async () => {
+    if (isLoggedIn) {
+      const profileData = {
+        activityLevel: sliderValue,
+      };
+
+      try {
+        await updateProfile(profileData).unwrap();
+        await refetch();
+        navigation.navigate("MyProfile");
+      } catch (error) {
+        console.error("Error saving profile:", error);
+      }
+    } else if (!isLoggedIn) {
+      dispatch(setActivityLevel(weight));
+      navigation.push("ProfileActivitiesScreen");
+    }
+  };
   return (
     <View
       style={{
@@ -111,12 +148,7 @@ const ProfileFitness = () => {
           width: "90%",
         }}
       >
-        <Button
-          title="Save"
-          handlePress={() => {
-            navigation.push("ProfileActivitiesScreen");
-          }}
-        />
+        <Button title="Save" handlePress={handleNext} />
       </View>
     </View>
   );

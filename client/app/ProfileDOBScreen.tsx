@@ -5,7 +5,7 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "@/constants/ThemeProvider";
 import Button from "@/components/Button";
 import DateTimePicker, {
@@ -13,12 +13,33 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import Toast from "react-native-toast-message";
 import { useRouter } from "expo-router";
+import { useSelector } from "react-redux";
+import {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+} from "@/redux/api/apiClient";
+import { birthday } from "@/utils/birthday";
+import { useDispatch } from "react-redux";
+import { setBirthday } from "@/redux/slices/profileSlice";
 
 const ProfileDOBScreen = () => {
   const { colors, dark } = useTheme();
   const navigation = useRouter();
+  const dispatch = useDispatch();
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
+
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+  console.log(profile);
+
+  useEffect(() => {
+    if (profile && profile?.profileOfUsers && profile.profileOfUsers.birthday) {
+      setDate(new Date(profile.profileOfUsers.birthday));
+    }
+  }, [profile]);
+
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
 
   const onChange = (
     event: DateTimePickerEvent,
@@ -36,6 +57,26 @@ const ProfileDOBScreen = () => {
     today.getDate()
   );
 
+  const handleSave = async () => {
+    if (isLoggedIn) {
+      const profileData = {
+        birthday: birthday(date),
+      };
+
+      try {
+        await updateProfile(profileData).unwrap();
+        // Optionally, you can refetch the profile data if needed
+        await refetch();
+        navigation.push("MyProfile");
+      } catch (error) {
+        console.error("Error saving birthday:", error);
+      }
+    } else {
+      dispatch(setBirthday(date));
+      navigation.push("ProfileHeightScreen");
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: colors.background }}
@@ -47,19 +88,15 @@ const ProfileDOBScreen = () => {
           When is your birthday?
         </Text>
         <Text style={[styles.dateText, { color: colors.text }]}>
-          {date.toLocaleDateString("en-GB", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-          })}
+          {birthday(date)}
         </Text>
       </View>
       <View
         style={[styles.buttonContainer, { backgroundColor: colors.background }]}
       >
         <Button
-          title="SAVE"
-          handlePress={() => navigation.push("ProfileHeightScreen")}
+          title={isLoggedIn ? "SAVE" : "CONTINUE"}
+          handlePress={handleSave}
         />
       </View>
       <View style={styles.datePickerContainer}>

@@ -19,7 +19,7 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { logout } from "@/redux/slices/userSlice";
 import { useGetProfileQuery } from "@/redux/api/apiClient";
-
+import { birthday } from "@/utils/birthday";
 const MyProfile = () => {
   const { colors, dark } = useTheme();
   const navigation = useRouter();
@@ -189,6 +189,13 @@ const ProfileItem = ({
     </TouchableOpacity>
   );
 };
+// const birthday = (birthday) => {
+//   return new Date(birthday).toLocaleDateString("en-GB", {
+//     day: "numeric",
+//     month: "short",
+//     year: "numeric",
+//   });
+// };
 
 const ProfileScreen = () => {
   const { colors } = useTheme();
@@ -242,14 +249,7 @@ const ProfileScreen = () => {
         />
         <ProfileItem
           title="Date of Birth"
-          value={new Date(profile?.profileOfUsers?.birthday).toLocaleDateString(
-            "en-GB",
-            {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            }
-          )}
+          value={birthday(profile?.profileOfUsers?.birthday)}
           onPress={() => navigation.navigate("ProfileDOBScreen")}
         />
         <ProfileItem

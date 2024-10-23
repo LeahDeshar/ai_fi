@@ -7,22 +7,70 @@ import {
   View,
   TouchableOpacity,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "@/constants/ThemeProvider";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
+import { setCurrentWeight } from "@/redux/slices/profileSlice";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+} from "@/redux/api/apiClient";
 
 const ProfileStartWeightScreen = () => {
   const { colors } = useTheme();
   const [weight, setWeight] = useState("");
   const [unit, setUnit] = useState("kg");
-  const [error, setError] = useState("");
+  // const [error, setError] = useState("");
   const navigation = useRouter();
-  const handleSave = () => {
-    navigation.push("ProfileTargetWeightScreen");
-  };
 
-  console.log(unit);
+  const dispatch = useDispatch();
+
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+
+  useEffect(() => {
+    if (profile && profile.profileOfUsers) {
+      const preferredUnits = profile.profileOfUsers.preferredUnits;
+
+      if (preferredUnits === "metric") {
+        setUnit("kg");
+        setWeight(profile.profileOfUsers.currentWeight.kilograms.toString());
+      } else if (preferredUnits === "imperial") {
+        setUnit("lbs");
+        // const heightParts = profile.profileOfUsers.currentWeight.split(" ");
+        // setWeight(heightParts[0]);
+        // setInches(heightParts[1] || "");
+      }
+    }
+  }, [profile]);
+
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
+
+  const handleNext = async () => {
+    if (isLoggedIn) {
+      if (profile.profileOfUsers.preferredUnits == "metric") {
+        const profileData = {
+          currentWeight: {
+            kilograms: weight,
+          },
+        };
+
+        try {
+          await updateProfile(profileData).unwrap();
+          await refetch();
+          navigation.navigate("MyProfile");
+        } catch (error) {
+          console.error("Error saving profile:", error);
+        }
+      }
+    } else if (!isLoggedIn) {
+      dispatch(setCurrentWeight(weight));
+      navigation.push("ProfileTargetWeightScreen");
+    }
+  };
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: colors.background, paddingTop: 80 }}
@@ -120,7 +168,7 @@ const ProfileStartWeightScreen = () => {
         </View>
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+        <TouchableOpacity style={styles.saveButton} onPress={handleNext}>
           <Text style={styles.saveButtonText}>SAVE</Text>
         </TouchableOpacity>
       </View>
@@ -150,6 +198,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: "30%",
+    color: "white",
     height: 40,
     borderBottomColor: "#ccc",
     borderBottomWidth: 1,

@@ -6,30 +6,75 @@ import {
   TextInput,
   View,
   TouchableOpacity,
+  Alert,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "@/constants/ThemeProvider";
 import { Picker } from "@react-native-picker/picker";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
 import { Colors } from "@/constants/Colors";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+} from "@/redux/api/apiClient";
+import { setCurrentHeight } from "@/redux/slices/profileSlice";
 const ProfileHeightScreen = () => {
   const { colors } = useTheme();
 
   const [weight, setWeight] = useState("");
+  const [inches, setInches] = useState("");
   const [unit, setUnit] = useState("ft");
-  const [error, setError] = useState("");
+  // const [error, setError] = useState("");/
   const navigation = useRouter();
-  const handleSave = () => {
-    // if (!weight || isNaN(weight)) {
-    //   setError("Enter a valid height");
-    // } else {
-    //   setError("");
-    navigation.push("ProfileStartWeightScreen");
-    // Handle save action here
-    console.log(`Height: ${weight} ${unit}`);
-    // }
+  const dispatch = useDispatch();
+
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+
+  useEffect(() => {
+    if (profile && profile.profileOfUsers) {
+      const preferredUnits = profile.profileOfUsers.preferredUnits;
+
+      if (preferredUnits === "metric") {
+        setUnit("cm");
+        setWeight(profile.profileOfUsers.currentHeight.centimeters.toString());
+      } else if (preferredUnits === "imperial") {
+        setUnit("ft");
+        const heightParts = profile.profileOfUsers.currentHeight.split(" ");
+        setWeight(heightParts[0]);
+        setInches(heightParts[1] || "");
+      }
+    }
+  }, [profile]);
+
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
+
+  const handleNext = async () => {
+    if (isLoggedIn) {
+      if (profile.profileOfUsers.preferredUnits == "metric") {
+        const profileData = {
+          currentHeight: {
+            centimeters: weight,
+          },
+        };
+
+        try {
+          await updateProfile(profileData).unwrap();
+          await refetch();
+          navigation.navigate("MyProfile");
+        } catch (error) {
+          console.error("Error saving profile:", error);
+        }
+      }
+    } else if (!isLoggedIn) {
+      dispatch(setCurrentHeight(weight));
+      navigation.push("ProfileStartWeightScreen");
+    }
   };
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: colors.background, paddingTop: 80 }}
@@ -110,9 +155,10 @@ const ProfileHeightScreen = () => {
           }}
         >
           <TextInput
-            style={styles.input}
+            style={[{ color: "white" }, styles.input]}
             keyboardType="numeric"
             value={weight}
+            placeholderTextColor={"white"}
             autoFocus={true}
             onChangeText={setWeight}
           />
@@ -148,7 +194,7 @@ const ProfileHeightScreen = () => {
         </View>
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+        <TouchableOpacity style={styles.saveButton} onPress={handleNext}>
           <Text style={styles.saveButtonText}>SAVE</Text>
         </TouchableOpacity>
       </View>
@@ -196,6 +242,7 @@ const styles = StyleSheet.create({
     padding: 8,
     marginBottom: 24,
     textAlign: "center",
+    color: "white",
   },
   errorText: {
     color: "#f00",

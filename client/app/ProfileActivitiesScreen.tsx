@@ -18,52 +18,24 @@ const ProfileActivitiesScreen = () => {
 
   const activities = [
     {
-      name: "Running",
+      name: "Fitness at Home",
       icon: "🏃‍♂️",
     },
     {
-      name: "Cycling",
+      name: "Somatic",
       icon: "🚴‍♂️",
     },
     {
-      name: "Swimming",
+      name: "Walking",
       icon: "🏊‍♂️",
     },
     {
+      name: "Stretching",
+      icon: "🧘‍♂️",
+    },
+    {
       name: "Yoga",
-      icon: "🧘‍♂️",
-    },
-    {
-      name: "Weightlifting",
       icon: "🏋️‍♂️",
-    },
-    {
-      name: "Pilates",
-      icon: "🧘‍♂️",
-    },
-    {
-      name: "Dance",
-      icon: "💃",
-    },
-    {
-      name: "Meditation",
-      icon: "🧘‍♂️",
-    },
-    {
-      name: "Boxing",
-      icon: "🥊",
-    },
-    {
-      name: "HIIT",
-      icon: "🏋️‍♂️",
-    },
-    {
-      name: "Crossfit",
-      icon: "🏋️‍♂️",
-    },
-    {
-      name: "Walking",
-      icon: "🚶‍♂️",
     },
   ];
 

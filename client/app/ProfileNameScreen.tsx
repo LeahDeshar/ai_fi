@@ -27,7 +27,6 @@ const ProfileNameScreen = () => {
 
   const { user, token, isLoggedIn } = useSelector((state) => state.auth);
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
-  console.log(profile);
 
   useEffect(() => {
     if (profile && profile?.profileOfUsers && profile.profileOfUsers.name) {
@@ -46,14 +45,15 @@ const ProfileNameScreen = () => {
       try {
         await updateProfile(profileData).unwrap();
         await refetch();
+        navigation.navigate("MyProfile");
       } catch (error) {
         console.error("Error saving profile:", error);
       }
     }
 
     dispatch(setName(userName));
-    // navigation.push("ProfileGender");
-    navigation.navigate("MyProfile");
+    navigation.push("ProfileGender");
+    // navigation.navigate("MyProfile");
   };
 
   return (
