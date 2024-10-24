@@ -4,15 +4,16 @@ const initialState = {
   name: "",
   gender: "",
   birthday: "",
-  currentHeight: {},
-  currentWeight: {},
-  goalWeight: {},
+  currentHeight: { centimeters: null, feet: null, inches: null },
+  currentWeight: { kilograms: null, pounds: null },
+  goalWeight: { kilograms: null, pounds: null },
+
   activityLevel: "",
   activitiesLiked: [],
   specialPrograms: [],
   dailySteps: null,
   preferredDietType: "",
-  preferredUnits: "metric",
+  preferredUnits: "",
   profilePic: {},
 };
 

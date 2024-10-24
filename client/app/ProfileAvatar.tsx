@@ -6,6 +6,7 @@ import { useNavigation, useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import {
+  useCreateProfileMutation,
   useGetProfileQuery,
   useUpdateProfileMutation,
 } from "@/redux/api/apiClient";
@@ -24,9 +25,27 @@ const ProfileAvatar = () => {
   const { user, token, isLoggedIn, isRegProcess } = useSelector(
     (state) => state.auth
   );
+  const {
+    name,
+    gender,
+    birthday,
+    currentHeight,
+    currentWeight,
+    goalWeight,
+    activityLevel,
+    activitiesLiked,
+    specialPrograms,
+    dailySteps,
+    preferredDietType,
+    preferredUnits,
+    profilePic,
+  } = useSelector((state) => state.profile);
+
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
+  console.log("preferredUnits", preferredUnits);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [createProfile, { isLoadings }] = useCreateProfileMutation();
   useEffect(() => {
     if (profile && profile.profileOfUsers) {
       setSelectedImage(profile?.profileOfUsers?.profilePic?.url);
@@ -50,12 +69,31 @@ const ProfileAvatar = () => {
         console.error("Error saving profile:", error);
       }
     } else if (isRegProcess) {
-      dispatch(setProfilePic({ url: selectedImage }));
-
-      navigation.push("ProfileSummaryScreen");
+      try {
+        dispatch(setProfilePic({ url: selectedImage }));
+        await createProfile({
+          name,
+          gender,
+          birthday,
+          currentHeight,
+          currentWeight,
+          goalWeight,
+          activityLevel,
+          activitiesLiked,
+          specialPrograms,
+          dailySteps,
+          preferredDietType,
+          preferredUnits,
+          profilePic,
+        }).unwrap();
+        navigation.push("ProfileSummaryScreen");
+      } catch (error) {
+        console.error("Error saving profile:", error);
+      }
     }
   };
 
+  console.log(profilePic);
   const handleSelectImage = async () => {
     try {
       const permissionResult =
@@ -89,6 +127,18 @@ const ProfileAvatar = () => {
         alignItems: "center",
       }}
     >
+      {/* <Text
+        style={{
+          color: colors.text,
+          fontSize: 35,
+          fontWeight: "bold",
+          textAlign: "center",
+          marginTop: 150,
+          paddingBottom: 20,
+        }}
+      >
+        {name}, Choose your profile picture
+      </Text> */}
       <TouchableOpacity
         onPress={handleSelectImage}
         style={{

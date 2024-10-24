@@ -257,6 +257,12 @@ export const createUserProfileController = async (req, res) => {
         .status(400)
         .json({ message: "Profile already exists for this user." });
     }
+    console.log(req.body);
+    console.log(
+      JSON.parse(currentWeight),
+      JSON.parse(goalWeight),
+      JSON.parse(activitiesLiked)
+    );
 
     // Handle height parsing based on preferred units
     let heightData;
@@ -294,12 +300,37 @@ export const createUserProfileController = async (req, res) => {
         .json({ message: "Preferred units must be provided." });
     }
 
+    let weightData;
+    if (typeof currentWeight === "string") {
+      try {
+        weightData = JSON.parse(currentWeight);
+      } catch (error) {
+        console.error("JSON parsing error:", error);
+        return res.status(400).json({ message: "Invalid weight format." });
+      }
+    } else {
+      weightData = currentWeight;
+    }
+
+    let weightTarData;
+    if (typeof goalWeight === "string") {
+      try {
+        weightTarData = JSON.parse(goalWeight);
+      } catch (error) {
+        console.error("JSON parsing error:", error);
+        return res.status(400).json({ message: "Invalid goalWeight format." });
+      }
+    } else {
+      weightTarData = goalWeight;
+    }
+
+    console.log(weightData, weightTarData);
     // Handle weight conversion based on preferred units
     let weightInKg = 0;
     if (preferredUnits === "imperial") {
-      weightInKg = currentWeight * 0.453592; // Convert lbs to kg
+      weightInKg = weightData.pounds * 0.453592; // Convert lbs to kg
     } else if (preferredUnits === "metric") {
-      weightInKg = currentWeight;
+      weightInKg = weightData.kilograms;
     } else {
       return res
         .status(400)
@@ -308,9 +339,9 @@ export const createUserProfileController = async (req, res) => {
 
     let goalWeightInKg = 0;
     if (preferredUnits === "imperial") {
-      goalWeightInKg = goalWeight * 0.453592; // Convert lbs to kg
+      goalWeightInKg = weightTarData.pounds * 0.453592; // Convert lbs to kg
     } else if (preferredUnits === "metric") {
-      goalWeightInKg = goalWeight;
+      goalWeightInKg = weightTarData.kilogams;
     } else {
       return res
         .status(400)
@@ -319,6 +350,7 @@ export const createUserProfileController = async (req, res) => {
 
     // Handle profile picture upload
     let profilePicData = {};
+    console.log("profile", req.file);
     const file = getDataUri(req.file);
     if (file) {
       const result = await cloudinary.v2.uploader.upload(file.content);
@@ -341,14 +373,14 @@ export const createUserProfileController = async (req, res) => {
           : { centimeters: heightInCm },
       currentWeight:
         preferredUnits === "imperial"
-          ? { pounds: currentWeight }
-          : { kilograms: currentWeight },
+          ? { pounds: weightData.pounds }
+          : { kilograms: weightData.kilograms },
       goalWeight:
         preferredUnits === "imperial"
-          ? { pounds: goalWeight }
-          : { kilograms: goalWeight },
+          ? { pounds: weightTarData.pounds }
+          : { kilograms: weightTarData.kilograms },
       activityLevel,
-      activitiesLiked,
+      activitiesLiked: JSON.parse(activitiesLiked),
       specialPrograms,
       dailySteps,
       preferredDietType,

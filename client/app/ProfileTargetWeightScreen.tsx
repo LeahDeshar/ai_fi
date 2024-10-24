@@ -70,17 +70,13 @@ const ProfileTargetWeightScreen = () => {
       if (unit == "kg") {
         dispatch(
           setGoalWeight({
-            goalWeight: {
-              kilograms: weight,
-            },
+            kilograms: parseFloat(weight),
           })
         );
       } else if (unit == "lbs") {
         dispatch(
           setGoalWeight({
-            goalWeight: {
-              pounds: weight,
-            },
+            pounds: parseFloat(weight),
           })
         );
       }

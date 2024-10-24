@@ -19,7 +19,9 @@ const ProfileUnitsScreen = () => {
 
   const dispatch = useDispatch();
 
-  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
   useEffect(() => {
@@ -30,6 +32,8 @@ const ProfileUnitsScreen = () => {
   }, [profile]);
 
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
+
+  console.log("units", units);
 
   const handleNext = async () => {
     if (isLoggedIn) {
@@ -46,7 +50,7 @@ const ProfileUnitsScreen = () => {
           console.error("Error saving profile:", error);
         }
       }
-    } else if (!isLoggedIn) {
+    } else if (isRegProcess) {
       dispatch(setPreferredUnits(units));
 
       navigation.push("ProfileGender");

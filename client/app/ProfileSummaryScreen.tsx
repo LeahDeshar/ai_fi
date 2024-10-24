@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { useTheme } from "@/constants/ThemeProvider";
 import { useRouter } from "expo-router";
@@ -6,6 +6,8 @@ import Slider from "@react-native-community/slider";
 import { LinearGradient } from "expo-linear-gradient";
 import { AntDesign } from "@expo/vector-icons";
 import Button from "@/components/Button";
+import { useSelector } from "react-redux";
+import { useGetProfileQuery } from "@/redux/api/apiClient";
 
 const ProfileSummaryScreen = () => {
   const { colors } = useTheme();
@@ -13,12 +15,24 @@ const ProfileSummaryScreen = () => {
   const minBmi = 10;
   const maxBmi = 40;
 
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+  console.log(profile.calculations.bmi);
+
   const [bmi, setBmi] = useState(29.5);
   const screenWidth = Dimensions.get("window").width;
 
   const scaleBmiToSlider = (bmi) => {
     return ((bmi - minBmi) / (maxBmi - minBmi)) * 100;
   };
+
+  useEffect(() => {
+    if (profile && profile.profileOfUsers) {
+      setBmi(profile.calculations.bmi);
+    }
+  }, [profile]);
 
   const sliderValue = scaleBmiToSlider(bmi);
 

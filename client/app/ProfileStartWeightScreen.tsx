@@ -70,7 +70,7 @@ const ProfileStartWeightScreen = () => {
       if (unit == "kg") {
         dispatch(
           setCurrentWeight({
-            kilograms: weight,
+            kilograms: parseFloat(weight),
           })
         );
       } else if (unit == "lbs") {

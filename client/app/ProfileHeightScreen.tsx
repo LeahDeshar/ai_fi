@@ -90,9 +90,14 @@ const ProfileHeightScreen = () => {
       }
     } else if (isRegProcess) {
       if (unit == "cm") {
-        dispatch(setCurrentHeight({ centimeter: weight }));
+        dispatch(setCurrentHeight({ centimeters: parseFloat(weight) }));
       } else if (unit == "ft") {
-        dispatch(setCurrentHeight({ feet: feet, inches: inches }));
+        dispatch(
+          setCurrentHeight({
+            feet: parseFloat(feet),
+            inches: parseFloat(inches),
+          })
+        );
       }
       navigation.push("ProfileStartWeightScreen");
     }
