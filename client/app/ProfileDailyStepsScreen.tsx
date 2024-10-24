@@ -18,7 +18,9 @@ const ProfileDailyStepsScreen = () => {
   const [dailyGoal, setDailyGoal] = useState(3000);
   const dispatch = useDispatch();
 
-  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
   useEffect(() => {
@@ -43,7 +45,7 @@ const ProfileDailyStepsScreen = () => {
       } catch (error) {
         console.error("Error saving profile:", error);
       }
-    } else if (!isLoggedIn) {
+    } else if (isRegProcess) {
       dispatch(setDailySteps(dailyGoal));
 
       navigation.push("ProfileDietType");
@@ -77,24 +79,26 @@ const ProfileDailyStepsScreen = () => {
       >
         Select Your Daily Steps:
       </Text>
-      <View
-        style={{
-          paddingVertical: 15,
-          borderRadius: 20,
-          backgroundColor: "rgba(255,255,255,0.1)",
-        }}
-      >
-        <Text
+      {isLoggedIn && (
+        <View
           style={{
-            color: colors.tabIconDefault,
-            fontSize: 15,
-            textAlign: "center",
+            paddingVertical: 15,
+            borderRadius: 20,
+            backgroundColor: "rgba(255,255,255,0.1)",
           }}
         >
-          Your Recommended Daily Steps is{" "}
-          {profile?.calculations.dailyStepRecommendation}
-        </Text>
-      </View>
+          <Text
+            style={{
+              color: colors.tabIconDefault,
+              fontSize: 15,
+              textAlign: "center",
+            }}
+          >
+            Your Recommended Daily Steps is{" "}
+            {profile?.calculations.dailyStepRecommendation}
+          </Text>
+        </View>
+      )}
 
       <View style={styles.pickerContainer}>
         <View
@@ -156,7 +160,10 @@ const ProfileDailyStepsScreen = () => {
           marginBottom: 50,
         }}
       >
-        <Button title="Save" handlePress={handleNext} />
+        <Button
+          title={isLoggedIn ? "SAVE" : "CONTINUE"}
+          handlePress={handleNext}
+        />
       </View>
     </View>
   );

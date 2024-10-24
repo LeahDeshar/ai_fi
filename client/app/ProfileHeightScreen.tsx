@@ -27,16 +27,20 @@ const ProfileHeightScreen = () => {
   const [weight, setWeight] = useState("");
   const [feet, setFeet] = useState("");
   const [inches, setInches] = useState("");
-  const [unit, setUnit] = useState("ft");
+  const [unit, setUnit] = useState("cm");
+  console.log(weight, feet, inches);
   // const [error, setError] = useState("");/
   const navigation = useRouter();
   const dispatch = useDispatch();
 
-  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+  console.log(profile);
 
   useEffect(() => {
-    if (profile && profile.profileOfUsers) {
+    if (profile && profile?.profileOfUsers) {
       const preferredUnits = profile.profileOfUsers.preferredUnits;
 
       if (preferredUnits === "metric") {
@@ -84,8 +88,12 @@ const ProfileHeightScreen = () => {
           console.error("Error saving profile:", error);
         }
       }
-    } else if (!isLoggedIn) {
-      dispatch(setCurrentHeight(weight));
+    } else if (isRegProcess) {
+      if (unit == "cm") {
+        dispatch(setCurrentHeight({ centimeter: weight }));
+      } else if (unit == "ft") {
+        dispatch(setCurrentHeight({ feet: feet, inches: inches }));
+      }
       navigation.push("ProfileStartWeightScreen");
     }
   };
@@ -173,14 +181,14 @@ const ProfileHeightScreen = () => {
             style={[{ color: "white" }, styles.input]}
             keyboardType="numeric"
             value={
-              profile.profileOfUsers.preferredUnits === "imperial"
+              profile?.profileOfUsers?.preferredUnits === "imperial"
                 ? feet
                 : weight
             }
             placeholderTextColor={"white"}
             autoFocus={true}
             onChangeText={
-              profile.profileOfUsers.preferredUnits === "imperial"
+              profile?.profileOfUsers?.preferredUnits === "imperial"
                 ? setFeet
                 : setWeight
             }
@@ -216,9 +224,21 @@ const ProfileHeightScreen = () => {
           )}
         </View>
 
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-        <TouchableOpacity style={styles.saveButton} onPress={handleNext}>
-          <Text style={styles.saveButtonText}>SAVE</Text>
+        {/* {error ? <Text style={styles.errorText}>{error}</Text> : null} */}
+        <TouchableOpacity
+          style={{
+            width: "100%",
+            padding: 16,
+            backgroundColor: colors.primary,
+            top: 135,
+            borderRadius: 8,
+            alignItems: "center",
+          }}
+          onPress={handleNext}
+        >
+          <Text style={styles.saveButtonText}>
+            {isLoggedIn ? "SAVE" : "CONTINUE"}
+          </Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -271,14 +291,7 @@ const styles = StyleSheet.create({
     color: "#f00",
     marginBottom: 24,
   },
-  saveButton: {
-    width: "100%",
-    padding: 16,
-    backgroundColor: "#DF4041",
-    top: 135,
-    borderRadius: 8,
-    alignItems: "center",
-  },
+  saveButton: {},
   saveButtonText: {
     color: "#fff",
     fontSize: 16,

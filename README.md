@@ -34,7 +34,12 @@ Full Application Integration
 
 - [x] react query
 - [x] auth success (login/register)
-- [ ] profile operations
-- [ ] profile update
+- [x] profile operations
+- [x] profile update
 - [ ] delete account
-- [ ] image modules
+- [x] image modules
+- [ ] recommendation
+  - [ ] calorie
+  - [ ] sleep
+  - [ ] water
+  - [ ] daily step

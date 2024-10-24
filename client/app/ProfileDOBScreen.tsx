@@ -29,7 +29,9 @@ const ProfileDOBScreen = () => {
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
 
-  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
   console.log(profile);
 
@@ -71,7 +73,7 @@ const ProfileDOBScreen = () => {
       } catch (error) {
         console.error("Error saving birthday:", error);
       }
-    } else {
+    } else if (isRegProcess) {
       dispatch(setBirthday(date));
       navigation.push("ProfileHeightScreen");
     }

@@ -47,7 +47,7 @@ export default function RootLayout() {
 
 const InnerStack = () => {
   const { colors, dark } = useTheme();
-  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { isLoggedIn } = useSelector((state) => state.auth);
 
   return (
     <Stack
@@ -110,18 +110,19 @@ const InnerStack = () => {
             backgroundColor: "rgba(0,0,0,0.2)",
           },
           // Customize the left side of the header
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ marginLeft: 5 }} // Adjust the position
-            >
-              <MaterialIcons
-                name="arrow-back-ios-new"
-                size={24}
-                color={colors.text}
-              />
-            </TouchableOpacity>
-          ),
+          headerLeft: () =>
+            isLoggedIn && (
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ marginLeft: 5 }} // Adjust the position
+              >
+                <MaterialIcons
+                  name="arrow-back-ios-new"
+                  size={24}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            ),
         })}
       />
       <Stack.Screen
@@ -136,18 +137,19 @@ const InnerStack = () => {
             backgroundColor: "rgba(0,0,0,0.2)",
           },
           // Customize the left side of the header
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ marginLeft: 5 }} // Adjust the position
-            >
-              <MaterialIcons
-                name="arrow-back-ios-new"
-                size={24}
-                color={colors.text}
-              />
-            </TouchableOpacity>
-          ),
+          headerLeft: () =>
+            isLoggedIn && (
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ marginLeft: 5 }} // Adjust the position
+              >
+                <MaterialIcons
+                  name="arrow-back-ios-new"
+                  size={24}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            ),
         })}
       />
       <Stack.Screen
@@ -192,6 +194,7 @@ const InnerStack = () => {
         name="PersonalizeScreen"
         options={{
           headerShown: false,
+          gestureEnabled: false,
         }}
       />
       <Stack.Screen
@@ -206,18 +209,19 @@ const InnerStack = () => {
             backgroundColor: "rgba(0,0,0,0.2)",
           },
           // Customize the left side of the header
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ marginLeft: 5 }} // Adjust the position
-            >
-              <MaterialIcons
-                name="arrow-back-ios-new"
-                size={24}
-                color={colors.text}
-              />
-            </TouchableOpacity>
-          ),
+          headerLeft: () =>
+            isLoggedIn && (
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ marginLeft: 5 }} // Adjust the position
+              >
+                <MaterialIcons
+                  name="arrow-back-ios-new"
+                  size={24}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            ),
         })}
       />
       <Stack.Screen
@@ -287,6 +291,7 @@ const InnerStack = () => {
           },
           // Customize the left side of the header
           headerLeft: () =>
+            isLoggedIn &&
             isLoggedIn && (
               <TouchableOpacity
                 onPress={() => navigation.goBack()}
@@ -313,18 +318,19 @@ const InnerStack = () => {
             backgroundColor: "rgba(0,0,0,0.2)",
           },
           // Customize the left side of the header
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ marginLeft: 5 }} // Adjust the position
-            >
-              <MaterialIcons
-                name="arrow-back-ios-new"
-                size={24}
-                color={colors.text}
-              />
-            </TouchableOpacity>
-          ),
+          headerLeft: () =>
+            isLoggedIn && (
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ marginLeft: 5 }} // Adjust the position
+              >
+                <MaterialIcons
+                  name="arrow-back-ios-new"
+                  size={24}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            ),
         })}
       />
       <Stack.Screen
@@ -339,18 +345,7 @@ const InnerStack = () => {
             backgroundColor: "rgba(0,0,0,0.2)",
           },
           // Customize the left side of the header
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ marginLeft: 5 }} // Adjust the position
-            >
-              <MaterialIcons
-                name="arrow-back-ios-new"
-                size={24}
-                color={colors.text}
-              />
-            </TouchableOpacity>
-          ),
+          headerLeft: () => <View />,
         })}
       />
       <Stack.Screen
@@ -395,18 +390,19 @@ const InnerStack = () => {
             backgroundColor: "rgba(0,0,0,0.2)",
           },
           // Customize the left side of the header
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ marginLeft: 5 }} // Adjust the position
-            >
-              <MaterialIcons
-                name="arrow-back-ios-new"
-                size={24}
-                color={colors.text}
-              />
-            </TouchableOpacity>
-          ),
+          headerLeft: () =>
+            isLoggedIn && (
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ marginLeft: 5 }} // Adjust the position
+              >
+                <MaterialIcons
+                  name="arrow-back-ios-new"
+                  size={24}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            ),
         })}
       />
       <Stack.Screen
@@ -448,18 +444,19 @@ const InnerStack = () => {
             backgroundColor: "rgba(0,0,0,0.2)",
           },
           // Customize the left side of the header
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ marginLeft: 5 }} // Adjust the position
-            >
-              <MaterialIcons
-                name="arrow-back-ios-new"
-                size={24}
-                color={colors.text}
-              />
-            </TouchableOpacity>
-          ),
+          headerLeft: () =>
+            isLoggedIn && (
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ marginLeft: 5 }} // Adjust the position
+              >
+                <MaterialIcons
+                  name="arrow-back-ios-new"
+                  size={24}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            ),
         })}
       />
       <Stack.Screen
@@ -474,18 +471,19 @@ const InnerStack = () => {
             backgroundColor: "rgba(0,0,0,0.2)",
           },
           // Customize the left side of the header
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ marginLeft: 5 }} // Adjust the position
-            >
-              <MaterialIcons
-                name="arrow-back-ios-new"
-                size={24}
-                color={colors.text}
-              />
-            </TouchableOpacity>
-          ),
+          headerLeft: () =>
+            isLoggedIn && (
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ marginLeft: 5 }} // Adjust the position
+              >
+                <MaterialIcons
+                  name="arrow-back-ios-new"
+                  size={24}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            ),
         })}
       />
       <Stack.Screen
@@ -500,18 +498,19 @@ const InnerStack = () => {
             backgroundColor: "rgba(0,0,0,0.2)",
           },
           // Customize the left side of the header
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ marginLeft: 5 }} // Adjust the position
-            >
-              <MaterialIcons
-                name="arrow-back-ios-new"
-                size={24}
-                color={colors.text}
-              />
-            </TouchableOpacity>
-          ),
+          headerLeft: () =>
+            isLoggedIn && (
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ marginLeft: 5 }} // Adjust the position
+              >
+                <MaterialIcons
+                  name="arrow-back-ios-new"
+                  size={24}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            ),
         })}
       />
       <Stack.Screen

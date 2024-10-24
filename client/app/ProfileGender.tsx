@@ -4,12 +4,15 @@ import { useTheme } from "@/constants/ThemeProvider";
 import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
+import { useSelector } from "react-redux";
+import { setGender } from "@/redux/slices/profileSlice";
+import { useDispatch } from "react-redux";
 
 const ProfileGender = () => {
   const { colors } = useTheme();
   const navigation = useRouter();
   const [selectedGender, setSelectedGender] = useState("Male");
-
+  const dispatch = useDispatch();
   const genders = [
     {
       name: "Male",
@@ -23,6 +26,16 @@ const ProfileGender = () => {
 
   const selectGender = (genderName) => {
     setSelectedGender(genderName);
+  };
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
+
+  const handleNext = () => {
+    if (isRegProcess) {
+      dispatch(setGender(selectedGender));
+      navigation.push("ProfileDOBScreen");
+    }
   };
 
   return (
@@ -102,10 +115,20 @@ const ProfileGender = () => {
         }}
       >
         <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.push("ProfileDOBScreen")}
+          style={{
+            width: "90%",
+            height: 50,
+            borderRadius: 30,
+            backgroundColor: colors.primary,
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 10,
+          }}
+          onPress={handleNext}
         >
-          <Text style={styles.buttonText}>NEXT</Text>
+          <Text style={styles.buttonText}>
+            {isLoggedIn ? "SAVE" : "CONTINUE"}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -126,15 +149,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  button: {
-    width: "90%",
-    height: 50,
-    borderRadius: 30,
-    backgroundColor: "#fd6060f8",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 10,
-  },
+  button: {},
   buttonText: {
     color: "#fff",
     fontSize: 16,

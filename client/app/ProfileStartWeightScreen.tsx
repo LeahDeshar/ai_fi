@@ -28,7 +28,9 @@ const ProfileStartWeightScreen = () => {
 
   const dispatch = useDispatch();
 
-  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
   useEffect(() => {
@@ -64,8 +66,20 @@ const ProfileStartWeightScreen = () => {
           console.error("Error saving profile:", error);
         }
       }
-    } else if (!isLoggedIn) {
-      dispatch(setCurrentWeight(weight));
+    } else if (isRegProcess) {
+      if (unit == "kg") {
+        dispatch(
+          setCurrentWeight({
+            kilograms: weight,
+          })
+        );
+      } else if (unit == "lbs") {
+        dispatch(
+          setCurrentWeight({
+            pounds: weight,
+          })
+        );
+      }
       navigation.push("ProfileTargetWeightScreen");
     }
   };
@@ -165,9 +179,21 @@ const ProfileStartWeightScreen = () => {
           </Text>
         </View>
 
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-        <TouchableOpacity style={styles.saveButton} onPress={handleNext}>
-          <Text style={styles.saveButtonText}>SAVE</Text>
+        {/* {error ? <Text style={styles.errorText}>{error}</Text> : null} */}
+        <TouchableOpacity
+          style={{
+            width: "100%",
+            padding: 16,
+            backgroundColor: colors.primary,
+            top: 135,
+            borderRadius: 8,
+            alignItems: "center",
+          }}
+          onPress={handleNext}
+        >
+          <Text style={styles.saveButtonText}>
+            {isLoggedIn ? "SAVE" : "CONTINUE"}
+          </Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -208,14 +234,7 @@ const styles = StyleSheet.create({
     color: "#f00",
     marginBottom: 24,
   },
-  saveButton: {
-    width: "100%",
-    padding: 16,
-    backgroundColor: "#DF4041",
-    top: 135,
-    borderRadius: 8,
-    alignItems: "center",
-  },
+  saveButton: {},
   saveButtonText: {
     color: "#fff",
     fontSize: 16,

@@ -5,14 +5,15 @@ const initialState = {
   gender: "",
   birthday: "",
   currentHeight: {},
-  currentWeight: null,
-  goalWeight: null,
+  currentWeight: {},
+  goalWeight: {},
   activityLevel: "",
   activitiesLiked: [],
   specialPrograms: [],
   dailySteps: null,
   preferredDietType: "",
   preferredUnits: "metric",
+  profilePic: {},
 };
 
 const profileSlice = createSlice({
@@ -24,6 +25,9 @@ const profileSlice = createSlice({
     },
     setGender: (state, action) => {
       state.gender = action.payload;
+    },
+    setProfilePic: (state, action) => {
+      state.profilePic = action.payload;
     },
     setBirthday: (state, action) => {
       state.birthday = action.payload;
@@ -69,6 +73,7 @@ export const {
   setActivityLevel,
   setActivitiesLiked,
   setSpecialPrograms,
+  setProfilePic,
   setDailySteps,
   setPreferredDietType,
   setPreferredUnits,

@@ -17,7 +17,8 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: colors.tabIconDefault,
+        tabBarInactiveTintColor: "white",
         tabBarLabelStyle: {
           fontSize: fontSize.xs,
           fontWeight: "500",
@@ -32,7 +33,7 @@ export default function TabLayout() {
         },
         tabBarBackground: () => (
           <BlurView
-            intensity={dark ? 95 : 60}
+            intensity={dark ? 95 : 120}
             style={{
               ...StyleSheet.absoluteFillObject,
               overflow: "hidden",
@@ -64,7 +65,7 @@ export default function TabLayout() {
               name="home"
               color={
                 focused
-                  ? Colors[colorScheme ?? "light"].tabIconSelected
+                  ? Colors[colorScheme ?? "light"].tabIconDefault
                   : Colors[colorScheme ?? "light"].text
               }
             />
@@ -81,7 +82,7 @@ export default function TabLayout() {
               name="dumbbell"
               color={
                 focused
-                  ? Colors[colorScheme ?? "light"].tabIconSelected
+                  ? Colors[colorScheme ?? "light"].tabIconDefault
                   : Colors[colorScheme ?? "light"].text
               }
             />
@@ -98,7 +99,7 @@ export default function TabLayout() {
               name="timer"
               color={
                 focused
-                  ? Colors[colorScheme ?? "light"].tabIconSelected
+                  ? Colors[colorScheme ?? "light"].tabIconDefault
                   : Colors[colorScheme ?? "light"].text
               }
             />
@@ -115,7 +116,7 @@ export default function TabLayout() {
               name="whistle"
               color={
                 focused
-                  ? Colors[colorScheme ?? "light"].tabIconSelected
+                  ? Colors[colorScheme ?? "light"].tabIconDefault
                   : Colors[colorScheme ?? "light"].text
               }
             />
@@ -132,7 +133,7 @@ export default function TabLayout() {
               name="menu"
               color={
                 focused
-                  ? Colors[colorScheme ?? "light"].tabIconSelected
+                  ? Colors[colorScheme ?? "light"].tabIconDefault
                   : Colors[colorScheme ?? "light"].text
               }
             />

@@ -81,7 +81,17 @@ const ProfileUnitsScreen = () => {
           isSelected={units === "imperial"}
         />
       </View>
-      <Button title="Save" handlePress={handleNext} />
+      <View
+        style={{
+          marginTop: 20,
+          marginHorizontal: 25,
+        }}
+      >
+        <Button
+          title={isLoggedIn ? "SAVE" : "CONTINUE"}
+          handlePress={handleNext}
+        />
+      </View>
     </View>
   );
 };

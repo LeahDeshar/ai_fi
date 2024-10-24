@@ -25,7 +25,9 @@ const ProfileTargetWeightScreen = () => {
   // const [error, setError] = useState("");
   const dispatch = useDispatch();
 
-  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
   useEffect(() => {
@@ -64,8 +66,25 @@ const ProfileTargetWeightScreen = () => {
           console.error("Error saving profile:", error);
         }
       }
-    } else if (!isLoggedIn) {
-      dispatch(setGoalWeight(weight));
+    } else if (isRegProcess) {
+      if (unit == "kg") {
+        dispatch(
+          setGoalWeight({
+            goalWeight: {
+              kilograms: weight,
+            },
+          })
+        );
+      } else if (unit == "lbs") {
+        dispatch(
+          setGoalWeight({
+            goalWeight: {
+              pounds: weight,
+            },
+          })
+        );
+      }
+      // dispatch(setGoalWeight(weight));
       navigation.push("ProfileFitness");
     }
   };
@@ -166,9 +185,22 @@ const ProfileTargetWeightScreen = () => {
           </Text>
         </View>
 
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-        <TouchableOpacity style={styles.saveButton} onPress={handleNext}>
-          <Text style={styles.saveButtonText}>SAVE</Text>
+        {/* {error ? <Text style={styles.errorText}>{error}</Text> : null} */}
+        <TouchableOpacity
+          style={{
+            width: "100%",
+            padding: 16,
+            backgroundColor: colors.primary,
+            top: 135,
+            borderRadius: 8,
+            alignItems: "center",
+          }}
+          onPress={handleNext}
+        >
+          <Text style={styles.saveButtonText}>
+            {" "}
+            {isLoggedIn ? "SAVE" : "CONTINUE"}
+          </Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>

@@ -111,12 +111,16 @@ const moreScreen = () => {
           >
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Image
-                source={{ uri: profile?.profileOfUsers?.profilePic?.url }}
+                source={{
+                  uri:
+                    profile?.profileOfUsers?.profilePic?.url ||
+                    "https://www.testhouse.net/wp-content/uploads/2021/11/default-avatar.jpg",
+                }}
                 style={{ width: 80, height: 80, borderRadius: 75 }}
               />
               <View style={{ marginLeft: 25 }}>
                 <Text style={{ color: colors.text }}>
-                  {profile?.profileOfUsers?.name}
+                  {profile?.profileOfUsers?.name || "Guest"}
                 </Text>
                 <Text style={{ color: colors.text }}>My Profile</Text>
               </View>

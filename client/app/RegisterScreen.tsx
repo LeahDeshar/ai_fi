@@ -14,13 +14,18 @@ import { useRouter } from "expo-router";
 import { checkPersistence } from "@/redux/api/checkPersistence";
 import { useDispatch } from "react-redux";
 import { useRegisterMutation } from "@/redux/api/apiClient";
-import { loginSuccess } from "@/redux/slices/userSlice";
+import { loginSuccess, registrationProcess } from "@/redux/slices/userSlice";
+import { Feather, Ionicons } from "@expo/vector-icons";
 
 const { width, height } = Dimensions.get("window");
 
 const RegisterScreen = () => {
   const navigation = useRouter();
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
 
+  const togglePasswordVisibility = () => {
+    setSecureTextEntry(!secureTextEntry);
+  };
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -29,32 +34,32 @@ const RegisterScreen = () => {
   const [register, { isLoading }] = useRegisterMutation();
 
   const handleRegister = async () => {
-    // if (!email || !password || !confirmPassword) {
-    //   Alert.alert("Error", "Please enter all fields");
-    //   return;
-    // }
+    if (!email || !password || !confirmPassword) {
+      Alert.alert("Error", "Please enter all fields");
+      return;
+    }
 
-    // try {
-    // const response = await register({
-    //   email,
-    //   password,
-    //   confirmPassword,
-    // }).unwrap();
+    try {
+      const response = await register({
+        email,
+        password,
+        confirmPassword,
+      }).unwrap();
 
-    // if (response.success) {
-    //   dispatch(loginSuccess(response));
-    //   Alert.alert("Success", "Registration successfully");
-    navigation.navigate("PersonalizeScreen");
-    //   } else {
-    //     Alert.alert("Error", response.message || "Registration failed");
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    //   Alert.alert(
-    //     "Error",
-    //     error.message || "An error occurred. Please try again."
-    //   );
-    // }
+      if (response.success) {
+        dispatch(registrationProcess(response));
+        Alert.alert("Success", "Registration successfully");
+        navigation.navigate("PersonalizeScreen");
+      } else {
+        Alert.alert("Error", response.message || "Registration failed");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        "Error",
+        error.message || "An error occurred. Please try again."
+      );
+    }
   };
 
   return (
@@ -142,19 +147,40 @@ const RegisterScreen = () => {
             autoCapitalize="none"
             keyboardType="email-address"
           />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#7e7e7e"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
+          <View
+            style={{
+              width: "100%",
+            }}
+          >
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              placeholderTextColor="#7e7e7e"
+              secureTextEntry={secureTextEntry}
+              value={password}
+              onChangeText={setPassword}
+            />
+            <TouchableOpacity
+              onPress={togglePasswordVisibility}
+              style={{
+                position: "absolute",
+                right: 13,
+                top: 15,
+                zIndex: 1,
+              }}
+            >
+              <Feather
+                name={secureTextEntry ? "eye-off" : "eye"}
+                size={20}
+                color="#7e7e7eae"
+              />
+            </TouchableOpacity>
+          </View>
           <TextInput
             style={styles.input}
             placeholder="Confirm Password"
             placeholderTextColor="#7e7e7e"
-            secureTextEntry
+            secureTextEntry={secureTextEntry}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
           />

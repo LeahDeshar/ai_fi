@@ -19,7 +19,9 @@ const ProfileFitness = () => {
 
   const dispatch = useDispatch();
 
-  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
   useEffect(() => {
@@ -58,8 +60,8 @@ const ProfileFitness = () => {
       } catch (error) {
         console.error("Error saving profile:", error);
       }
-    } else if (!isLoggedIn) {
-      dispatch(setActivityLevel(weight));
+    } else if (isRegProcess) {
+      dispatch(setActivityLevel(sliderValue));
       navigation.push("ProfileActivitiesScreen");
     }
   };
@@ -148,7 +150,10 @@ const ProfileFitness = () => {
           width: "90%",
         }}
       >
-        <Button title="Save" handlePress={handleNext} />
+        <Button
+          title={isLoggedIn ? "SAVE" : "CONTINUE"}
+          handlePress={handleNext}
+        />
       </View>
     </View>
   );

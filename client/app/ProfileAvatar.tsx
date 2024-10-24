@@ -14,13 +14,16 @@ import { Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import Button from "@/components/Button";
+import { setProfilePic } from "@/redux/slices/profileSlice";
 
 const ProfileAvatar = () => {
   const { colors, dark } = useTheme();
   const navigation = useRouter();
   const dispatch = useDispatch();
 
-  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
   const [selectedImage, setSelectedImage] = useState(null);
@@ -46,10 +49,10 @@ const ProfileAvatar = () => {
       } catch (error) {
         console.error("Error saving profile:", error);
       }
-    } else if (!isLoggedIn) {
-      //   dispatch(setDailySteps(dailyGoal));
+    } else if (isRegProcess) {
+      dispatch(setProfilePic({ url: selectedImage }));
 
-      navigation.push("ProfileDietType");
+      navigation.push("ProfileSummaryScreen");
     }
   };
 
@@ -136,9 +139,13 @@ const ProfileAvatar = () => {
       <View
         style={{
           marginTop: 35,
+          width: "80%",
         }}
       >
-        <Button title={"SAVE"} handlePress={handleNext} />
+        <Button
+          title={isLoggedIn ? "SAVE" : "CONTINUE"}
+          handlePress={handleNext}
+        />
       </View>
     </View>
   );

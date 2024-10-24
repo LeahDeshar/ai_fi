@@ -28,9 +28,14 @@ const MyProfile = () => {
   const dispatch = useDispatch();
 
   const { user, token, isLoggedIn } = useSelector((state) => state.auth);
-  const { data: profile, error, isLoading } = useGetProfileQuery();
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
   const handleLoginPress = () => {
+    navigation.push("LoginScreen");
+  };
+  const handleLogOutPress = () => {
+    dispatch(logout());
+    refetch();
     navigation.push("LoginScreen");
   };
 
@@ -84,7 +89,11 @@ const MyProfile = () => {
                 }}
               >
                 <Image
-                  source={{ uri: profile?.profileOfUsers?.profilePic?.url }}
+                  source={{
+                    uri:
+                      profile?.profileOfUsers?.profilePic?.url ||
+                      "https://www.testhouse.net/wp-content/uploads/2021/11/default-avatar.jpg",
+                  }}
                   style={{ width: 80, height: 80, borderRadius: 75 }}
                 />
               </View>
@@ -159,7 +168,7 @@ const MyProfile = () => {
         </ThemedView>
         <ProfileScreen />
         {isLoggedIn && (
-          <Button title={"Logout"} handlePress={handleLoginPress} />
+          <Button title={"Logout"} handlePress={handleLogOutPress} />
         )}
       </ScrollView>
     </SafeAreaView>

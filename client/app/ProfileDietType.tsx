@@ -10,11 +10,18 @@ import { useTheme } from "@/constants/ThemeProvider";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setPreferredDietType } from "@/redux/slices/profileSlice";
 
 const ProfileDietType = () => {
   const { colors } = useTheme();
   const [selectedDiet, setSelectedDiet] = useState(null); // Only one diet type can be selected
   const navigation = useRouter();
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
+  const dispatch = useDispatch();
 
   const dietTypes = [
     {
@@ -55,6 +62,12 @@ const ProfileDietType = () => {
     }
   };
 
+  const handleNext = () => {
+    if (isRegProcess) {
+      dispatch(setPreferredDietType(selectedDiet));
+      navigation.push("ProfileAvatar");
+    }
+  };
   return (
     <View style={{ backgroundColor: colors.background, flex: 1 }}>
       <Text
@@ -107,10 +120,8 @@ const ProfileDietType = () => {
         }}
       >
         <Button
-          title="Save"
-          handlePress={() => {
-            navigation.push("ProfileSummaryScreen");
-          }}
+          title={isLoggedIn ? "SAVE" : "CONTINUE"}
+          handlePress={handleNext}
         />
       </View>
     </View>

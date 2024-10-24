@@ -25,7 +25,9 @@ const ProfileNameScreen = () => {
   const [userName, setUserName] = useState("");
   const dispatch = useDispatch();
 
-  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
   useEffect(() => {
@@ -49,10 +51,11 @@ const ProfileNameScreen = () => {
       } catch (error) {
         console.error("Error saving profile:", error);
       }
+    } else if (isRegProcess) {
+      dispatch(setName(userName));
+      navigation.push("ProfileUnitsScreen");
     }
 
-    dispatch(setName(userName));
-    navigation.push("ProfileUnitsScreen");
     // navigation.navigate("MyProfile");
   };
 

@@ -12,7 +12,7 @@ import {
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
 import { useDispatch } from "react-redux";
-import { useLoginMutation } from "@/redux/api/apiClient";
+import { useGetProfileQuery, useLoginMutation } from "@/redux/api/apiClient";
 import { loginSuccess } from "@/redux/slices/userSlice";
 
 const { width, height } = Dimensions.get("window");
@@ -24,7 +24,8 @@ const LoginScreen = () => {
   const [password, setPassword] = useState("");
 
   const dispatch = useDispatch();
-  const [login, { isLoading }] = useLoginMutation();
+  const [login, { isLoadings }] = useLoginMutation();
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -37,6 +38,7 @@ const LoginScreen = () => {
 
       if (response.success) {
         dispatch(loginSuccess(response));
+        // refetch();
         Alert.alert("Success", "Logged in successfully");
         navigation.navigate("MyProfile");
       } else {
@@ -150,10 +152,10 @@ const LoginScreen = () => {
           <TouchableOpacity
             style={styles.button}
             onPress={handleLogin}
-            disabled={isLoading}
+            disabled={isLoadings}
           >
             <Text style={styles.buttonText}>
-              {isLoading ? "Logging in..." : "LOGIN"}
+              {isLoadings ? "Logging in..." : "LOGIN"}
             </Text>
           </TouchableOpacity>
 

@@ -10,11 +10,16 @@ import {
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
+import { useGetProfileQuery } from "@/redux/api/apiClient";
 
 const { width, height } = Dimensions.get("window");
 
 const PersonalizeScreen = () => {
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
   const navigation = useRouter();
+  const handleNext = () => {
+    navigation.push("ProfileNameScreen");
+  };
   return (
     <View style={styles.container}>
       <View style={{}}>
@@ -77,10 +82,7 @@ const PersonalizeScreen = () => {
             marginTop: 80,
           }}
         >
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.push("ProfileNameScreen")}
-          >
+          <TouchableOpacity style={styles.button} onPress={handleNext}>
             <Text style={styles.buttonText}>GET STARTED</Text>
           </TouchableOpacity>
         </View>

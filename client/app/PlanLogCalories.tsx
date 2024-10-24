@@ -18,6 +18,8 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { Calendar } from "react-native-calendars";
 import { Circle, G, Rect, Svg } from "react-native-svg";
 import { Image } from "react-native";
+import { useSelector } from "react-redux";
+import { useGetProfileQuery } from "@/redux/api/apiClient";
 
 const meals = [
   {
@@ -47,7 +49,10 @@ const PlanLogCalories = () => {
 
   const [selectedDate, setSelectedDate] = useState(null);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
-
+  const bottomSheetEditRef = useRef<BottomSheetModal>(null);
+  const openEditBottomSheet = () => {
+    bottomSheetEditRef.current?.present();
+  };
   const progress = 1;
   const size = 185;
   const strokeWidth = 8;
@@ -58,6 +63,16 @@ const PlanLogCalories = () => {
   const carbs = 5;
   const fat = 40;
   const protein = 70;
+
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+
+  // useEffect(() => {
+  //   if (profile && profile.profileOfUsers) {
+  //     setSelectedImage(profile?.profileOfUsers?.profilePic?.url);
+  //     refetch();
+  //   }
+  // }, [profile]);
   return (
     <GestureHandlerRootView>
       <BottomSheetModalProvider>
@@ -145,8 +160,15 @@ const PlanLogCalories = () => {
                     >
                       0
                     </Text>
-                    <Text style={{}}>of 1,569 kcal</Text>
-                    <TouchableOpacity>
+                    <Text style={{}}>
+                      of{" "}
+                      {
+                        profile?.calculations.weightLossDuration.calories
+                          .targetCalories
+                      }{" "}
+                      kcal
+                    </Text>
+                    <TouchableOpacity onPress={openEditBottomSheet}>
                       <Text style={{}}>Edit</Text>
                     </TouchableOpacity>
                   </View>
@@ -267,6 +289,59 @@ const PlanLogCalories = () => {
                 selectedDate={selectedDate}
                 setSelectedDate={setSelectedDate}
               />
+            </View>
+          </BottomSheetModal>
+          <BottomSheetModal
+            snapPoints={["50%", "80%"]}
+            ref={bottomSheetEditRef}
+            index={1}
+            backdropComponent={BottomSheetBackdrop}
+            handleComponent={() => <View />}
+          >
+            <View
+              style={{
+                marginTop: 15,
+              }}
+            >
+              <View
+                style={{
+                  paddingVertical: 15,
+                  borderRadius: 20,
+                  backgroundColor: "rgba(255,255,255,0.1)",
+                }}
+              >
+                <Text
+                  style={{
+                    color: colors.tabIconDefault,
+                    fontSize: 15,
+                    textAlign: "center",
+                  }}
+                >
+                  Your Recommended Daily Calorie is{" "}
+                  {
+                    profile?.calculations.weightLossDuration.calories
+                      .startCalories
+                  }
+                  .
+                </Text>
+                <Text
+                  style={{
+                    color: colors.tabIconDefault,
+                    fontSize: 15,
+                    textAlign: "center",
+                  }}
+                >
+                  Your Healthy Weight Loss Calorie is{" "}
+                  {
+                    profile?.calculations.weightLossDuration.calories
+                      .targetCalories
+                  }{" "}
+                  to reduce your weight by 5.0 kgs (11.0 lbs) within{" "}
+                  {profile?.calculations.weightLossDuration.months.minMonths} to{" "}
+                  {profile?.calculations.weightLossDuration.months.maxMonths}{" "}
+                  months
+                </Text>
+              </View>
             </View>
           </BottomSheetModal>
         </SafeAreaView>

@@ -29,7 +29,9 @@ const ProfilePhysicalLimitationScreen = () => {
   const navigation = useRouter();
   const dispatch = useDispatch();
 
-  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
   console.log(selectedActivity);
 
@@ -55,7 +57,7 @@ const ProfilePhysicalLimitationScreen = () => {
       } catch (error) {
         console.error("Error saving profile:", error);
       }
-    } else if (!isLoggedIn) {
+    } else if (isRegProcess) {
       dispatch(setSpecialPrograms(selectedActivity));
 
       navigation.push("ProfileDailyStepsScreen");
@@ -175,7 +177,10 @@ const ProfilePhysicalLimitationScreen = () => {
           marginBottom: 50,
         }}
       >
-        <Button title="Save" handlePress={handleNext} />
+        <Button
+          title={isLoggedIn ? "SAVE" : "CONTINUE"}
+          handlePress={handleNext}
+        />
       </View>
     </View>
   );

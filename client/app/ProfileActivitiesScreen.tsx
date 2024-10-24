@@ -26,7 +26,9 @@ const ProfileActivitiesScreen = () => {
 
   const dispatch = useDispatch();
 
-  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
   console.log(profile);
 
@@ -51,7 +53,7 @@ const ProfileActivitiesScreen = () => {
       } catch (error) {
         console.error("Error saving profile:", error);
       }
-    } else if (!isLoggedIn) {
+    } else if (isRegProcess) {
       dispatch(setActivitiesLiked(selectedActivities));
 
       navigation.push("ProfilePhysicalLimitationScreen");
@@ -159,7 +161,10 @@ const ProfileActivitiesScreen = () => {
             marginBottom: 50,
           }}
         >
-          <Button title="Save" handlePress={handleNext} />
+          <Button
+            title={isLoggedIn ? "SAVE" : "CONTINUE"}
+            handlePress={handleNext}
+          />
         </View>
       </View>
     </View>
