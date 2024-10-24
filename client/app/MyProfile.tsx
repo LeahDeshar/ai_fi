@@ -20,7 +20,7 @@ import { useDispatch } from "react-redux";
 import { logout } from "@/redux/slices/userSlice";
 import { useGetProfileQuery } from "@/redux/api/apiClient";
 import { birthday } from "@/utils/birthday";
-import * as ImagePicker from "expo-image-picker";
+import { LinearGradient } from "expo-linear-gradient";
 
 const MyProfile = () => {
   const { colors, dark } = useTheme();
@@ -32,30 +32,6 @@ const MyProfile = () => {
 
   const handleLoginPress = () => {
     navigation.push("LoginScreen");
-  };
-  const [selectedImage, setSelectedImage] = useState(null);
-  const handleSelectImage = async () => {
-    try {
-      const permissionResult =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permissionResult.granted) {
-        alert("Permission to access camera roll is required!");
-        return;
-      }
-
-      const pickerResult = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        quality: 1,
-      });
-
-      if (!pickerResult.canceled && pickerResult.assets.length > 0) {
-        const firstAsset = pickerResult.assets[0];
-        setSelectedImage(firstAsset.uri);
-      }
-    } catch (error) {
-      console.log("Error picking an image:", error);
-    }
   };
 
   // console.log(token);
@@ -76,7 +52,7 @@ const MyProfile = () => {
             }}
           >
             <TouchableOpacity
-              onPress={handleSelectImage}
+              onPress={() => navigation.push("ProfileAvatar")}
               style={{
                 backgroundColor: colors.opacity,
                 width: 95,
@@ -86,17 +62,33 @@ const MyProfile = () => {
                 borderRadius: 75,
               }}
             >
-              {selectedImage ? (
-                <Image
-                  source={{ uri: selectedImage }}
-                  style={{ width: 80, height: 80, borderRadius: 75 }}
-                />
-              ) : (
+              <LinearGradient
+                colors={["#9f4c76", "#983b3b", "#192f6a"]}
+                style={{
+                  width: 95,
+                  height: 95,
+                  borderRadius: 100,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  position: "absolute",
+                }}
+              />
+              <View
+                style={{
+                  width: 90,
+                  height: 90,
+                  borderRadius: 100,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: colors.background,
+                }}
+              >
                 <Image
                   source={{ uri: profile?.profileOfUsers?.profilePic?.url }}
                   style={{ width: 80, height: 80, borderRadius: 75 }}
                 />
-              )}
+              </View>
+
               <Ionicons
                 name="camera-outline"
                 size={24}

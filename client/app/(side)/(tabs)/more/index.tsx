@@ -15,6 +15,8 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { defaultStyles } from "@/styles";
 import { screenPadding } from "@/constants/token";
 import { Animated } from "react-native";
+import { useSelector } from "react-redux";
+import { useGetProfileQuery } from "@/redux/api/apiClient";
 
 type MoreItem = {
   title: string;
@@ -77,6 +79,8 @@ const renderItem = (item: MoreItem) => {
 const moreScreen = () => {
   const { colors } = useTheme();
   const navigation = useRouter();
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { data: profile, error, isLoading } = useGetProfileQuery();
 
   return (
     <View
@@ -107,11 +111,13 @@ const moreScreen = () => {
           >
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Image
-                source={require("@/assets/images/avatar/female1.png")}
+                source={{ uri: profile?.profileOfUsers?.profilePic?.url }}
                 style={{ width: 80, height: 80, borderRadius: 75 }}
               />
               <View style={{ marginLeft: 25 }}>
-                <Text style={{ color: colors.text }}>Leah</Text>
+                <Text style={{ color: colors.text }}>
+                  {profile?.profileOfUsers?.name}
+                </Text>
                 <Text style={{ color: colors.text }}>My Profile</Text>
               </View>
             </View>

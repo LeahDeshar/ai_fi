@@ -37,3 +37,4 @@ Full Application Integration
 - [ ] profile operations
 - [ ] profile update
 - [ ] delete account
+- [ ] image modules
