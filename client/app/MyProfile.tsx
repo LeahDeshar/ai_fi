@@ -57,6 +57,19 @@ const MyProfile = () => {
             }}
           >
             <TouchableOpacity
+              onPress={() => navigation.push("ProfileSummaryScreen")}
+            >
+              <Text
+                style={{
+                  color: colors.text,
+                  fontSize: 16,
+                  fontWeight: "bold",
+                }}
+              >
+                Temp
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
               onPress={() => navigation.push("ProfileAvatar")}
               style={{
                 backgroundColor: colors.opacity,

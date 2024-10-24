@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,9 +9,10 @@ import {
   ListRenderItemInfo,
   ViewStyle,
   FlatList,
+  Alert,
 } from "react-native";
 import { useTheme } from "@/constants/ThemeProvider";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -21,6 +22,8 @@ import { ProgressChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import { Circle, G, Rect, Svg } from "react-native-svg";
+import { useSelector } from "react-redux";
+import { useGetProfileQuery } from "@/redux/api/apiClient";
 
 const PlanDrinkWater = () => {
   const { colors } = useTheme();
@@ -31,10 +34,34 @@ const PlanDrinkWater = () => {
   const strokeWidth = 8;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (circumference * progress) / 100;
+  // const strokeDashoffset = circumference - (circumference * progress) / 100;
   const openBottomSheet = () => {
     bottomSheetRef.current?.present();
   };
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+  const waterIntakeInMl = profile?.calculations.waterIntake * 1000 || 0;
+  const [selectedValue, setSelectedValue] = useState(null);
+  const [currentIntake, setCurrentIntake] = useState(0);
+
+  // Stroke offset calculation
+  const strokeDashoffset =
+    circumference - (currentIntake / waterIntakeInMl) * circumference + 1;
+
+  const handleAddIntake = () => {
+    if (selectedValue) {
+      const mlToAdd = parseInt(selectedValue);
+      setCurrentIntake((prev) => Math.min(prev + mlToAdd, waterIntakeInMl));
+    } else {
+      Alert.alert("Please select a volume to add.");
+    }
+    if (currentIntake === waterIntakeInMl) {
+      Alert.alert("Goal Completed");
+    }
+  };
+
   const [selectedDate, setSelectedDate] = useState(null);
   return (
     <GestureHandlerRootView>
@@ -46,39 +73,6 @@ const PlanDrinkWater = () => {
           }}
         >
           <View>
-            {/* <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                paddingHorizontal: 20,
-                borderBottomColor: "#80808051",
-                paddingBottom: 3,
-                borderWidth: 1,
-              }}
-            >
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.goBack();
-                }}
-              >
-                <AntDesign name="arrowleft" size={20} color={colors.icon} />
-              </TouchableOpacity>
-              <Text
-                style={{
-                  color: colors.text,
-                  fontSize: 20,
-                  fontWeight: "semibold",
-                  textAlign: "center",
-                  marginVertical: 16,
-                }}
-              >
-                Water Tracker
-              </Text>
-              <TouchableOpacity onPress={openBottomSheet}>
-                <AntDesign name="calendar" size={20} color={colors.icon} />
-              </TouchableOpacity>
-            </View> */}
             <TrackerHeader
               navigation={navigation}
               colors={colors}
@@ -140,9 +134,9 @@ const PlanDrinkWater = () => {
                     fontWeight: 500,
                   }}
                 >
-                  0
+                  {currentIntake}
                 </Text>
-                <Text style={{}}>of 2,000 ml</Text>
+                <Text style={{}}>of {waterIntakeInMl} ml</Text>
                 <TouchableOpacity>
                   <Text style={{}}>Edit</Text>
                 </TouchableOpacity>
@@ -155,7 +149,47 @@ const PlanDrinkWater = () => {
               alignItems: "flex-end",
             }}
           >
-            <HorizontalPicker />
+            <HorizontalPicker
+              selectedValue={selectedValue}
+              setSelectedValue={setSelectedValue}
+            />
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              marginHorizontal: 20,
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 15,
+              marginTop: 20,
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                backgroundColor: "#3D5AFE",
+                borderRadius: 50,
+                padding: 15,
+              }}
+              onPress={handleAddIntake}
+            >
+              <Ionicons name="add" size={35} color={colors.text} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setCurrentIntake(0);
+              }}
+              style={{
+                backgroundColor: "#babbbf",
+                borderRadius: 50,
+                width: 45,
+                height: 45,
+
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <AntDesign name="reload1" size={20} color="black" />
+            </TouchableOpacity>
           </View>
           <WeeklyStatsComponent />
 
@@ -182,15 +216,14 @@ const PlanDrinkWater = () => {
     </GestureHandlerRootView>
   );
 };
-const HorizontalPicker = () => {
-  const [selectedValue, setSelectedValue] = useState(null);
+const HorizontalPicker = ({ selectedValue, setSelectedValue }) => {
+  // const [selectedValue, setSelectedValue] = useState(null);
 
-  // Water quantity options
   const options = ["150ml", "250ml", "350ml", "500ml", "750ml", "1000ml"];
 
-  // Handle the selection of a water quantity
   const handleSelect = (value) => {
     setSelectedValue(value);
+    Alert.alert(value);
   };
 
   return (
