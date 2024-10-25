@@ -10,10 +10,12 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   ScrollView,
+  Platform,
 } from "react-native";
 import axios from "axios";
 import { API_KEYS } from "@/config";
 import { useTheme } from "@/constants/ThemeProvider";
+import { TouchableOpacity } from "react-native";
 
 const Chatbot = () => {
   const [chat, setChat] = useState([]);
@@ -194,10 +196,75 @@ const Chatbot = () => {
             />
           ))}
         </ScrollView> */}
+        {/* <View style={styles.predefinedContainer}>
+          {predefinedQuestions.map((question, index) => (
+            <Button
+              key={index}
+              title={question}
+              onPress={() => handlePredefinedQuestion(question)}
+              color="#0084ff"
+            />
+          ))}
+        </View> */}
+        <ScrollView
+          horizontal
+          contentContainerStyle={{
+            marginVertical: 10,
+            height: 50,
+            paddingBottom: 5,
+            backgroundColor: "black",
+          }}
+          disableScrollViewPanResponder
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+        >
+          {predefinedQuestions.map((question, index) => (
+            <TouchableOpacity
+              key={index}
+              style={{
+                paddingVertical: 10,
+                backgroundColor: colors.primary,
+                marginHorizontal: 10,
+                borderRadius: 15,
+              }}
+              onPress={() => handlePredefinedQuestion(question)}
+            >
+              <Text
+                style={{
+                  color: "white",
+                  paddingHorizontal: 15,
+                }}
+              >
+                {question}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
-        <KeyboardAvoidingView behavior="padding" style={styles.inputContainer}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={50}
+          //   behavior="padding"
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            paddingHorizontal: 10,
+            paddingTop: 9,
+            backgroundColor: "blue",
+          }}
+        >
           <TextInput
-            style={styles.input}
+            style={{
+              flex: 1,
+              borderColor: "#cccccc9e",
+              borderWidth: 1,
+              borderRadius: 10,
+              paddingHorizontal: 10,
+              paddingVertical: 15,
+              marginRight: 10,
+            }}
             value={userInput}
             onChangeText={setUserInput}
             placeholder={"Ask me about fitness..."}
@@ -215,7 +282,8 @@ const styles = StyleSheet.create({
   chatContainer: {
     flexGrow: 1,
     justifyContent: "flex-end",
-    paddingBottom: 10,
+    paddingBottom: 15,
+    backgroundColor: "pink",
   },
   chatBubble: (role) => ({
     padding: 10,
@@ -242,23 +310,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     paddingHorizontal: 10,
-    paddingBottom: 400,
     backgroundColor: "blue",
   },
-  input: {
-    flex: 1,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    marginRight: 10,
-  },
+  input: {},
   predefinedContainer: {
-    marginTop: 10,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
+    // marginTop: 10,
+    // flexDirection: "row",
+    // flexWrap: "wrap",
+    // justifyContent: "space-between",
   },
   errorText: {
     color: "red",
