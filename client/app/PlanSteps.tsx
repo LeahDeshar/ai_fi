@@ -15,11 +15,15 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { Pedometer } from "expo-sensors";
 import { Calendar } from "react-native-calendars";
-
+import { Accelerometer } from "expo-sensors";
 import { LineChart, ProgressChart } from "react-native-chart-kit";
 import { Button } from "react-native";
 import { Circle, G, Rect, Svg } from "react-native-svg";
 import { IconButton } from "react-native-paper";
+import { useSelector } from "react-redux";
+import { useGetProfileQuery } from "@/redux/api/apiClient";
+import { useDispatch } from "react-redux";
+import { setSavedSteps } from "@/redux/slices/profileSlice";
 const PlanSteps = () => {
   const { colors } = useTheme();
   const navigation = useNavigation();
@@ -29,12 +33,102 @@ const PlanSteps = () => {
     bottomSheetRef.current?.present();
   };
   const [selectedDate, setSelectedDate] = useState(null);
-  const progress = 1;
+  // const progress = 1;
   const size = 185;
   const strokeWidth = 8;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
+  // const strokeDashoffset = circumference - (circumference * progress) / 100;
+
+  const [steps, setSteps] = useState(0);
+  const [isCounting, setIsCounting] = useState(false);
+  const [lastY, setLastY] = useState(0);
+  const [lastTimeStamp, setLastTimeStamp] = useState(0);
+
+  const { savedSteps } = useSelector((state) => state.profile);
+  const { user, token, isLoggedIn, isRegProcess } = useSelector(
+    (state) => state.auth
+  );
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+
+  const [selectedDailyStep, setSelectedSteps] = useState(0);
+  useEffect(() => {
+    if (profile && profile.profileOfUsers) {
+      setSelectedSteps(profile.profileOfUsers.dailySteps);
+    }
+  }, [profile]);
+
+  const progress = (steps / selectedDailyStep) * 100;
   const strokeDashoffset = circumference - (circumference * progress) / 100;
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    let subscription;
+
+    const startAccelerometer = async () => {
+      const isAvailable = await Accelerometer.isAvailableAsync();
+      if (!isAvailable) {
+        alert("Accelerometer is not available on this device");
+        return;
+      }
+
+      subscription = Accelerometer.addListener((accelerometer) => {
+        const { y } = accelerometer;
+        const threshold = 0.1;
+        const timeStamp = Date.now();
+
+        if (
+          Math.abs(y - lastY) > threshold &&
+          !isCounting &&
+          timeStamp - lastTimeStamp > 800
+        ) {
+          setIsCounting(true);
+          setLastY(y);
+          setLastTimeStamp(timeStamp);
+          setSteps((prev) => prev + 1 + savedSteps);
+
+          dispatch(setSavedSteps(steps));
+
+          setTimeout(() => setIsCounting(false), 3200);
+        }
+      });
+    };
+
+    startAccelerometer();
+
+    return () => subscription && subscription.remove();
+  }, [lastY, lastTimeStamp, isCounting]);
+
+  const resetSteps = () => setSteps(0);
+
+  const birthDate = new Date(profile?.profileOfUsers.birthday);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDifference = today.getMonth() - birthDate.getMonth();
+
+  if (
+    monthDifference < 0 ||
+    (monthDifference === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+
+  const height = profile?.profileOfUsers.currentWeight.kilograms;
+  const weight = profile.profileOfUsers.currentHeight.centimeters;
+  const gender = profile.profileOfUsers.gender;
+
+  const MET_WALKING = 3.5;
+
+  const strideLength =
+    gender === "Male" ? (height * 0.415) / 100 : (height * 0.413) / 100;
+
+  const distance = (steps * strideLength) / 1000;
+
+  const walkingSpeed = 5; // km/h
+  const time = distance / walkingSpeed;
+
+  const caloriesBurned = MET_WALKING * weight * time;
+
   return (
     <GestureHandlerRootView>
       <BottomSheetModalProvider>
@@ -134,9 +228,9 @@ const PlanSteps = () => {
                       fontWeight: 500,
                     }}
                   >
-                    113
+                    {steps}
                   </Text>
-                  <Text style={{}}>of 9000 steps</Text>
+                  <Text style={{}}>of {selectedDailyStep} steps</Text>
                   <TouchableOpacity>
                     <Text style={{}}>Edit</Text>
                   </TouchableOpacity>
@@ -172,7 +266,7 @@ const PlanSteps = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  4 kcal
+                  {caloriesBurned.toFixed(2)} kcal
                 </Text>
                 <Text>Calories</Text>
               </View>
@@ -194,13 +288,13 @@ const PlanSteps = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  0.08 km
+                  {distance.toFixed(2)} km
                 </Text>
                 <Text>Distance</Text>
               </View>
             </View>
 
-            <WeeklyStatsComponent />
+            <WeeklyStatsComponent selectedDailyStep={selectedDailyStep} />
           </View>
 
           <BottomSheetModal
@@ -313,9 +407,12 @@ const CalendarPicker = ({ selectedDate, setSelectedDate }) => {
 const WeeklyStatsComponent = ({
   stats = [50, 70, 30, 80, 60, 90, 100],
   days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  selectedDailyStep,
 }) => {
   const barWidth = 10;
   const barSpacing = 43;
+
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
   return (
     <View
@@ -364,7 +461,7 @@ const WeeklyStatsComponent = ({
               color: "gray",
             }}
           >
-            9000 steps
+            {selectedDailyStep} steps
           </Text>
         </View>
       </View>

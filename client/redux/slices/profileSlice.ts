@@ -15,12 +15,16 @@ const initialState = {
   preferredDietType: "",
   preferredUnits: "",
   profilePic: {},
+  savedSteps: 0,
 };
 
 const profileSlice = createSlice({
   name: "profile",
   initialState,
   reducers: {
+    setSavedSteps: (state, action) => {
+      state.savedSteps = action.payload;
+    },
     setName: (state, action) => {
       state.name = action.payload;
     },
@@ -79,6 +83,7 @@ export const {
   setPreferredDietType,
   setPreferredUnits,
   resetProfile,
+  setSavedSteps,
 } = profileSlice.actions;
 
 export default profileSlice.reducer;

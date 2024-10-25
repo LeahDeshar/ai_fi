@@ -41,5 +41,5 @@ Full Application Integration
 - [ ] recommendation
   - [ ] calorie
   - [ ] sleep
-  - [ ] water
+  - [x] water
   - [ ] daily step
