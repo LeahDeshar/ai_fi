@@ -1,12 +1,13 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { defaultStyles } from "@/styles";
 import { useTheme } from "@/constants/ThemeProvider";
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 
 const planLayout = () => {
   const { colors, dark } = useTheme();
+  const navigation = useRouter();
   return (
     <View style={defaultStyles.container}>
       <Stack>
@@ -49,6 +50,7 @@ const planLayout = () => {
                     marginLeft: 5,
                     marginRight: 5,
                   }}
+                  onPress={() => navigation.push("Chatbot")}
                 >
                   <AntDesign name="message1" size={20} color={colors.icon} />
                 </TouchableOpacity>

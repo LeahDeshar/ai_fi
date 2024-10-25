@@ -522,6 +522,15 @@ const InnerStack = () => {
         }}
       />
       <Stack.Screen
+        name="Chatbot"
+        options={{
+          // ...StackScreenWithSearchBar,
+
+          // headerTitle: "Fitness Chatbot",
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="MorePersonalCoach"
         options={{
           ...StackScreenWithSearchBar,
