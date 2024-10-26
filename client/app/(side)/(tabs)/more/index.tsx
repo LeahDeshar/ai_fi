@@ -16,7 +16,11 @@ import { defaultStyles } from "@/styles";
 import { screenPadding } from "@/constants/token";
 import { Animated } from "react-native";
 import { useSelector } from "react-redux";
-import { useGetProfileQuery } from "@/redux/api/apiClient";
+import {
+  useGetProfileQuery,
+  useGetUserProfileQuery,
+} from "@/redux/api/apiClient";
+import { useDispatch } from "react-redux";
 
 type MoreItem = {
   title: string;
@@ -79,8 +83,9 @@ const renderItem = (item: MoreItem) => {
 const moreScreen = () => {
   const { colors } = useTheme();
   const navigation = useRouter();
+
   const { user, token, isLoggedIn } = useSelector((state) => state.auth);
-  const { data: profile, error, isLoading } = useGetProfileQuery();
+  const { data: profile, error, isLoading } = useGetUserProfileQuery();
 
   return (
     <View

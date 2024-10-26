@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ThemeProvider, useTheme } from "@/constants/ThemeProvider";
 import { ThemedView } from "@/components/ThemedView";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
@@ -18,9 +18,15 @@ import { useNavigation, useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { logout } from "@/redux/slices/userSlice";
-import { useGetProfileQuery } from "@/redux/api/apiClient";
+import {
+  useGetProfileQuery,
+  useGetUserProfileQuery,
+} from "@/redux/api/apiClient";
 import { birthday } from "@/utils/birthday";
 import { LinearGradient } from "expo-linear-gradient";
+import { resetProfile } from "@/redux/slices/profileSlice";
+import axios from "axios";
+import { persistor } from "@/redux/store";
 
 const MyProfile = () => {
   const { colors, dark } = useTheme();
@@ -29,6 +35,8 @@ const MyProfile = () => {
 
   const { user, token, isLoggedIn } = useSelector((state) => state.auth);
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+
+  console.log("profile", profile);
 
   const handleLoginPress = () => {
     navigation.push("LoginScreen");
@@ -239,8 +247,15 @@ const ProfileItem = ({
 const ProfileScreen = () => {
   const { colors } = useTheme();
   const navigation = useRouter();
-  const { data: profile, error, isLoading } = useGetProfileQuery();
+  // const { data: profile, error, isLoading } = useGetProfileQuery();
 
+  const { data: profile, error, isLoading, refetch } = useGetUserProfileQuery();
+
+  console.log(profile, error, isLoading);
+  // const dispatch = useDispatch();
+  // dispatch(resetProfile());
+
+  // persistor.purge();
   if (isLoading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }

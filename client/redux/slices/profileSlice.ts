@@ -16,6 +16,7 @@ const initialState = {
   preferredUnits: "",
   profilePic: {},
   savedSteps: 0,
+  savedChallenges: [],
 };
 
 const profileSlice = createSlice({
@@ -24,6 +25,10 @@ const profileSlice = createSlice({
   reducers: {
     setSavedSteps: (state, action) => {
       state.savedSteps = action.payload;
+    },
+    setSavedChallenges: (state, action) => {
+      // state.savedChallenges.push(action.payload);
+      state.savedChallenges = action.payload;
     },
     setName: (state, action) => {
       state.name = action.payload;
@@ -84,6 +89,7 @@ export const {
   setPreferredUnits,
   resetProfile,
   setSavedSteps,
+  setSavedChallenges,
 } = profileSlice.actions;
 
 export default profileSlice.reducer;
