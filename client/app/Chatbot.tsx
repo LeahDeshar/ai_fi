@@ -16,6 +16,8 @@ import axios from "axios";
 import { API_KEYS } from "@/config";
 import { useTheme } from "@/constants/ThemeProvider";
 import { TouchableOpacity } from "react-native";
+import { BlurView } from "expo-blur";
+import { FontAwesome } from "@expo/vector-icons";
 
 const Chatbot = () => {
   const [chat, setChat] = useState([]);
@@ -23,7 +25,7 @@ const Chatbot = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
 
   const API_KEY = API_KEYS.secret;
 
@@ -76,7 +78,7 @@ const Chatbot = () => {
   const renderChatItem = ({ item }) => {
     const responseText = item.parts[0].text;
     return (
-      <View style={styles.chatBubble(item.role)}>
+      <View style={styles.chatBubble(item.role, colors)}>
         <Text style={styles.chatText(item.role)}>
           {formatResponse(responseText)}
         </Text>
@@ -132,147 +134,165 @@ const Chatbot = () => {
   }, [chat]);
 
   return (
-    <SafeAreaView
+    <View
       style={{
         flex: 1,
         backgroundColor: colors.background,
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 10,
       }}
     >
-      <View
+      <KeyboardAvoidingView
+        behavior={"padding"}
         style={{
-          padding: 20,
+          flex: 1,
+          backgroundColor: colors.background,
+          justifyContent: "center",
+          padding: 10,
         }}
       >
-        <Text
+        <BlurView
           style={{
-            fontSize: 24,
-            fontWeight: "bold",
-            marginBottom: 20,
-            color: colors.text,
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 80,
+            zIndex: 1,
+          }}
+          intensity={50}
+          tint={dark ? "prominent" : "extraLight"}
+        >
+          <Text
+            style={{
+              fontSize: 24,
+              fontWeight: 500,
+              // marginBottom: 20,
+              color: colors.text,
+              marginTop: 45,
+              paddingLeft: 15,
+            }}
+          >
+            Fitness ChatBot
+          </Text>
+        </BlurView>
+
+        <View
+          style={{
+            padding: 20,
+            flex: 1,
           }}
         >
-          Fitness ChatBot
-        </Text>
+          {error && <Text style={styles.errorText}>{error}</Text>}
 
-        {error && <Text style={styles.errorText}>{error}</Text>}
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            data={chat}
+            renderItem={renderChatItem}
+            keyExtractor={(item, index) => index.toString()}
+            contentContainerStyle={styles.chatContainer}
+            ref={flatListRef} // Ref to FlatList to allow scrolling
+            onContentSizeChange={() =>
+              flatListRef.current.scrollToEnd({ animated: true })
+            }
+          />
 
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          data={chat}
-          renderItem={renderChatItem}
-          keyExtractor={(item, index) => index.toString()}
-          contentContainerStyle={styles.chatContainer}
-          ref={flatListRef} // Ref to FlatList to allow scrolling
-          onContentSizeChange={() =>
-            flatListRef.current.scrollToEnd({ animated: true })
-          }
-        />
-
-        {loading && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#0084ff" />
-            <Text style={styles.loadingText}>typing...</Text>
-          </View>
-        )}
-
-        {/* <ScrollView
-          contentContainerStyle={{
-            // marginBottom: 50,
-            // marginTop: 50,
-            backgroundColor: "red",
-            // height: 250,
-          }}
-          horizontal
-        >
-          {predefinedQuestions.map((question, index) => (
-            <Button
-              key={index}
-              title={question}
-              onPress={() => handlePredefinedQuestion(question)}
-              color="#0084ff" // Change color as needed
-            />
-          ))}
-        </ScrollView> */}
-        {/* <View style={styles.predefinedContainer}>
-          {predefinedQuestions.map((question, index) => (
-            <Button
-              key={index}
-              title={question}
-              onPress={() => handlePredefinedQuestion(question)}
-              color="#0084ff"
-            />
-          ))}
-        </View> */}
-        <ScrollView
-          horizontal
-          contentContainerStyle={{
-            marginVertical: 10,
-            height: 50,
-            paddingBottom: 5,
-            backgroundColor: "black",
-          }}
-          disableScrollViewPanResponder
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-        >
-          {predefinedQuestions.map((question, index) => (
-            <TouchableOpacity
-              key={index}
-              style={{
-                paddingVertical: 10,
-                backgroundColor: colors.primary,
-                marginHorizontal: 10,
-                borderRadius: 15,
-              }}
-              onPress={() => handlePredefinedQuestion(question)}
-            >
+          {loading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={colors.primary} />
               <Text
                 style={{
-                  color: "white",
-                  paddingHorizontal: 15,
+                  marginLeft: 10,
+                  fontSize: 16,
+                  color: colors.primary,
                 }}
               >
-                {question}
+                typing...
               </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={50}
-          //   behavior="padding"
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            paddingHorizontal: 10,
-            paddingTop: 9,
-            backgroundColor: "blue",
-          }}
-        >
-          <TextInput
+            </View>
+          )}
+          <BlurView
             style={{
-              flex: 1,
-              borderColor: "#cccccc9e",
-              borderWidth: 1,
-              borderRadius: 10,
-              paddingHorizontal: 10,
-              paddingVertical: 15,
-              marginRight: 10,
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 140,
+              zIndex: 1,
+              paddingBottom: 20,
             }}
-            value={userInput}
-            onChangeText={setUserInput}
-            placeholder={"Ask me about fitness..."}
-          />
-          <Button onPress={() => handleUserInput(userInput)} title={"Send"} />
-        </KeyboardAvoidingView>
-      </View>
-    </SafeAreaView>
+            tint={dark ? "prominent" : "extraLight"}
+            intensity={50}
+          >
+            <ScrollView
+              horizontal
+              contentContainerStyle={{
+                padding: 20,
+              }}
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
+            >
+              {predefinedQuestions.map((question, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={{
+                    backgroundColor: colors.primary,
+                    marginHorizontal: 10,
+                    borderRadius: 25,
+                    height: 40,
+                    marginBottom: 20,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  onPress={() => handlePredefinedQuestion(question)}
+                >
+                  <Text
+                    style={{
+                      color: "white",
+                      paddingHorizontal: 15,
+                    }}
+                  >
+                    {question}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+                paddingHorizontal: 10,
+                paddingTop: 9,
+              }}
+            >
+              <TextInput
+                style={{
+                  flex: 1,
+                  borderColor: "#b3b3b364",
+                  borderWidth: 1,
+                  borderRadius: 25,
+                  paddingHorizontal: 10,
+                  paddingVertical: 15,
+                  marginRight: 10,
+                }}
+                placeholderTextColor={"#5b5b5b9e"}
+                value={userInput}
+                onChangeText={setUserInput}
+                placeholder={"Ask me about fitness..."}
+              />
+              <TouchableOpacity onPress={() => handleUserInput(userInput)}>
+                <FontAwesome name="send" size={24} color={colors.primary} />
+              </TouchableOpacity>
+              {/* <Button
+               
+                title={"Send"}
+              /> */}
+            </View>
+          </BlurView>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -282,12 +302,12 @@ const styles = StyleSheet.create({
   chatContainer: {
     flexGrow: 1,
     justifyContent: "flex-end",
-    paddingBottom: 15,
-    backgroundColor: "pink",
+    marginTop: 70,
+    paddingBottom: 180,
   },
-  chatBubble: (role) => ({
+  chatBubble: (role, colors) => ({
     padding: 10,
-    backgroundColor: role === "user" ? "#0084ff" : "#f1f0f0",
+    backgroundColor: role === "user" ? colors.primary : "#f1f0f0",
     alignSelf: role === "user" ? "flex-end" : "flex-start",
     borderRadius: 20,
     marginBottom: 10,
@@ -327,13 +347,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 10,
+    marginBottom: 120,
   },
-  loadingText: {
-    marginLeft: 10,
-    fontSize: 16,
-    color: "#0084ff",
-  },
+  loadingText: {},
 });
 
 export default Chatbot;
