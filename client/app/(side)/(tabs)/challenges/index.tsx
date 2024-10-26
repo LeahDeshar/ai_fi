@@ -318,6 +318,12 @@ const challengeScreen = () => {
                 width: 300,
               }}
               key={index}
+              onPress={() => {
+                navigation.navigate({
+                  pathname: "AiChallengeDetails",
+                  params: { items: JSON.stringify(item, null, 2) },
+                });
+              }}
             >
               <View
                 style={{

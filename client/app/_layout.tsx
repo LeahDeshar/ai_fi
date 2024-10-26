@@ -520,6 +520,12 @@ const InnerStack = () => {
         }}
       />
       <Stack.Screen
+        name="AiChallengeDetails"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="Chatbot"
         options={{
           // ...StackScreenWithSearchBar,
