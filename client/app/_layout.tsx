@@ -516,9 +516,7 @@ const InnerStack = () => {
       <Stack.Screen
         name="MoreMeals"
         options={{
-          ...StackScreenWithSearchBar,
-
-          headerTitle: "Your Perfect Meal Plan",
+          headerShown: false,
         }}
       />
       <Stack.Screen

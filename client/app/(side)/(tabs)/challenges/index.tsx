@@ -287,136 +287,82 @@ const challengeScreen = () => {
         },
       ]}
     >
-      {/* <TouchableOpacity
-    style={{
-      marginBottom: 30,
-      borderRadius: 25,
-      overflow: "hidden",
-      marginHorizontal: 16,
-      height: 350,
-    }}
-    onPress={() => navigation.navigate("ChallengeDetails")}
-  >
-    <View
-      style={{
-        backgroundColor: "red",
-        borderRadius: 25,
-      }}
-    >
-      <LinearGradient
-        colors={["rgba(209, 192, 221, 0.6)", "rgba(218, 198, 250,0.9)"]}
-        style={{
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-          borderRadius: 25,
-        }}
-      />
-      <Image source={{ uri: data.image }} style={styles.challengeImage} />
-    </View>
-    <View
-      style={{
-        marginLeft: 5,
-      }}
-    >
-      <Text
-        style={{
-          fontSize: 25,
-          fontWeight: 600,
-          color: colors.text,
-          marginVertical: 10,
+      <ScrollView
+        horizontal
+        contentContainerStyle={{
+          paddingTop: 120,
+          paddingBottom: 150,
         }}
       >
-        {data.title}
-      </Text>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          // marginVertical: 10,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 14,
-            color: "#777",
-          }}
-        >
-          {data.participants} Participants
-        </Text>
-        <Text
-          style={{
-            fontSize: 14,
-            color: "#777",
-            marginLeft: 10,
-          }}
-        >
-          US$ {data.price}
-        </Text>
-      </View>
-      <TouchableOpacity
-        onPress={() => {}}
-        style={{
-          // marginHorizontal: 20,
-          marginTop: 20,
-          padding: 15,
-          borderRadius: 25,
-          backgroundColor: "#c7c7c7",
-          width: "100%",
-          paddingBottom: 10,
-        }}
-      >
-        <Text
-          style={{
-            textAlign: "center",
-            fontWeight: "bold",
-          }}
-        >
-          JOIN NOW!
-        </Text>
-      </TouchableOpacity>
-    </View>
-  </TouchableOpacity> */}
+        {savedChallenges?.map((item, index) => (
+          <TouchableOpacity
+            style={{
+              marginBottom: 30,
+              borderRadius: 25,
+              overflow: "hidden",
+              marginHorizontal: 16,
+              backgroundColor: "red",
+              height: 150,
+              width: 300,
+            }}
+            key={index}
+          >
+            <View
+              style={{
+                backgroundColor: "red",
+                borderRadius: 25,
+                height: 150,
+              }}
+            >
+              <LinearGradient
+                colors={["rgba(209, 192, 221, 0.6)", "rgba(218, 198, 250,0.9)"]}
+                style={{
+                  position: "absolute",
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: 25,
+                }}
+              />
+              <Text
+                style={{
+                  color: colors.text,
+                }}
+              >
+                {item.title}
+              </Text>
+              <Text
+                style={{
+                  color: colors.text,
+                }}
+              >
+                {item.description}
+              </Text>
+              <Text
+                style={{
+                  color: colors.text,
+                }}
+              >
+                {item.days}
+              </Text>
+              <Text
+                style={{
+                  color: colors.text,
+                }}
+              >
+                {item.equipment}
+              </Text>
+              <Text
+                style={{
+                  color: colors.text,
+                }}
+              >
+                {item.type}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
-      {savedChallenges?.map((item, index) => (
-        <TouchableOpacity key={index}>
-          <Text
-            style={{
-              color: colors.text,
-            }}
-          >
-            {item.title}
-          </Text>
-          <Text
-            style={{
-              color: colors.text,
-            }}
-          >
-            {item.description}
-          </Text>
-          <Text
-            style={{
-              color: colors.text,
-            }}
-          >
-            {item.days}
-          </Text>
-          <Text
-            style={{
-              color: colors.text,
-            }}
-          >
-            {item.equipment}
-          </Text>
-          <Text
-            style={{
-              color: colors.text,
-            }}
-          >
-            {item.type}
-          </Text>
-        </TouchableOpacity>
-      ))}
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <Text style={styles.discoverText}>DISCOVER</Text>
 

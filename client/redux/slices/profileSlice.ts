@@ -17,6 +17,7 @@ const initialState = {
   profilePic: {},
   savedSteps: 0,
   savedChallenges: [],
+  savedMealsPlan: [],
 };
 
 const profileSlice = createSlice({
@@ -29,6 +30,12 @@ const profileSlice = createSlice({
     setSavedChallenges: (state, action) => {
       // state.savedChallenges.push(action.payload);
       state.savedChallenges = action.payload;
+    },
+    setSavedMealPlan: (state, action) => {
+      state.savedMealsPlan = action.payload;
+    },
+    clearSavedMealPlan: (state) => {
+      state.savedMealsPlan = [];
     },
     setName: (state, action) => {
       state.name = action.payload;
@@ -90,6 +97,8 @@ export const {
   resetProfile,
   setSavedSteps,
   setSavedChallenges,
+  setSavedMealPlan,
+  clearSavedMealPlan,
 } = profileSlice.actions;
 
 export default profileSlice.reducer;

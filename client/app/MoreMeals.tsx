@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -16,10 +16,267 @@ import {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import Button from "@/components/Button";
+import { API_KEYS } from "@/config";
+import { useDispatch } from "react-redux";
+import { useGetUserProfileQuery } from "@/redux/api/apiClient";
+import { useSelector } from "react-redux";
+import axios from "axios";
+import {
+  clearSavedMealPlan,
+  setSavedMealPlan,
+} from "@/redux/slices/profileSlice";
+import { LinearGradient } from "expo-linear-gradient";
+import { FontAwesome6 } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
 
 const MoreMeals = () => {
-  const { colors } = useTheme();
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null); // Explicitly specify BottomSheetModal type
+  const { colors, dark } = useTheme();
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetAiMeal = useRef<BottomSheetModal>(null);
+
+  const [mealPlan, setMealPlan] = useState([]);
+  const [chat, setChat] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [errors, setError] = useState("");
+  const API_KEY = API_KEYS.secret;
+  const dispatch = useDispatch();
+  let mealPlanDatas = [];
+
+  const { data: profile, error, isLoading, refetch } = useGetUserProfileQuery();
+  // Automatically generate challenges when profile data is available
+  const { savedMealsPlan } = useSelector((state) => state.profile);
+
+  // useEffect(() => {
+  //   if (profile && profile.profileOfUsers && savedMealsPlan?.length === 0) {
+  //     const generateFitnessMealPlan = async () => {
+  //       const modelPrompt = `
+  //         Based on the following user profile, generate 10 personalized meals in json format {title,description,calorie,Ingredients List,Estimated Cooking Time,Preparation Instructions,Micronutrient Information} and don't add any other text:
+  //         Birthday: ${profile?.profileOfUsers?.birthday || "not provided"},
+  //         Gender: ${profile?.profileOfUsers?.gender || "not provided"},
+  //         Height: ${
+  //           profile?.profileOfUsers?.currentHeight?.centimeters ||
+  //           "not provided"
+  //         } cm,
+  //         Weight: ${
+  //           profile?.profileOfUsers?.currentWeight?.kilograms || "not provided"
+  //         } kg,
+  //         Activity Level: ${
+  //           profile?.profileOfUsers?.activityLevel || "not provided"
+  //         },
+  //         Preferred Diet Type: ${
+  //           profile?.profileOfUsers?.preferredDietType || "not provided"
+  //         },
+  //         Activities Liked: ${
+  //           profile?.profileOfUsers?.activitiesLiked?.join(", ") ||
+  //           "none provided"
+  //         }.
+  //       `;
+
+  //       const initialChat = [
+  //         {
+  //           role: "user",
+  //           parts: [{ text: "" }],
+  //         },
+  //       ];
+
+  //       setChat(initialChat);
+  //       setLoading(true);
+
+  //       try {
+  //         const response = await axios.post(
+  //           `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`,
+  //           {
+  //             contents: [
+  //               ...chat,
+  //               {
+  //                 role: "user",
+  //                 parts: [{ text: modelPrompt }],
+  //               },
+  //             ],
+  //           }
+  //         );
+
+  //         const modelResponse =
+  //           response?.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+  //           "Could not generate challenges based on the provided details.";
+
+  //         const formattedMealPlan = await modelResponse
+  //           .split(/\n+/)
+  //           .filter((mealPlan) => mealPlan.trim())
+  //           .map((mealPlan, index) => ({
+  //             role: "model",
+  //             parts: [
+  //               {
+  //                 text: `${mealPlan
+  //                   .trim()
+  //                   .replace(/```json|\`\`\`/g, "")
+  //                   .trim()}`,
+  //               },
+  //             ],
+  //           }));
+
+  //         const matches = await modelResponse.match(/\{[^}]*\}/g);
+
+  //         matches.forEach((match) => {
+  //           // calorie,Ingredients List,Estimated Cooking Time,Preparation Instructions,Micronutrient Information
+  //           const titleMatch = match.match(/"title":\s*"([^"]+)"/);
+  //           const descMatch = match.match(/"description":\s*"([^"]+)"/);
+  //           const calorieMatch = match.match(/"calorie":\s*"([^"]+)"/);
+  //           const in_listMatch = match.match(/"ingredients":\s*"([^"]+)"/);
+  //           const macro = match.match(/"micronutrient":\s*"([^"]+)"/);
+
+  //           const data = {
+  //             title: titleMatch ? titleMatch[1] : "Title not found",
+  //             description: descMatch ? descMatch[1] : "Description not found",
+  //             calorieMatch: calorieMatch
+  //               ? calorieMatch[1]
+  //               : "calorieMatch not found",
+  //             in_listMatch: in_listMatch
+  //               ? in_listMatch[1]
+  //               : "in_listMatch not found",
+  //             macro: macro ? macro[1] : "macro not found",
+  //           };
+
+  //           setMealPlan((prevMealPlan) => [...prevMealPlan, data]);
+  //           mealPlanDatas.push(data);
+  //         });
+
+  //         dispatch(setSavedMealPlan(mealPlanDatas));
+
+  //         setChat([...initialChat, ...formattedMealPlan]);
+  //       } catch (errors) {
+  //         console.error("Error fetching mealPlan:", errors);
+  //         setError(
+  //           "An error occurred while generating fitness mealPlan. Please try again."
+  //         );
+  //       } finally {
+  //         setLoading(false);
+  //       }
+  //     };
+  //     generateFitnessMealPlan();
+  //   }
+  // }, [profile]);
+
+  const generateFitnessMealPlan = async () => {
+    const modelPrompt = `
+      Based on the following user profile, generate 10 personalized meals in json format {title,description,calorie,Ingredients List,Estimated Cooking Time,Preparation Instructions,Micronutrient Information} and don't add any other text:
+      Birthday: ${profile?.profileOfUsers?.birthday || "not provided"},
+      Gender: ${profile?.profileOfUsers?.gender || "not provided"},
+      Height: ${
+        profile?.profileOfUsers?.currentHeight?.centimeters || "not provided"
+      } cm,
+      Weight: ${
+        profile?.profileOfUsers?.currentWeight?.kilograms || "not provided"
+      } kg,
+      Activity Level: ${
+        profile?.profileOfUsers?.activityLevel || "not provided"
+      },
+      Preferred Diet Type: ${
+        profile?.profileOfUsers?.preferredDietType || "not provided"
+      },
+      Activities Liked: ${
+        profile?.profileOfUsers?.activitiesLiked?.join(", ") || "none provided"
+      }.
+    `;
+
+    const initialChat = [
+      {
+        role: "user",
+        parts: [{ text: "" }],
+      },
+    ];
+
+    setChat(initialChat);
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`,
+        {
+          contents: [
+            ...chat,
+            {
+              role: "user",
+              parts: [{ text: modelPrompt }],
+            },
+          ],
+        }
+      );
+
+      const modelResponse =
+        response?.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "Could not generate challenges based on the provided details.";
+
+      const formattedMealPlan = await modelResponse
+        .split(/\n+/)
+        .filter((mealPlan) => mealPlan.trim())
+        .map((mealPlan, index) => ({
+          role: "model",
+          parts: [
+            {
+              text: `${mealPlan
+                .trim()
+                .replace(/```json|\`\`\`/g, "")
+                .trim()}`,
+            },
+          ],
+        }));
+
+      const matches = await modelResponse.match(/\{[^}]*\}/g);
+
+      matches.forEach((match) => {
+        // calorie,Ingredients List,Estimated Cooking Time,Preparation Instructions,Micronutrient Information
+        const titleMatch = match.match(/"title":\s*"([^"]+)"/);
+        const descMatch = match.match(/"description":\s*"([^"]+)"/);
+        const calorieMatch = match.match(/"calorie":\s*(\d+)/);
+        const in_listMatch = match.match(/"Ingredients List":\s*\[([^\]]+)\]/);
+        const macroMatch = match.match(
+          /"Micronutrient Information":\s*\{([^\}]+)\}/
+        );
+        const time = match.match(/"Estimated Cooking Time":\s*"([^"]+)"/);
+
+        const micronutrients = macroMatch
+          ? macroMatch[1].split(",").reduce((acc, nutrient) => {
+              const [key, value] = nutrient
+                .split(":")
+                .map((item) => item.trim().replace(/"/g, ""));
+              acc[key] = value;
+              return acc;
+            }, {})
+          : {};
+
+        const in_list = in_listMatch
+          ? in_listMatch[1]
+              .split(",")
+              .map((item) => item.trim().replace(/"/g, ""))
+          : [];
+        const data = {
+          title: titleMatch ? titleMatch[1] : "Title not found",
+          description: descMatch ? descMatch[1] : "Description not found",
+          calorie: calorieMatch ? calorieMatch[1] : "calorie Match not found",
+          in_list,
+          macro: micronutrients,
+          time: time ? time[1] : "time not found",
+        };
+
+        setMealPlan((prevMealPlan) => [...prevMealPlan, data]);
+        mealPlanDatas.push(data);
+        console.log(data);
+      });
+
+      // persist
+      dispatch(setSavedMealPlan(mealPlan));
+
+      setChat([...initialChat, ...formattedMealPlan]);
+    } catch (errors) {
+      console.error("Error fetching mealPlan:", errors);
+      setError(
+        "An error occurred while generating fitness mealPlan. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const openBottomSheet = () => {
     bottomSheetModalRef.current?.present();
@@ -59,10 +316,154 @@ const MoreMeals = () => {
       image: require("../assets/meal/soup.png"),
     },
   ];
+
+  // const resetMeal = () => {
+  //   dispatch(clearSavedMealPlan());
+  // };
+
+  const openAiBottomSheet = (item) => {
+    setSelectedMeal(item);
+    bottomSheetAiMeal.current?.present();
+  };
+  const [selectedMeal, setSelectedMeal] = useState(null);
+  console.log(selectedMeal);
   return (
     <GestureHandlerRootView>
       <BottomSheetModalProvider>
-        <ScrollView style={{ flex: 1, backgroundColor: colors.background }}>
+        <BlurView
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 80,
+            zIndex: 1,
+          }}
+          intensity={50}
+          tint={dark ? "prominent" : "extraLight"}
+        >
+          <Text
+            style={{
+              fontSize: 24,
+              fontWeight: 500,
+              // marginBottom: 20,
+              color: colors.text,
+              marginTop: 45,
+              paddingLeft: 15,
+            }}
+          >
+            Meals
+          </Text>
+        </BlurView>
+        <ScrollView
+          style={{ flex: 1, backgroundColor: colors.background }}
+          contentContainerStyle={{
+            paddingTop: 50,
+          }}
+        >
+          {/* <Button
+            title="GENERATE MEAL PLAN"
+            handlePress={generateFitnessMealPlan}
+            style={{ marginVertical: 20 }}
+          /> */}
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: 500,
+              color: colors.text,
+              marginTop: 45,
+              paddingLeft: 20,
+              marginBottom: 20,
+            }}
+          >
+            AI Meal Plans
+          </Text>
+          <View>
+            {savedMealsPlan
+              ?.map((item, index) => (
+                <TouchableOpacity
+                  style={{
+                    marginBottom: 10,
+                    borderRadius: 25,
+                    overflow: "hidden",
+                    marginHorizontal: 16,
+                    backgroundColor: "#00ff22",
+                  }}
+                  onPress={() => openAiBottomSheet(item)}
+                  key={index}
+                >
+                  {/*  "in_list": ["1 spaghetti squash", "1 (28 ounce) can crushed tomatoes", "1/2 onion", "chopped", "2 cloves garlic", "minced", "1 tablespoon olive oil", "1/2 teaspoon dried oregano", "1/4 teaspoon salt", "1/4 teaspoon black pepper"], "macro": {"Carbohydrates": "55g", "Fat": "10g", "Protein": "15g"}, "time": "45 minutes", } */}
+                  <View
+                    style={{
+                      backgroundColor: colors.opacity,
+                      borderRadius: 25,
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        padding: 10,
+                        paddingLeft: 15,
+                      }}
+                    >
+                      <View>
+                        <FontAwesome6
+                          name="bowl-food"
+                          size={24}
+                          color={colors.primary}
+                        />
+                      </View>
+                      <View
+                        style={{
+                          paddingVertical: 10,
+                          paddingHorizontal: 10,
+                          marginLeft: 10,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: colors.text,
+                            fontSize: 20,
+                            fontWeight: 600,
+                            paddingVertical: 5,
+                            width: 300,
+                          }}
+                        >
+                          {item.title}
+                        </Text>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            paddingVertical: 5,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: colors.text,
+                              fontWeight: 500,
+                            }}
+                          >
+                            Calorie:{item.calorie}
+                          </Text>
+                          <Text
+                            style={{
+                              color: colors.text,
+                              fontWeight: 500,
+                            }}
+                          >
+                            Time: {item.time}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))
+              // just get last 10
+              .slice(-10)}
+          </View>
           <TouchableOpacity
             onPress={openBottomSheet}
             style={{
@@ -266,6 +667,34 @@ const MoreMeals = () => {
                 </View>
               </View>
             </ParallaxScrollView>
+          </BottomSheetModal>
+
+          <BottomSheetModal
+            ref={bottomSheetAiMeal}
+            index={1}
+            snapPoints={["20%", "75%"]}
+            backdropComponent={BottomSheetBackdrop}
+            handleComponent={() => <View style={styles.handleComponent} />}
+          >
+            <View>
+              <Text
+                style={{
+                  color: colors.text,
+                  textAlign: "center",
+                  fontSize: 20,
+                  fontWeight: 500,
+                  marginTop: 25,
+                }}
+              >
+                {selectedMeal?.title}
+              </Text>
+            </View>
+            <Text>{selectedMeal?.description}</Text>
+
+            <View>
+              <Text>{selectedMeal?.calorie}</Text>
+              <Text>{selectedMeal?.time}</Text>
+            </View>
           </BottomSheetModal>
         </ScrollView>
       </BottomSheetModalProvider>
