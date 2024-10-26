@@ -11,27 +11,49 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Platform,
+  Animated,
 } from "react-native";
 import axios from "axios";
 import { API_KEYS } from "@/config";
 import { useTheme } from "@/constants/ThemeProvider";
 import { TouchableOpacity } from "react-native";
 import { BlurView } from "expo-blur";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useGetProfileQuery } from "@/redux/api/apiClient";
 
 const Chatbot = () => {
   const [chat, setChat] = useState([]);
   const [userInput, setUserInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [errors, setError] = useState(null);
 
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
   const { colors, dark } = useTheme();
-
   const API_KEY = API_KEYS.secret;
-
   const flatListRef = useRef();
-
   const handleUserInput = async (input) => {
+    const prompt = `${input}
+    birthday: ${profile?.profileOfUsers?.birthday},
+            gender: ${profile?.profileOfUsers?.gender},
+            height: ${
+              profile?.profileOfUsers?.currentHeight.centimeters
+                .preferredUnits == "metric"
+                ? profile?.profileOfUsers?.currentHeight.centimeters
+                : profile?.profileOfUsers?.currentHeight.feet +
+                  "ft" +
+                  profile?.profileOfUsers?.currentHeight.inches +
+                  "inches"
+            },
+            weight: ${
+              profile?.profileOfUsers?.currentHeight.centimeters
+                .preferredUnits == "metric"
+                ? profile?.profileOfUsers?.currentWeight.kilograms
+                : profile?.profileOfUsers?.currentWeight.pounds
+            },
+            activityLevel: ${profile?.profileOfUsers?.activityLevel},
+            preferredDietType: ${profile?.profileOfUsers?.preferredDietType},
+            activitiesLiked: ${profile?.profileOfUsers?.activitiesLiked}
+    `;
     const updateChat = [
       ...chat,
       {
@@ -47,7 +69,13 @@ const Chatbot = () => {
       const response = await axios.post(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`,
         {
-          contents: updateChat,
+          contents: [
+            ...chat,
+            {
+              role: "user",
+              parts: [{ text: prompt }],
+            },
+          ],
         }
       );
 
@@ -66,9 +94,10 @@ const Chatbot = () => {
         setChat(updatedChatWithModel);
         setUserInput("");
       }
-    } catch (error) {
+    } catch (errors) {
+      console.error(errors);
       setError(
-        "An error occurred while fetching the response. Please try again."
+        "An errors occurred while fetching the response. Please try again."
       );
     } finally {
       setLoading(false);
@@ -133,6 +162,24 @@ const Chatbot = () => {
     }
   }, [chat]);
 
+  const bounceAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(bounceAnim, {
+          toValue: -30,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bounceAnim, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [bounceAnim]);
   return (
     <View
       style={{
@@ -171,7 +218,7 @@ const Chatbot = () => {
               paddingLeft: 15,
             }}
           >
-            Fitness ChatBot
+            AI Coach
           </Text>
         </BlurView>
 
@@ -181,19 +228,42 @@ const Chatbot = () => {
             flex: 1,
           }}
         >
-          {error && <Text style={styles.errorText}>{error}</Text>}
+          {errors && <Text style={styles.errorText}>{errors}</Text>}
 
-          <FlatList
-            showsVerticalScrollIndicator={false}
-            data={chat}
-            renderItem={renderChatItem}
-            keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={styles.chatContainer}
-            ref={flatListRef} // Ref to FlatList to allow scrolling
-            onContentSizeChange={() =>
-              flatListRef.current.scrollToEnd({ animated: true })
-            }
-          />
+          {chat.length > 0 ? (
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              data={chat}
+              renderItem={renderChatItem}
+              keyExtractor={(item, index) => index.toString()}
+              contentContainerStyle={styles.chatContainer}
+              ref={flatListRef} // Ref to FlatList to allow scrolling
+              onContentSizeChange={() =>
+                flatListRef.current.scrollToEnd({ animated: true })
+              }
+            />
+          ) : (
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Animated.View
+                style={{ transform: [{ translateY: bounceAnim }] }}
+              >
+                <MaterialCommunityIcons
+                  name="robot-excited-outline"
+                  size={40}
+                  color={colors.primary}
+                />
+              </Animated.View>
+              <Text style={{ color: colors.text }}>
+                Hi! I'm your AI Coach. Ask me anything about fitness.
+              </Text>
+            </View>
+          )}
 
           {loading && (
             <View style={styles.loadingContainer}>
@@ -341,7 +411,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: "red",
-    marginBottom: 10,
+    marginTop: 90,
   },
   loadingContainer: {
     flexDirection: "row",

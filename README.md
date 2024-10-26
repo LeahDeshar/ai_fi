@@ -40,6 +40,7 @@ Full Application Integration
 - [x] image modules
 - [ ] recommendation
   - [ ] calorie
-  - [ ] sleep
+  - [x] sleep
   - [x] water
-  - [ ] daily step
+  - [x] daily step
+  - [x] chatbot coach
