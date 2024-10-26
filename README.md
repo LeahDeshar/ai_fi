@@ -44,3 +44,5 @@ Full Application Integration
   - [x] water
   - [x] daily step
   - [x] chatbot coach
+  - [x] Mealplanner ai
+  - [x] fitness challenge ai

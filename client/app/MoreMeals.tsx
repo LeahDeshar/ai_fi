@@ -28,7 +28,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-
+import Svg, { Circle, G, Path, Text as SvgText } from "react-native-svg";
 const MoreMeals = () => {
   const { colors, dark } = useTheme();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -159,7 +159,7 @@ const MoreMeals = () => {
 
   const generateFitnessMealPlan = async () => {
     const modelPrompt = `
-      Based on the following user profile, generate 10 personalized meals in json format {title,description,calorie,Ingredients List,Estimated Cooking Time,Preparation Instructions,Micronutrient Information} and don't add any other text:
+      Based on the following user profile, generate 10 personalized meals in json format {title,description,calorie,Ingredients List,Estimated Cooking Time,Preparation Instructions,Micronutrient Information} and don't add any other text,these are my information
       Birthday: ${profile?.profileOfUsers?.birthday || "not provided"},
       Gender: ${profile?.profileOfUsers?.gender || "not provided"},
       Height: ${
@@ -356,29 +356,27 @@ const MoreMeals = () => {
           </Text>
         </BlurView>
         <ScrollView
-          style={{ flex: 1, backgroundColor: colors.background }}
+          style={{ backgroundColor: colors.background }}
           contentContainerStyle={{
-            paddingTop: 50,
+            paddingTop: 10,
           }}
         >
-          {/* <Button
-            title="GENERATE MEAL PLAN"
-            handlePress={generateFitnessMealPlan}
-            style={{ marginVertical: 20 }}
-          /> */}
           <Text
             style={{
               fontSize: 20,
               fontWeight: 500,
               color: colors.text,
-              marginTop: 45,
+              marginTop: 85,
               paddingLeft: 20,
-              marginBottom: 20,
             }}
           >
             AI Meal Plans
           </Text>
-          <View>
+
+          <ScrollView
+            contentContainerStyle={{ paddingTop: 10, paddingBottom: 10 }}
+            horizontal
+          >
             {savedMealsPlan
               ?.map((item, index) => (
                 <TouchableOpacity
@@ -386,76 +384,69 @@ const MoreMeals = () => {
                     marginBottom: 10,
                     borderRadius: 25,
                     overflow: "hidden",
-                    marginHorizontal: 16,
-                    backgroundColor: "#00ff22",
+                    marginHorizontal: 8,
+                    height: 150,
+                    width: 220,
                   }}
                   onPress={() => openAiBottomSheet(item)}
                   key={index}
                 >
-                  {/*  "in_list": ["1 spaghetti squash", "1 (28 ounce) can crushed tomatoes", "1/2 onion", "chopped", "2 cloves garlic", "minced", "1 tablespoon olive oil", "1/2 teaspoon dried oregano", "1/4 teaspoon salt", "1/4 teaspoon black pepper"], "macro": {"Carbohydrates": "55g", "Fat": "10g", "Protein": "15g"}, "time": "45 minutes", } */}
                   <View
                     style={{
-                      backgroundColor: colors.opacity,
+                      backgroundColor: "#fff7db",
                       borderRadius: 25,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginVertical: 10,
+                      paddingTop: 15,
                     }}
                   >
+                    <FontAwesome6
+                      name="bowl-food"
+                      size={24}
+                      color={colors.primary}
+                    />
+
                     <View
                       style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        padding: 10,
-                        paddingLeft: 15,
+                        paddingVertical: 10,
+                        paddingHorizontal: 10,
+                        marginLeft: 10,
                       }}
                     >
-                      <View>
-                        <FontAwesome6
-                          name="bowl-food"
-                          size={24}
-                          color={colors.primary}
-                        />
-                      </View>
+                      <Text
+                        style={{
+                          color: colors.text,
+                          fontSize: 18,
+                          fontWeight: 600,
+                          paddingVertical: 5,
+                        }}
+                      >
+                        {item.title}
+                      </Text>
                       <View
                         style={{
-                          paddingVertical: 10,
-                          paddingHorizontal: 10,
-                          marginLeft: 10,
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          paddingVertical: 5,
                         }}
                       >
                         <Text
                           style={{
                             color: colors.text,
-                            fontSize: 20,
-                            fontWeight: 600,
-                            paddingVertical: 5,
-                            width: 300,
+                            fontWeight: 500,
                           }}
                         >
-                          {item.title}
+                          {item.calorie} kcal
                         </Text>
-                        <View
+                        <Text
                           style={{
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                            paddingVertical: 5,
+                            color: colors.text,
+                            fontWeight: 500,
                           }}
                         >
-                          <Text
-                            style={{
-                              color: colors.text,
-                              fontWeight: 500,
-                            }}
-                          >
-                            Calorie:{item.calorie}
-                          </Text>
-                          <Text
-                            style={{
-                              color: colors.text,
-                              fontWeight: 500,
-                            }}
-                          >
-                            Time: {item.time}
-                          </Text>
-                        </View>
+                          {item.time}
+                        </Text>
                       </View>
                     </View>
                   </View>
@@ -463,7 +454,13 @@ const MoreMeals = () => {
               ))
               // just get last 10
               .slice(-10)}
-          </View>
+          </ScrollView>
+          {/* <Button
+            title="GENERATE MEAL PLAN"
+            handlePress={generateFitnessMealPlan}
+            style={{ marginVertical: 20 }}
+          /> */}
+
           <TouchableOpacity
             onPress={openBottomSheet}
             style={{
@@ -676,24 +673,119 @@ const MoreMeals = () => {
             backdropComponent={BottomSheetBackdrop}
             handleComponent={() => <View style={styles.handleComponent} />}
           >
-            <View>
+            <View
+              style={{
+                marginHorizontal: 26,
+              }}
+            >
               <Text
                 style={{
                   color: colors.text,
                   textAlign: "center",
-                  fontSize: 20,
+                  fontSize: 26,
                   fontWeight: 500,
                   marginTop: 25,
+                  marginBottom: 10,
                 }}
               >
                 {selectedMeal?.title}
               </Text>
-            </View>
-            <Text>{selectedMeal?.description}</Text>
 
-            <View>
-              <Text>{selectedMeal?.calorie}</Text>
-              <Text>{selectedMeal?.time}</Text>
+              <Text
+                style={{
+                  color: colors.text,
+                  marginVertical: 10,
+                }}
+              >
+                {selectedMeal?.description}
+              </Text>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginTop: 5,
+                  backgroundColor: "#89dc8983",
+                  paddingHorizontal: 10,
+                  paddingVertical: 5,
+                  borderRadius: 9,
+                }}
+              >
+                <Text
+                  style={{
+                    color: colors.text,
+                    fontWeight: 500,
+                  }}
+                >
+                  Calorie: {selectedMeal?.calorie}
+                </Text>
+                <Text
+                  style={{
+                    color: colors.text,
+                    fontWeight: 500,
+                  }}
+                >
+                  Estimated Cook Time: {selectedMeal?.time}
+                </Text>
+              </View>
+
+              <View>
+                <Text
+                  style={{
+                    color: colors.text,
+                    fontWeight: 500,
+                    marginTop: 15,
+                    fontSize: 18,
+                    marginBottom: 10,
+                  }}
+                >
+                  Ingredient
+                </Text>
+                {selectedMeal?.in_list.map((item, index) => (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginVertical: 3,
+                    }}
+                  >
+                    <View
+                      style={{
+                        backgroundColor: colors.primary,
+                        height: 9,
+                        width: 9,
+                        borderRadius: 2,
+                        marginRight: 10,
+                      }}
+                    />
+                    <Text key={index}>{item}</Text>
+                  </View>
+                ))}
+              </View>
+
+              <Text
+                style={{
+                  color: colors.text,
+                  fontWeight: 500,
+                  marginTop: 15,
+                  fontSize: 18,
+                  marginBottom: 10,
+                }}
+              >
+                Macros
+              </Text>
+              <View
+                style={{
+                  backgroundColor: "#e4e4e4",
+                  borderRadius: 15,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  paddingVertical: 5,
+                }}
+              >
+                <CircularMacroChart macros={selectedMeal?.macro} />
+              </View>
             </View>
           </BottomSheetModal>
         </ScrollView>
@@ -703,7 +795,80 @@ const MoreMeals = () => {
 };
 
 export default MoreMeals;
+const CircularMacroChart = ({ macros }) => {
+  const totalMacros = Object.values(macros).reduce(
+    (sum, value) => sum + parseInt(value),
+    0
+  );
 
+  const radius = 70; // Radius of the circle
+  const strokeWidth = 10; // Width of each segment
+  const circumference = 2 * Math.PI * radius;
+
+  // Calculate the start angle for each macro segment
+  const getSegmentAngle = (value) => (parseInt(value) / totalMacros) * 360;
+
+  const segments = [
+    { label: "Carbohydrates", value: macros.Carbohydrates, color: "#f84701f8" },
+    { label: "Fat", value: macros.Fat, color: "#fd8454" },
+    { label: "Fiber", value: macros.Fiber, color: "#fabea6" },
+    { label: "Protein", value: macros.Protein, color: "#a73504" },
+  ];
+
+  let startAngle = 0;
+
+  return (
+    <View style={{ flexDirection: "row", alignItems: "center", margin: 10 }}>
+      <Svg height={140} width={140}>
+        <G rotation={-90} originX="70" originY="70">
+          {segments.map((segment) => {
+            const segmentAngle = getSegmentAngle(segment.value);
+            const endAngle = startAngle + segmentAngle;
+            const largeArcFlag = segmentAngle > 180 ? 1 : 0;
+            const x1 = 70 + radius * Math.cos((Math.PI * startAngle) / 180);
+            const y1 = 70 + radius * Math.sin((Math.PI * startAngle) / 180);
+            const x2 = 70 + radius * Math.cos((Math.PI * endAngle) / 180);
+            const y2 = 70 + radius * Math.sin((Math.PI * endAngle) / 180);
+
+            const pathData = `M 70 70 L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+
+            startAngle += segmentAngle;
+
+            return (
+              <Path key={segment.label} d={pathData} fill={segment.color} />
+            );
+          })}
+        </G>
+      </Svg>
+
+      <View style={{ marginTop: 50, marginLeft: 50 }}>
+        {segments.map((segment, index) => (
+          <View
+            key={index}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginVertical: 2,
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: segment.color,
+                height: 9,
+                width: 9,
+                borderRadius: 2,
+                marginRight: 10,
+              }}
+            />
+            <Text key={segment.label} style={{ color: "#000", fontSize: 12 }}>
+              {segment.label}: {segment.value}
+            </Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+};
 const styles = StyleSheet.create({
   contentContainer: {
     backgroundColor: "white",

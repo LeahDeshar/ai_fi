@@ -287,84 +287,108 @@ const challengeScreen = () => {
         },
       ]}
     >
-      <ScrollView
-        horizontal
-        contentContainerStyle={{
-          paddingTop: 120,
-          paddingBottom: 150,
-        }}
-      >
-        {savedChallenges?.map((item, index) => (
-          <TouchableOpacity
-            style={{
-              marginBottom: 30,
-              borderRadius: 25,
-              overflow: "hidden",
-              marginHorizontal: 16,
-              backgroundColor: "red",
-              height: 150,
-              width: 300,
-            }}
-            key={index}
-          >
-            <View
-              style={{
-                backgroundColor: "red",
-                borderRadius: 25,
-                height: 150,
-              }}
-            >
-              <LinearGradient
-                colors={["rgba(209, 192, 221, 0.6)", "rgba(218, 198, 250,0.9)"]}
-                style={{
-                  position: "absolute",
-                  width: "100%",
-                  height: "100%",
-                  borderRadius: 25,
-                }}
-              />
-              <Text
-                style={{
-                  color: colors.text,
-                }}
-              >
-                {item.title}
-              </Text>
-              <Text
-                style={{
-                  color: colors.text,
-                }}
-              >
-                {item.description}
-              </Text>
-              <Text
-                style={{
-                  color: colors.text,
-                }}
-              >
-                {item.days}
-              </Text>
-              <Text
-                style={{
-                  color: colors.text,
-                }}
-              >
-                {item.equipment}
-              </Text>
-              <Text
-                style={{
-                  color: colors.text,
-                }}
-              >
-                {item.type}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
       <ScrollView contentInsetAdjustmentBehavior="automatic">
-        <Text style={styles.discoverText}>DISCOVER</Text>
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: 500,
+            color: colors.text,
+            marginTop: 25,
+            paddingLeft: 20,
+          }}
+        >
+          AI Challenges
+        </Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingTop: 10,
+          }}
+        >
+          {savedChallenges?.map((item, index) => (
+            <TouchableOpacity
+              style={{
+                marginBottom: 10,
+                borderRadius: 25,
+                overflow: "hidden",
+                marginHorizontal: 16,
+                backgroundColor: "red",
+                height: 140,
+                width: 300,
+              }}
+              key={index}
+            >
+              <View
+                style={{
+                  backgroundColor: "red",
+                  borderRadius: 25,
+                  height: 140,
+                }}
+              >
+                <LinearGradient
+                  colors={[
+                    "rgba(209, 192, 221, 0.6)",
+                    "rgba(218, 198, 250,0.9)",
+                  ]}
+                  style={{
+                    position: "absolute",
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: 25,
+                  }}
+                />
+                <View
+                  style={{
+                    padding: 15,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "black",
+                      fontWeight: 500,
+                      fontSize: 20,
+                    }}
+                  >
+                    {item.title}
+                  </Text>
+                  <Text
+                    style={{
+                      marginVertical: 8,
+                    }}
+                  >
+                    {item.description}
+                  </Text>
+                  <Text style={{}}>{item.days} days challenge</Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      marginTop: 10,
+                    }}
+                  >
+                    <Text style={{ color: "#353535" }}>
+                      Equipment: {item.equipment}
+                    </Text>
+                    <Text style={{ color: "#353535" }}>Type: {item.type}</Text>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: 500,
+            color: colors.text,
+            marginTop: 10,
+            paddingLeft: 20,
+            marginBottom: 10,
+          }}
+        >
+          Discover
+        </Text>
 
         {/* <ChallengeBot
           chat={chat}
@@ -440,11 +464,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginLeft: 16,
   },
-  discoverText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    margin: 16,
-  },
+  discoverText: {},
   challengeItem: {},
   challengeImage: {
     width: "100%",
