@@ -13,7 +13,7 @@ import { useNavigation, useRouter } from "expo-router";
 import { TextInput } from "react-native";
 
 const PlanWeight = () => {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
 
   const [weight, setWeight] = useState("");
   const [unit, setUnit] = useState("kg");
@@ -149,7 +149,7 @@ const PlanWeight = () => {
             <Text
               style={[
                 unit === "kg"
-                  ? { fontSize: 16, fontWeight: "bold", color: "#000" }
+                  ? { fontSize: 16, fontWeight: "bold", color: colors.text }
                   : { fontSize: 16 },
                 {
                   color: colors.text,
@@ -174,6 +174,7 @@ const PlanWeight = () => {
               padding: 8,
               marginBottom: 24,
               textAlign: "center",
+              color: dark ? "white" : "black",
             }}
             keyboardType="numeric"
             value={weight}
@@ -204,7 +205,7 @@ const PlanWeight = () => {
           style={{
             width: "100%",
             padding: 16,
-            backgroundColor: "#DF4041",
+            backgroundColor: colors.primary,
             top: 108,
             borderRadius: 8,
             alignItems: "center",

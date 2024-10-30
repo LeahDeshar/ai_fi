@@ -44,7 +44,7 @@ const meals = [
   },
 ];
 const PlanLogCalories = () => {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const navigation = useNavigation();
 
   const [selectedDate, setSelectedDate] = useState(null);
@@ -98,7 +98,7 @@ const PlanLogCalories = () => {
             <ScrollView
               style={{
                 height: "100%",
-                backgroundColor: "#f5f5f5",
+                backgroundColor: dark ? "#242424" : "#f5f5f5",
               }}
             >
               <View
@@ -156,11 +156,16 @@ const PlanLogCalories = () => {
                       style={{
                         fontSize: 44,
                         fontWeight: 500,
+                        color: colors.text,
                       }}
                     >
                       0
                     </Text>
-                    <Text style={{}}>
+                    <Text
+                      style={{
+                        color: colors.text,
+                      }}
+                    >
                       of{" "}
                       {
                         profile?.calculations.weightLossDuration.calories
@@ -169,7 +174,13 @@ const PlanLogCalories = () => {
                       kcal
                     </Text>
                     <TouchableOpacity onPress={openEditBottomSheet}>
-                      <Text style={{}}>Edit</Text>
+                      <Text
+                        style={{
+                          color: colors.text,
+                        }}
+                      >
+                        Edit
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -183,6 +194,7 @@ const PlanLogCalories = () => {
                     carbs={carbs}
                     fat={fat}
                     protein={protein}
+                    colors={colors}
                   />
                 </View>
               </View>
@@ -190,7 +202,6 @@ const PlanLogCalories = () => {
                 style={{
                   // borderTopLeftRadius: 25,
                   // borderTopRightRadius: 25,
-                  // backgroundColor: "#f5f5f5",
                   paddingTop: 20,
                 }}
               >
@@ -202,6 +213,7 @@ const PlanLogCalories = () => {
                     marginBottom: 10,
                     marginTop: 20,
                     marginLeft: 18,
+                    color: dark ? "white" : "black",
                   }}
                 >
                   Daily meals
@@ -252,6 +264,7 @@ const PlanLogCalories = () => {
                           fontSize: 16,
                           fontWeight: 500,
                           marginLeft: 10,
+                          color: colors.text,
                         }}
                       >
                         {item.title}
@@ -473,7 +486,7 @@ const TrackerHeader = ({ navigation, colors, bottomSheetRef }) => {
     </View>
   );
 };
-const SvgProgressBar = ({ label, percentage, color }) => {
+const SvgProgressBar = ({ label, percentage, color, colors }) => {
   const barWidth = 90; // Total width of the progress bar
   const barHeight = 3; // Height of the progress bar
 
@@ -493,6 +506,7 @@ const SvgProgressBar = ({ label, percentage, color }) => {
           marginRight: 10,
           textAlign: "center",
           marginBottom: 5,
+          color: colors.text,
         }}
       >
         {label}
@@ -517,11 +531,20 @@ const SvgProgressBar = ({ label, percentage, color }) => {
           ry={5}
         />
       </Svg>
-      <Text style={styles.percentageText}>{percentage} g</Text>
+      <Text
+        style={[
+          styles.percentageText,
+          {
+            color: colors.text,
+          },
+        ]}
+      >
+        {percentage} g
+      </Text>
     </View>
   );
 };
-const NutrientProgressBars = ({ carbs, fat, protein }) => {
+const NutrientProgressBars = ({ carbs, fat, protein, colors }) => {
   return (
     <View
       style={{
@@ -529,9 +552,24 @@ const NutrientProgressBars = ({ carbs, fat, protein }) => {
         justifyContent: "space-between",
       }}
     >
-      <SvgProgressBar label="Carbs" percentage={carbs} color="#66BB6A" />
-      <SvgProgressBar label="Fat" percentage={fat} color="#66BB6A" />
-      <SvgProgressBar label="Protein" percentage={protein} color="#66BB6A" />
+      <SvgProgressBar
+        label="Carbs"
+        colors={colors}
+        percentage={carbs}
+        color="#66BB6A"
+      />
+      <SvgProgressBar
+        colors={colors}
+        label="Fat"
+        percentage={fat}
+        color="#66BB6A"
+      />
+      <SvgProgressBar
+        colors={colors}
+        label="Protein"
+        percentage={protein}
+        color="#66BB6A"
+      />
     </View>
   );
 };
@@ -551,6 +589,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 600,
     marginTop: 3,
+    // color: colors.text,
   },
   arrow: {
     fontSize: 18,

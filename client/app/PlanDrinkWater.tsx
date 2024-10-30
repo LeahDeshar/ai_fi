@@ -26,7 +26,7 @@ import { useSelector } from "react-redux";
 import { useGetProfileQuery } from "@/redux/api/apiClient";
 
 const PlanDrinkWater = () => {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const navigation = useNavigation();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const progress = 1;
@@ -132,13 +132,26 @@ const PlanDrinkWater = () => {
                   style={{
                     fontSize: 44,
                     fontWeight: 500,
+                    color: colors.text,
                   }}
                 >
                   {currentIntake}
                 </Text>
-                <Text style={{}}>of {waterIntakeInMl} ml</Text>
+                <Text
+                  style={{
+                    color: colors.text,
+                  }}
+                >
+                  of {waterIntakeInMl} ml
+                </Text>
                 <TouchableOpacity>
-                  <Text style={{}}>Edit</Text>
+                  <Text
+                    style={{
+                      color: colors.text,
+                    }}
+                  >
+                    Edit
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -152,6 +165,7 @@ const PlanDrinkWater = () => {
             <HorizontalPicker
               selectedValue={selectedValue}
               setSelectedValue={setSelectedValue}
+              dark={dark}
             />
           </View>
           <View
@@ -191,7 +205,7 @@ const PlanDrinkWater = () => {
               <AntDesign name="reload1" size={20} color="black" />
             </TouchableOpacity>
           </View>
-          <WeeklyStatsComponent />
+          <WeeklyStatsComponent colors={colors} dark={dark} />
 
           <BottomSheetModal
             snapPoints={["20%", "50%"]}
@@ -216,14 +230,14 @@ const PlanDrinkWater = () => {
     </GestureHandlerRootView>
   );
 };
-const HorizontalPicker = ({ selectedValue, setSelectedValue }) => {
+const HorizontalPicker = ({ selectedValue, setSelectedValue, dark }) => {
   // const [selectedValue, setSelectedValue] = useState(null);
 
   const options = ["150ml", "250ml", "350ml", "500ml", "750ml", "1000ml"];
 
   const handleSelect = (value) => {
     setSelectedValue(value);
-    Alert.alert(value);
+    // Alert.alert(value);
   };
 
   return (
@@ -253,11 +267,9 @@ const HorizontalPicker = ({ selectedValue, setSelectedValue }) => {
                     fontSize: 16,
                     fontWeight: "bold",
                   },
-                  isSelected
-                    ? {
-                        color: "white",
-                      }
-                    : styles.text,
+                  {
+                    color: isSelected ? "white" : dark ? "white" : "black",
+                  },
                 ]}
               >
                 {item}
@@ -273,6 +285,8 @@ const HorizontalPicker = ({ selectedValue, setSelectedValue }) => {
 const WeeklyStatsComponent = ({
   stats = [50, 70, 30, 80, 60, 90, 100],
   days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  colors,
+  dark,
 }) => {
   const barWidth = 10;
   const barSpacing = 43;
@@ -296,6 +310,7 @@ const WeeklyStatsComponent = ({
           style={{
             fontSize: 18,
             fontWeight: "bold",
+            color: colors.text,
           }}
         >
           WEEK
@@ -313,6 +328,7 @@ const WeeklyStatsComponent = ({
             style={{
               fontSize: 16,
               fontWeight: 500,
+              color: colors.text,
             }}
           >
             Average
@@ -330,7 +346,7 @@ const WeeklyStatsComponent = ({
       </View>
       <View
         style={{
-          backgroundColor: "#e7e7e7",
+          backgroundColor: dark ? "#2c2c2c" : "#e7e7e7",
           borderRadius: 12,
           marginHorizontal: 20,
           marginTop: 15,
@@ -382,7 +398,7 @@ const WeeklyStatsComponent = ({
             <Text
               key={index}
               style={[
-                { fontSize: 13, color: "#5b5b5bec" },
+                { fontSize: 13, color: dark ? "#b4b4b4" : "#5b5b5bec" },
                 { width: barWidth + barSpacing, textAlign: "center" },
               ]}
             >
@@ -612,6 +628,7 @@ const styles = StyleSheet.create({
   },
   selectedItem: {
     backgroundColor: "#007AFF",
+    borderWidth: 0,
   },
   container: {
     flex: 1,

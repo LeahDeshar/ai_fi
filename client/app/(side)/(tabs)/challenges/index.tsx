@@ -150,7 +150,7 @@ const ChallengeItem = ({ data, navigation, colors }) => (
     </View>
   </TouchableOpacity>
 );
-const challengeScreen = () => {
+const ChallengeScreen = () => {
   const { colors } = useTheme();
   const navigation = useRouter();
   const [challenges, setChallenges] = useState([]);
@@ -289,7 +289,7 @@ const challengeScreen = () => {
             fontSize: 20,
             fontWeight: 500,
             color: colors.text,
-            marginTop: 25,
+            marginTop: 30,
             paddingLeft: 20,
           }}
         >
@@ -299,7 +299,7 @@ const challengeScreen = () => {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{
-            paddingTop: 10,
+            paddingTop: 15,
           }}
         >
           {savedChallenges?.map((item, index) => (
@@ -309,9 +309,9 @@ const challengeScreen = () => {
                 borderRadius: 25,
                 overflow: "hidden",
                 marginHorizontal: 16,
-                backgroundColor: "red",
-                height: 140,
+                // backgroundColor: "red",
                 width: 300,
+                // paddingBottom: 20,
               }}
               key={index}
               onPress={() => {
@@ -325,7 +325,8 @@ const challengeScreen = () => {
                 style={{
                   backgroundColor: "red",
                   borderRadius: 25,
-                  height: 140,
+                  // height: 140,
+                  marginBottom: 10,
                 }}
               >
                 <LinearGradient
@@ -367,6 +368,7 @@ const challengeScreen = () => {
                       flexDirection: "row",
                       justifyContent: "space-between",
                       marginTop: 10,
+                      marginBottom: 10,
                     }}
                   >
                     <Text style={{ color: "#353535" }}>
@@ -412,7 +414,7 @@ const challengeScreen = () => {
   );
 };
 
-export default challengeScreen;
+export default ChallengeScreen;
 
 const ChallengeBot = ({ profile, loading, errors, chat }) => {
   return (

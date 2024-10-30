@@ -820,7 +820,7 @@ const activity = [
 ];
 
 const PlanWorkout = () => {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const navigation = useNavigation();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
 
@@ -932,13 +932,26 @@ const PlanWorkout = () => {
                     style={{
                       fontSize: 44,
                       fontWeight: 500,
+                      color: colors.text,
                     }}
                   >
                     113
                   </Text>
-                  <Text style={{}}>of 600 kcal</Text>
+                  <Text
+                    style={{
+                      color: colors.text,
+                    }}
+                  >
+                    of 600 kcal
+                  </Text>
                   <TouchableOpacity>
-                    <Text style={{}}>Edit</Text>
+                    <Text
+                      style={{
+                        color: colors.text,
+                      }}
+                    >
+                      Edit
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -950,7 +963,7 @@ const PlanWorkout = () => {
                 gap: 10,
                 marginTop: 10,
                 borderTopWidth: 1,
-                borderTopColor: "#dcdcdc93",
+                borderTopColor: dark ? "#46454592" : "#dcdcdc93",
                 paddingTop: 30,
               }}
             >
@@ -958,13 +971,13 @@ const PlanWorkout = () => {
                 <TouchableOpacity
                   key={index}
                   style={{
-                    backgroundColor: "#d8d8d894",
+                    backgroundColor: dark ? "#343434f1" : "#d8d8d894",
                     borderRadius: 15,
                     padding: 5,
                     flexDirection: "row",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    paddingRight: 10,
+                    paddingRight: 15,
                   }}
                 >
                   <View
@@ -991,6 +1004,7 @@ const PlanWorkout = () => {
                           fontSize: 16,
                           marginTop: 9,
                           fontWeight: 600,
+                          color: colors.text,
                         }}
                       >
                         {item?.name}
@@ -1005,14 +1019,14 @@ const PlanWorkout = () => {
                       >
                         <Text
                           style={{
-                            color: "#414141bb",
+                            color: dark ? "#9c9c9cd3" : "#414141bb",
                           }}
                         >
                           {item?.duration} min
                         </Text>
                         <Text
                           style={{
-                            color: "#414141bb",
+                            color: dark ? "#9c9c9cd3" : "#414141bb",
                           }}
                         >
                           {item?.focusZones}
@@ -1024,7 +1038,7 @@ const PlanWorkout = () => {
                   <FontAwesome6
                     name="angle-right"
                     size={20}
-                    color="#41414161"
+                    color={dark ? "#9c9c9cd3" : "#414141bb"}
                   />
                 </TouchableOpacity>
               ))}
@@ -1032,8 +1046,8 @@ const PlanWorkout = () => {
             <View
               style={{
                 marginHorizontal: 20,
-                marginTop: 20,
-                marginBottom: 10,
+                marginTop: 30,
+                marginBottom: 15,
               }}
             >
               <Text
@@ -1042,6 +1056,7 @@ const PlanWorkout = () => {
                   fontWeight: 600,
                   // padding: 10,
                   marginBottom: 10,
+                  color: colors.text,
                 }}
               >
                 Completed Activities

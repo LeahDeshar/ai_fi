@@ -48,5 +48,5 @@ Full Application Integration
   - [x] Mealplanner ai
   - [x] fitness challenge ai
 
-- [ ] update the state of the challenge
-- [ ] UI of generated challenges of a day
+- [x] update the state of the challenge
+- [x] UI of generated challenges of a day
