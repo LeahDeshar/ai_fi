@@ -1,4 +1,10 @@
-import { StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import {
   useLocalSearchParams,
@@ -7,11 +13,14 @@ import {
 } from "expo-router";
 import { API_KEYS } from "@/config";
 import { useDispatch } from "react-redux";
-import { useGetUserProfileQuery } from "@/redux/api/apiClient";
+import { useGetProfileQuery } from "@/redux/api/apiClient";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { Button } from "react-native";
-import { setSavedDetailChallenges } from "@/redux/slices/profileSlice";
+import {
+  setSavedDetailChallenges,
+  updateSavedChallenges,
+} from "@/redux/slices/profileSlice";
 
 const AiChallengeDetails = () => {
   const [chat, setChat] = useState([]);
@@ -20,7 +29,6 @@ const AiChallengeDetails = () => {
   const { items } = useLocalSearchParams();
   const [challenges, setChallenges] = useState([]);
 
-  console.log("parse", JSON.parse(items));
   const challengeData = typeof items === "string" ? JSON.parse(items) : items;
   let data = {};
 
@@ -28,15 +36,17 @@ const AiChallengeDetails = () => {
   const dispatch = useDispatch();
   let detailDatas = [];
 
-  const { data: profile, error, isLoading, refetch } = useGetUserProfileQuery();
-  const { savedDetailChallenges } = useSelector((state) => state.profile);
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+  const { savedDetailChallenges, savedChallenges } = useSelector(
+    (state) => state.profile
+  );
+  const res = savedChallenges.find(
+    (challenge) => challenge.title === challengeData.title
+  );
 
+  const [fetching, setFetching] = useState(false);
   useEffect(() => {
-    if (
-      profile &&
-      profile.profileOfUsers &&
-      savedDetailChallenges.length === 0
-    ) {
+    if (profile && profile.profileOfUsers && !res.schedule) {
       const generateFitnessChallenges = async () => {
         let modelPrompt = `we have ${challengeData.title} of ${
           challengeData.days
@@ -80,7 +90,7 @@ const AiChallengeDetails = () => {
           },
         ];
         setChat(initialChat);
-        setLoading(true);
+        setFetching(true);
         try {
           const response = await axios.post(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`,
@@ -132,7 +142,12 @@ const AiChallengeDetails = () => {
             setChallenges((prevChallenges) => [...prevChallenges, data]);
             detailDatas.push(data);
           });
-          dispatch(setSavedDetailChallenges(detailDatas));
+          dispatch(
+            updateSavedChallenges({
+              title: challengeData.title,
+              data: detailDatas,
+            })
+          );
           setChat([...initialChat, ...formattedChallenges]);
         } catch (errors) {
           console.error("Error fetching challenges:", errors);
@@ -140,29 +155,56 @@ const AiChallengeDetails = () => {
             "An error occurred while generating fitness challenges. Please try again."
           );
         } finally {
-          setLoading(false);
+          setFetching(false);
         }
       };
+
       generateFitnessChallenges();
     }
   }, [profile]);
 
-  console.log("challenges", Array.isArray(savedDetailChallenges));
+  // console.log("challenges", Array.isArray(savedDetailChallenges));
 
   return (
-    <View
+    <ScrollView
       style={{
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
       }}
     >
-      <Button title={"click"} onPress={() => generateFitnessChallenges()} />
-      <Text>{challengeData.title}</Text>
-      {savedDetailChallenges?.map((challenge, index) => (
-        <Text key={index}>{challenge.exercise}</Text>
-      ))}
-    </View>
+      <View
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: 150,
+        }}
+      >
+        <Button title={"click"} onPress={() => generateFitnessChallenges()} />
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+          }}
+        >
+          {challengeData.title}
+        </Text>
+
+        {fetching && (
+          <View>
+            <ActivityIndicator size="large" color={"red"} />
+
+            <Text>
+              Preparing {challengeData.days} day's Schedule for you...
+            </Text>
+          </View>
+        )}
+        {res.schedule?.map((sche, index) => (
+          <View key={index}>
+            {/* <Text>{sche.day}</Text> */}
+            <Text>{sche.exercise}</Text>
+          </View>
+        ))}
+      </View>
+    </ScrollView>
   );
 };
 

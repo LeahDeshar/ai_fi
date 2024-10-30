@@ -14,10 +14,7 @@ import { useTheme } from "@/constants/ThemeProvider";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { API_KEYS } from "@/config";
-import {
-  useGetProfileQuery,
-  useGetUserProfileQuery,
-} from "@/redux/api/apiClient";
+import { useGetProfileQuery } from "@/redux/api/apiClient";
 import axios from "axios";
 import { setSavedChallenges } from "@/redux/slices/profileSlice";
 import { useDispatch } from "react-redux";
@@ -164,8 +161,7 @@ const challengeScreen = () => {
   const dispatch = useDispatch();
   let challengeDatas = [];
 
-  const { data: profile, error, isLoading, refetch } = useGetUserProfileQuery();
-  // Automatically generate challenges when profile data is available
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
   const { savedChallenges } = useSelector((state) => state.profile);
 
   useEffect(() => {

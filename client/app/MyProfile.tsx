@@ -36,14 +36,14 @@ const MyProfile = () => {
   const { user, token, isLoggedIn } = useSelector((state) => state.auth);
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
-  console.log("profile", profile);
+  console.log("profile..", profile);
 
   const handleLoginPress = () => {
     navigation.push("LoginScreen");
   };
   const handleLogOutPress = () => {
     dispatch(logout());
-    refetch();
+    // refetch();
     navigation.push("LoginScreen");
   };
 
@@ -187,7 +187,7 @@ const MyProfile = () => {
             )}
           </View>
         </ThemedView>
-        <ProfileScreen />
+        <ProfileScreen profile={profile} />
         {isLoggedIn && (
           <Button title={"Logout"} handlePress={handleLogOutPress} />
         )}
@@ -244,25 +244,25 @@ const ProfileItem = ({
   );
 };
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ profile }) => {
   const { colors } = useTheme();
   const navigation = useRouter();
   // const { data: profile, error, isLoading } = useGetProfileQuery();
 
-  const { data: profile, error, isLoading, refetch } = useGetUserProfileQuery();
+  // const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
-  console.log(profile, error, isLoading);
+  console.log(profile);
   // const dispatch = useDispatch();
   // dispatch(resetProfile());
 
   // persistor.purge();
-  if (isLoading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
-  }
+  // if (isLoading) {
+  //   return <ActivityIndicator size="large" color="#0000ff" />;
+  // }
 
-  if (error) {
-    return <Text>Error fetching profile: {error.message}</Text>;
-  }
+  // if (error) {
+  //   return <Text>Error fetching profile: {error.message}</Text>;
+  // }
 
   return (
     <View

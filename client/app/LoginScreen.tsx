@@ -31,7 +31,7 @@ const LoginScreen = () => {
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
 
-  const { data: profile, error, refetch } = useGetUserProfileQuery();
+  const { data: profile, error, refetch } = useGetProfileQuery();
   // persistor.purge();
   console.log("Profile", profile);
   const handleLogin = async () => {
@@ -47,6 +47,7 @@ const LoginScreen = () => {
         dispatch(loginSuccess(response));
         // refetch();
         Alert.alert("Success", "Logged in successfully");
+        console.log("LOGIN TEST", profile);
         navigation.navigate("MyProfile");
       } else {
         Alert.alert("Error", response.message || "Login failed");

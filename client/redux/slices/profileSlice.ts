@@ -32,6 +32,19 @@ const profileSlice = createSlice({
       // state.savedChallenges.push(action.payload);
       state.savedChallenges = action.payload;
     },
+    updateSavedChallenges: (state, action) => {
+      // search in savedChallenges
+      const { title, data } = action.payload;
+      const challenge = state.savedChallenges.find(
+        (challenge) => challenge.title === title
+      );
+
+      console.log("Found the title data", challenge);
+      if (challenge) {
+        challenge.schedule = data;
+      }
+      console.log("profile slice TEST", challenge);
+    },
     setSavedDetailChallenges: (state, action) => {
       // state.savedChallenges.push(action.payload);
       state.savedDetailChallenges = action.payload;
@@ -100,6 +113,7 @@ export const {
   setPreferredDietType,
   setPreferredUnits,
   resetProfile,
+  updateSavedChallenges,
   setSavedSteps,
   setSavedChallenges,
   setSavedMealPlan,

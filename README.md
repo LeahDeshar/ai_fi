@@ -39,6 +39,7 @@ Full Application Integration
 - [ ] delete account
 - [x] image modules
 - [ ] recommendation
+
   - [ ] calorie
   - [x] sleep
   - [x] water
@@ -46,3 +47,6 @@ Full Application Integration
   - [x] chatbot coach
   - [x] Mealplanner ai
   - [x] fitness challenge ai
+
+- [ ] update the state of the challenge
+- [ ] UI of generated challenges of a day
