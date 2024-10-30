@@ -56,7 +56,9 @@ const Arc = ({ progress = 50, size = 250, strokeWidth = 15 }) => {
 
         <View style={{ position: "absolute", alignItems: "center" }}>
           <Text style={{ fontSize: 18, color: "#6e6e6e" }}>Upcoming fast</Text>
-          <Text style={{ fontSize: 28, fontWeight: "bold", color: "#000" }}>
+          <Text
+            style={{ fontSize: 28, fontWeight: "bold", color: colors.text }}
+          >
             16 hours
           </Text>
         </View>
@@ -135,7 +137,7 @@ const Arc = ({ progress = 50, size = 250, strokeWidth = 15 }) => {
           borderBottomColor: "#e1e1e168",
           paddingVertical: 12,
           borderColor: "transparent",
-          marginTop: 10,
+          marginTop: 30,
         }}
       >
         <View
@@ -159,19 +161,40 @@ const Arc = ({ progress = 50, size = 250, strokeWidth = 15 }) => {
             <Ionicons name="pencil" size={15} color={colors.text} />
           </View>
           <View>
-            <Text style={{ fontWeight: "bold", fontSize: 17, marginBottom: 2 }}>
+            <Text
+              style={{
+                fontWeight: "bold",
+                fontSize: 17,
+                marginBottom: 2,
+                color: colors.text,
+              }}
+            >
               11:10 PM
             </Text>
-            <Text>Start</Text>
+            <Text
+              style={{
+                color: colors.text,
+              }}
+            >
+              Start
+            </Text>
           </View>
         </View>
         <View>
-          <Text style={{ fontWeight: "bold", fontSize: 17, marginBottom: 2 }}>
+          <Text
+            style={{
+              fontWeight: "bold",
+              fontSize: 17,
+              color: colors.text,
+              marginBottom: 2,
+            }}
+          >
             3:10 PM
           </Text>
           <Text
             style={{
               textAlign: "right",
+              color: colors.text,
             }}
           >
             Goal

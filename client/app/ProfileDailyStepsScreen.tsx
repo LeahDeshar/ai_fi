@@ -13,7 +13,7 @@ import {
 import { setDailySteps } from "@/redux/slices/profileSlice";
 
 const ProfileDailyStepsScreen = () => {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const navigation = useRouter();
   const [dailyGoal, setDailyGoal] = useState(3000);
   const dispatch = useDispatch();

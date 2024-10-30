@@ -25,7 +25,7 @@ import { useGetProfileQuery } from "@/redux/api/apiClient";
 import { useDispatch } from "react-redux";
 import { setSavedSteps } from "@/redux/slices/profileSlice";
 const PlanSteps = () => {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const navigation = useNavigation();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
 
@@ -226,13 +226,26 @@ const PlanSteps = () => {
                     style={{
                       fontSize: 44,
                       fontWeight: 500,
+                      color: colors.text,
                     }}
                   >
                     {steps}
                   </Text>
-                  <Text style={{}}>of {selectedDailyStep} steps</Text>
+                  <Text
+                    style={{
+                      color: colors.text,
+                    }}
+                  >
+                    of {selectedDailyStep} steps
+                  </Text>
                   <TouchableOpacity>
-                    <Text style={{}}>Edit</Text>
+                    <Text
+                      style={{
+                        color: colors.text,
+                      }}
+                    >
+                      Edit
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -294,7 +307,11 @@ const PlanSteps = () => {
               </View>
             </View>
 
-            <WeeklyStatsComponent selectedDailyStep={selectedDailyStep} />
+            <WeeklyStatsComponent
+              selectedDailyStep={selectedDailyStep}
+              colors={colors}
+              dark={dark}
+            />
           </View>
 
           <BottomSheetModal
@@ -408,6 +425,8 @@ const WeeklyStatsComponent = ({
   stats = [50, 70, 30, 80, 60, 90, 100],
   days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
   selectedDailyStep,
+  colors,
+  dark,
 }) => {
   const barWidth = 10;
   const barSpacing = 43;
@@ -433,6 +452,7 @@ const WeeklyStatsComponent = ({
           style={{
             fontSize: 18,
             fontWeight: "bold",
+            color: colors.text,
           }}
         >
           WEEK
@@ -450,6 +470,7 @@ const WeeklyStatsComponent = ({
             style={{
               fontSize: 16,
               fontWeight: 500,
+              color: colors.text,
             }}
           >
             Goal
@@ -467,7 +488,8 @@ const WeeklyStatsComponent = ({
       </View>
       <View
         style={{
-          backgroundColor: "#e7e7e7",
+          backgroundColor: dark ? "#2c2c2c" : "#e7e7e7",
+          // backgroundColor: "#e7e7e7",
           borderRadius: 12,
           marginHorizontal: 20,
           marginTop: 15,
@@ -519,7 +541,7 @@ const WeeklyStatsComponent = ({
             <Text
               key={index}
               style={[
-                { fontSize: 13, color: "#5b5b5bec" },
+                { fontSize: 13, color: dark ? "#b4b4b4" : "#5b5b5bec" },
                 { width: barWidth + barSpacing, textAlign: "center" },
               ]}
             >

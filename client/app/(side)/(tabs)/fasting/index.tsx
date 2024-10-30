@@ -279,7 +279,7 @@ const FastingScreen = () => {
           {/* max = 77 */}
           <Arc progress={1} />
         </View>
-        <WeeklyStatsComponent />
+        <WeeklyStatsComponent colors={colors} dark={dark} />
         <View
           style={{
             paddingHorizontal: 20,
