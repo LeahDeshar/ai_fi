@@ -5,6 +5,8 @@ import { IconButton } from "react-native-paper";
 const WeeklyStatsComponent = ({
   stats = [50, 70, 30, 80, 60, 90, 100],
   days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  dark,
+  colors,
 }) => {
   const barWidth = 10;
   const barSpacing = 43;
@@ -12,23 +14,46 @@ const WeeklyStatsComponent = ({
   return (
     <View
       style={{
-        backgroundColor: "#f5f5f5",
+        backgroundColor: dark ? "#222222" : "#f5f5f5",
+        paddingTop: 15,
+        marginTop: 30,
       }}
     >
       <View style={styles.header}>
-        <Text style={styles.title}>Weekly stats</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Weekly stats</Text>
         <TouchableOpacity onPress={() => alert("View history")}>
-          <Text>View history</Text>
+          <Text style={{ color: colors.text }}>View history</Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.container}>
+      <View
+        style={{
+          backgroundColor: dark ? "#393939" : "white",
+          borderRadius: 12,
+          marginHorizontal: 20,
+          marginTop: 15,
+        }}
+      >
         <View style={styles.dateRange}>
-          <IconButton icon="chevron-left" size={20} />
+          <IconButton icon="chevron-left" size={20} iconColor={colors.text} />
           <View style={styles.dateTextContainer}>
-            <Text style={styles.dateText}>21 - 27 Jul 2024</Text>
-            <Text style={styles.averageText}>Average 35h 41m</Text>
+            <Text
+              style={{
+                color: colors.text,
+              }}
+            >
+              21 - 27 Jul 2024
+            </Text>
+            <Text
+              style={{
+                fontSize: 12,
+                color: "#b9b9b9",
+                marginTop: 2,
+              }}
+            >
+              Average 35h 41m
+            </Text>
           </View>
-          <IconButton icon="chevron-right" size={20} />
+          <IconButton icon="chevron-right" size={20} iconColor={colors.text} />
         </View>
         <View
           style={{
@@ -89,13 +114,28 @@ const WeeklyStatsComponent = ({
             <View
               style={[styles.legendColor, { backgroundColor: "#3D5AFE" }]}
             />
-            <Text>Goal reached</Text>
+            <Text
+              style={{
+                color: colors.text,
+              }}
+            >
+              Goal reached
+            </Text>
           </View>
           <View style={styles.legendItem}>
             <View
-              style={[styles.legendColor, { backgroundColor: "#E0E0E0" }]}
+              style={[
+                styles.legendColor,
+                { backgroundColor: dark ? "#fff" : "#E0E0E0" },
+              ]}
             />
-            <Text>Goal not reached</Text>
+            <Text
+              style={{
+                color: colors.text,
+              }}
+            >
+              Goal not reached
+            </Text>
           </View>
         </View>
       </View>
@@ -123,6 +163,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
     paddingTop: 20,
+    marginBottom: 10,
   },
   title: {
     fontSize: 18,
@@ -143,13 +184,8 @@ const styles = StyleSheet.create({
   dateTextContainer: {
     alignItems: "center",
   },
-  dateText: {
-    fontSize: 16,
-  },
-  averageText: {
-    fontSize: 12,
-    color: "#777",
-  },
+  dateText: {},
+  averageText: {},
   chartContainer: {},
   daysContainer: {},
 
@@ -159,7 +195,8 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
     flexDirection: "row",
     justifyContent: "space-around",
-    padding: 10,
+    paddingTop: 20,
+    paddingBottom: 15,
   },
   legendItem: {
     flexDirection: "row",

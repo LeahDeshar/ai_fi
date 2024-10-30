@@ -273,17 +273,20 @@ const FastingScreen = () => {
         <View
           style={{
             marginTop: 50,
-            marginBottom: 30,
+            // marginBottom: 30,
+            borderBottomRightRadius: 20,
+            borderBottomLeftRadius: 20,
+            // paddingBottom: 30,
+            // backgroundColor: dark ? "#222222" : "#f5f5f5",
           }}
         >
-          {/* max = 77 */}
           <Arc progress={1} />
         </View>
         <WeeklyStatsComponent colors={colors} dark={dark} />
         <View
           style={{
             paddingHorizontal: 20,
-            backgroundColor: "#f5f5f5",
+            backgroundColor: dark ? "#222222" : "#f5f5f5",
             paddingVertical: 10,
             paddingBottom: 80,
           }}
@@ -476,7 +479,8 @@ function FastingReading({ colors, dark, detail, onPress }) {
       <TouchableOpacity
         onPress={onPress}
         style={{
-          backgroundColor: "white",
+          // backgroundColor: "white",
+          backgroundColor: dark ? "#393939" : "white",
           padding: 10,
           borderRadius: 15,
           marginTop: 15,
@@ -496,7 +500,15 @@ function FastingReading({ colors, dark, detail, onPress }) {
             >
               {detail.title}
             </Text>
-            <Text style={styles.subText}>3 min read</Text>
+            <Text
+              style={{
+                color: dark ? "#bcbcbc" : "#838383",
+                fontSize: 14,
+                marginTop: 5,
+              }}
+            >
+              3 min read
+            </Text>
           </View>
           <AntDesign
             name="right"
@@ -586,11 +598,7 @@ const styles = StyleSheet.create({
   textContainer: {
     marginLeft: 15,
   },
-  subText: {
-    color: "#838383",
-    fontSize: 14,
-    marginTop: 5,
-  },
+  subText: {},
   bottomSheetContent: {
     // flex: 1,
     // alignItems: "center",

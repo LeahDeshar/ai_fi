@@ -18,7 +18,7 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import Button from "@/components/Button";
 import { API_KEYS } from "@/config";
 import { useDispatch } from "react-redux";
-import { useGetUserProfileQuery } from "@/redux/api/apiClient";
+import { useGetProfileQuery } from "@/redux/api/apiClient";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import {
@@ -42,7 +42,7 @@ const MoreMeals = () => {
   const dispatch = useDispatch();
   let mealPlanDatas = [];
 
-  const { data: profile, error, isLoading, refetch } = useGetUserProfileQuery();
+  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
   // Automatically generate challenges when profile data is available
   const { savedMealsPlan } = useSelector((state) => state.profile);
 
