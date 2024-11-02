@@ -36,8 +36,6 @@ const MyProfile = () => {
   const { user, token, isLoggedIn } = useSelector((state) => state.auth);
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
-  console.log("profile..", profile);
-
   const handleLoginPress = () => {
     navigation.push("LoginScreen");
   };
@@ -187,7 +185,8 @@ const MyProfile = () => {
             )}
           </View>
         </ThemedView>
-        <ProfileScreen profile={profile} />
+
+        {isLoggedIn && <ProfileScreen profile={profile} />}
         {isLoggedIn && (
           <Button title={"Logout"} handlePress={handleLogOutPress} />
         )}
@@ -251,7 +250,6 @@ const ProfileScreen = ({ profile }) => {
 
   // const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
-  console.log(profile);
   // const dispatch = useDispatch();
   // dispatch(resetProfile());
 
@@ -336,9 +334,9 @@ const ProfileScreen = ({ profile }) => {
         <ProfileItem
           title="Fitness Level"
           value={
-            profile.profileOfUsers?.activityLevel <= 30
+            profile?.profileOfUsers?.activityLevel <= 30
               ? "Newbie"
-              : profile.profileOfUsers?.activityLevel <= 70
+              : profile?.profileOfUsers?.activityLevel <= 70
               ? "Medium"
               : "Advanced"
           }

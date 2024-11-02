@@ -246,6 +246,9 @@ export const createUserProfileController = async (req, res) => {
       dailySteps,
       preferredDietType,
       preferredUnits,
+      experience,
+      rating,
+      category,
     } = req.body;
 
     const userId = req.user._id;
@@ -258,17 +261,13 @@ export const createUserProfileController = async (req, res) => {
         .json({ message: "Profile already exists for this user." });
     }
     console.log(req.body);
-    console.log(
-      JSON.parse(currentWeight),
-      JSON.parse(goalWeight),
-      JSON.parse(activitiesLiked)
-    );
 
     // Handle height parsing based on preferred units
     let heightData;
     if (typeof currentHeight === "string") {
       try {
         heightData = JSON.parse(currentHeight);
+        console.log(heightData);
       } catch (error) {
         console.error("JSON parsing error:", error);
         return res.status(400).json({ message: "Invalid height format." });
@@ -299,7 +298,7 @@ export const createUserProfileController = async (req, res) => {
         .status(400)
         .json({ message: "Preferred units must be provided." });
     }
-
+    console.log("here");
     let weightData;
     if (typeof currentWeight === "string") {
       try {
@@ -360,6 +359,14 @@ export const createUserProfileController = async (req, res) => {
       };
     }
 
+    let parsedCategory;
+    if (category) {
+      parsedCategory = JSON.parse(category);
+    }
+
+    console.log(parsedCategory);
+    let parsedLikedActivities = JSON.parse(activitiesLiked);
+
     // Create new profile
     const newProfile = new Profile({
       user: userId,
@@ -380,11 +387,14 @@ export const createUserProfileController = async (req, res) => {
           ? { pounds: weightTarData.pounds }
           : { kilograms: weightTarData.kilograms },
       activityLevel,
-      activitiesLiked: JSON.parse(activitiesLiked),
+      activitiesLiked: parsedLikedActivities,
       specialPrograms,
       dailySteps,
       preferredDietType,
       profilePic: profilePicData,
+      experience,
+      rating,
+      category: parsedCategory,
     });
 
     // Save new profile
@@ -431,6 +441,39 @@ export const getUserProfileController = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "User profile fetched failed",
+    });
+  }
+};
+// // get all user if the user.role == "coach"
+// export const getAllCoachController = async (req, res) => {
+//   try {
+//     const users = await Profile.find({ role: "coach" }).select("-password");
+//     return res.status(200).json({
+//       msg: "All users fetched successfully",
+//       success: true,
+//       users,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(500).json({
+//       msg: "Internal Error (get all users)",
+//       success: false,
+//       error,
+//     });
+//   }
+// };
+export const getAllUsersController = async (req, res) => {
+  try {
+    const currentUserId = req.user._id;
+    const users = await Profile.find({ _id: { $ne: currentUserId } });
+
+    res.status(200).json({ success: true, data: users });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      msg: "Internal Error (get all users)",
+      success: false,
+      error,
     });
   }
 };

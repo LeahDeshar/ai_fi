@@ -2,6 +2,7 @@ import express from "express";
 import {
   accountDeleteController,
   createUserProfileController,
+  getAllUsersController,
   getUserProfileController,
   loginController,
   logoutController,
@@ -28,6 +29,7 @@ router.get("/logout", isAuth, logoutController);
 // router.post("/resetPassword", resetPasswordController);
 
 /************PROFILE ROUTES **************/
+router.get("/get-all-user", isAuth, getAllUsersController);
 router.post("/profile", isAuth, singleUpload, createUserProfileController);
 
 router.get("/profile", isAuth, getUserProfileController);

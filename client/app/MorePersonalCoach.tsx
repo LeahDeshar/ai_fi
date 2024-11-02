@@ -10,6 +10,11 @@ import React from "react";
 import { useTheme } from "@/constants/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import {
+  useGetallUsersProfileQuery,
+  useGetProfileQuery,
+} from "@/redux/api/apiClient";
+import { useSelector } from "react-redux";
 
 type Trainer = {
   name: string;
@@ -24,41 +29,16 @@ const MorePersonalCoach: React.FC = () => {
   const { colors } = useTheme();
   const navigation = useNavigation();
 
-  const trainers: Trainer[] = [
-    {
-      name: "Stefan P.",
-      image: require("@/assets/trainer/t1.jpg"),
-      rating: 4.6,
-      experience: 10,
-      specialities: ["HIIT & CONDITIONING", "NUTRITION"],
-      isBestMatch: true,
-    },
-    {
-      name: "Omar E.",
-      image: require("@/assets/trainer/t2.jpg"),
-      rating: 4.4,
-      experience: 6,
-      specialities: ["STRENGTH", "MUSCLE BUILDING"],
-      isBestMatch: false,
-    },
-    {
-      name: "Ana S.",
-      image: require("@/assets/trainer/t3.jpg"),
-      rating: 4.4,
-      experience: 3,
-      specialities: ["NUTRITION", "YOGA"],
-      isBestMatch: false,
-    },
-    {
-      name: "Michaela G.",
-      image: require("@/assets/trainer/t4.jpg"),
-      rating: 4.5,
-      experience: 2,
-      specialities: ["HIIT", "WEIGHT LIFTING"],
-      isBestMatch: false,
-    },
-  ];
-
+  const { data: userProfile } = useGetallUsersProfileQuery();
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { data: profile, error, isLoading } = useGetProfileQuery();
+  // console.log(// profile.profileOfUsers.role);
+  const currentUserRole = profile.profileOfUsers.role;
+  const filteredUsers = userProfile?.data?.filter((trainer) =>
+    currentUserRole === "coach"
+      ? trainer.role === "user"
+      : trainer.role === "coach"
+  );
   return (
     <View
       style={{
@@ -71,7 +51,7 @@ const MorePersonalCoach: React.FC = () => {
           paddingTop: 120,
         }}
       >
-        {trainers?.map((trainer, index) => (
+        {filteredUsers?.map((trainer, index) => (
           <TouchableOpacity
             style={{
               flexDirection: "row",
@@ -83,7 +63,7 @@ const MorePersonalCoach: React.FC = () => {
             }
           >
             <Image
-              source={trainer.image}
+              source={{ uri: trainer?.profilePic?.url }}
               style={{
                 width: 80,
                 height: 80,
@@ -101,59 +81,64 @@ const MorePersonalCoach: React.FC = () => {
                   color: colors.text,
                 }}
               >
-                {trainer.name}
+                {trainer.name} {trainer.role}
               </Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginVertical: 10,
-                }}
-              >
-                <Ionicons name="star" size={15} color={"orange"} />
-                <Text
-                  style={{
-                    color: colors.text,
-                    marginLeft: 5,
-                  }}
-                >
-                  {trainer.rating}
-                </Text>
-                <Text
-                  style={{
-                    color: colors.text,
-                    marginLeft: 15,
-                  }}
-                >
-                  Experience: {trainer.experience} years
-                </Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                {trainer.specialities.map((spec, specIndex) => (
-                  <TouchableOpacity
-                    key={specIndex}
+              {trainer.role == "coach" ? (
+                <>
+                  <View
                     style={{
-                      backgroundColor: colors.opacity,
-                      marginRight: 10,
-                      paddingHorizontal: 7,
-                      paddingVertical: 2,
-                      borderRadius: 10,
+                      flexDirection: "row",
+                      marginVertical: 10,
                     }}
                   >
+                    <Ionicons name="star" size={15} color={"orange"} />
                     <Text
                       style={{
                         color: colors.text,
+                        marginLeft: 5,
                       }}
                     >
-                      {spec}
+                      {trainer.rating}
                     </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+
+                    <Text
+                      style={{
+                        color: colors.text,
+                        marginLeft: 15,
+                      }}
+                    >
+                      Experience: {trainer.experience} years
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    {trainer.category.map((spec, specIndex) => (
+                      <TouchableOpacity
+                        key={specIndex}
+                        style={{
+                          backgroundColor: colors.opacity,
+                          marginRight: 10,
+                          paddingHorizontal: 7,
+                          paddingVertical: 2,
+                          borderRadius: 10,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: colors.text,
+                          }}
+                        >
+                          {spec}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </>
+              ) : null}
             </View>
           </TouchableOpacity>
         ))}
