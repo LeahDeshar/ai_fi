@@ -9,7 +9,6 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-// import FastImage from "react-native-fast-image";
 
 const articles = [
   {

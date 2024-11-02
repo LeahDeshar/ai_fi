@@ -77,7 +77,7 @@ const renderItem = (item: MoreItem) => {
   );
 };
 
-const moreScreen = () => {
+const MoreScreen = () => {
   const { colors } = useTheme();
   const navigation = useRouter();
 
@@ -207,7 +207,7 @@ const moreScreen = () => {
   );
 };
 
-export default moreScreen;
+export default MoreScreen;
 
 const ThemeButton = () => {
   const { dark, setScheme, colors } = useTheme();

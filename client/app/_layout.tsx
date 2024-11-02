@@ -537,23 +537,75 @@ const InnerStack = () => {
       <Stack.Screen
         name="MorePersonalCoach"
         options={{
-          ...StackScreenWithSearchBar,
+          // headerShown: false,
 
-          headerTitle: "Pick Coach",
+          headerTintColor: colors.text,
+          headerTransparent: true,
+          headerBlurEffect: dark ? "prominent" : "light",
+          headerShadowVisible: false,
+
+          headerTitle: "",
+
+          headerLeft: () => (
+            <View>
+              <Text
+                style={{
+                  fontSize: 25,
+                  color: colors.text,
+                }}
+              >
+                Consult with coach
+              </Text>
+            </View>
+          ),
         }}
       />
       <Stack.Screen
         name="MoreTipsAndTricks"
         options={{
-          headerTitle: "Tips and Articles",
+          headerTintColor: colors.text,
+          headerTransparent: true,
+          headerBlurEffect: dark ? "prominent" : "light",
+          headerShadowVisible: false,
+
+          headerTitle: "",
+
+          headerLeft: () => (
+            <View>
+              <Text
+                style={{
+                  fontSize: 25,
+                  color: colors.text,
+                }}
+              >
+                Forum
+              </Text>
+            </View>
+          ),
         }}
       />
       <Stack.Screen
         name="MoreHelp"
         options={{
-          ...StackScreenWithSearchBar,
+          headerTintColor: colors.text,
+          headerTransparent: true,
+          headerBlurEffect: dark ? "prominent" : "light",
+          headerShadowVisible: false,
 
-          headerTitle: "Help",
+          headerTitle: "",
+
+          headerLeft: () => (
+            <View>
+              <Text
+                style={{
+                  fontSize: 25,
+                  color: colors.text,
+                }}
+              >
+                Help
+              </Text>
+            </View>
+          ),
         }}
       />
       <Stack.Screen
@@ -628,7 +680,25 @@ const InnerStack = () => {
       <Stack.Screen
         name="MorePersonalCoachChat"
         options={{
-          headerTitle: "Consult with coach",
+          headerTintColor: colors.text,
+          headerTransparent: true,
+          headerBlurEffect: dark ? "prominent" : "light",
+          headerShadowVisible: false,
+
+          headerTitle: "",
+
+          headerLeft: () => (
+            <View>
+              <Text
+                style={{
+                  fontSize: 25,
+                  color: colors.text,
+                }}
+              >
+                Chat
+              </Text>
+            </View>
+          ),
         }}
       />
       <Stack.Screen name="+not-found" />
