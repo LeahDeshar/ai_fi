@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   Alert,
+  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -24,6 +25,7 @@ import { useGetProfileQuery } from "@/redux/api/apiClient";
 import { Button } from "react-native";
 import { BlurView } from "expo-blur";
 import * as Notifications from "expo-notifications";
+import { HelloWave } from "@/components/HelloWave";
 const SOCKET_SERVER_URL = "http://192.168.1.8:8082";
 const socket = io(SOCKET_SERVER_URL);
 type RootStackParamList = {
@@ -61,16 +63,22 @@ const MorePersonalCoachChat: React.FC = () => {
 
   useEffect(() => {
     socket.emit("join", userId, otherId);
-
     socket.on("conversationId", (id) => {
       setConversationId(id);
+
       socket.emit("allMessageOfUser", { conversationId: id });
     });
 
-    socket.on("receiveMessages", async ({ conversationId, messages }) => {
+    socket.on("receiveMessages", ({ conversationId, messages }) => {
       console.log("receiveMessages", messages, conversationId);
 
-      setMessages((prevMessages) => [...prevMessages, ...messages]);
+      setMessages((prevMessages) => {
+        const existingMessageIds = new Set(prevMessages.map((msg) => msg._id));
+        const newMessages = messages.filter(
+          (msg) => !existingMessageIds.has(msg._id)
+        );
+        return [...prevMessages, ...newMessages];
+      });
     });
 
     return () => {
@@ -79,45 +87,6 @@ const MorePersonalCoachChat: React.FC = () => {
     };
   }, [userId, otherId]);
 
-  // useEffect(() => {
-  //   socket.on("receiveMessages", async ({ conversationId, messages }) => {
-  //     console.log("messages", messages);
-  //     await Notifications.scheduleNotificationAsync({
-  //       content: {
-  //         title: `New message from ${trainer.name}`,
-  //         body: text,
-  //       },
-  //       trigger: null,
-  //     });
-  //   });
-
-  //   return () => {
-  //     socket.off("receiveMessages");
-  //   };
-  // }, []);
-
-  useEffect(() => {
-    const receiveMessages = ({ conversationId, messages }) => {
-      console.log("Received messages:", messages);
-
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage && lastMessage.text) {
-        Notifications.scheduleNotificationAsync({
-          content: {
-            title: `New message from ${lastMessage.senderId.username}`,
-            body: lastMessage.text,
-          },
-          trigger: null,
-        });
-      }
-    };
-
-    socket.on("receiveMessages", receiveMessages);
-
-    return () => {
-      socket.off("receiveMessages", receiveMessages);
-    };
-  }, []);
   const sendMessage = async (isLike = false) => {
     const messageText = isLike ? "👍" : text.trim();
     if (messageText) {
@@ -188,8 +157,6 @@ const MorePersonalCoachChat: React.FC = () => {
 
   useEffect(() => {
     socket.on("messageUpdated", (updatedMessage) => {
-      // Update the message locally by finding and replacing it in the list
-
       console.log(updatedMessage);
       setMessages((prevMessages) =>
         prevMessages.map((msg) =>
@@ -201,14 +168,12 @@ const MorePersonalCoachChat: React.FC = () => {
     });
 
     socket.on("messageDeleted", (deletedMessageId) => {
-      // Remove the message from the list locally
       setMessages((prevMessages) =>
         prevMessages.filter((msg) => msg._id !== deletedMessageId)
       );
     });
 
     return () => {
-      // Clean up listeners when component unmounts
       socket.off("messageUpdated");
       socket.off("messageDeleted");
     };
@@ -220,28 +185,70 @@ const MorePersonalCoachChat: React.FC = () => {
       keyboardVerticalOffset={10}
     >
       <View style={styles.chatContainer}>
-        <ScrollView
-          ref={scrollViewRef}
-          onContentSizeChange={() =>
-            scrollViewRef.current?.scrollToEnd({ animated: true })
-          }
-          contentContainerStyle={styles.messagesContainer}
-        >
-          {messages.map((message, index) => {
-            const isCurrentUser = message.senderId._id === userId;
-            return (
-              <>
-                <TouchableOpacity
-                  key={index}
+        {messages.length > 0 ? (
+          <ScrollView
+            ref={scrollViewRef}
+            onContentSizeChange={() =>
+              scrollViewRef.current?.scrollToEnd({ animated: true })
+            }
+            contentContainerStyle={styles.messagesContainer}
+          >
+            {messages.map((message, index) => {
+              const isCurrentUser = message.senderId._id === userId;
+              return (
+                <View
                   style={[
-                    styles.messageBubble,
+                    {
+                      flexDirection: "row",
+                      alignItems: "center",
+                    },
                     isCurrentUser
-                      ? styles.currentUserBubble
-                      : styles.otherUserBubble,
+                      ? {
+                          alignSelf: "flex-end",
+                        }
+                      : {
+                          alignSelf: "flex-start",
+                        },
                   ]}
-                  onLongPress={() => handleLongPress(message)}
                 >
-                  <Text
+                  {!isCurrentUser && (
+                    <Image
+                      source={{
+                        uri: trainer?.profilePic.url,
+                      }}
+                      style={{
+                        width: 35,
+                        height: 35,
+                        borderRadius: 25,
+                        marginRight: 8, // Add some space between the image and message bubble
+                      }}
+                    />
+                  )}
+                  {/* <Image
+                  source={{
+                    uri: isCurrentUser
+                      ? profile.profileOfUsers.profilePic.url
+                      : trainer?.profilePic.url,
+                  }}
+                  style={[
+                    {
+                      width: 35,
+                      height: 35,
+                      borderRadius: 25,
+                    },
+                  ]}
+                /> */}
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.messageBubble,
+                      isCurrentUser
+                        ? styles.currentUserBubble
+                        : styles.otherUserBubble,
+                    ]}
+                    onLongPress={() => handleLongPress(message)}
+                  >
+                    {/* <Text
                     style={[
                       styles.senderName,
                       {
@@ -250,34 +257,59 @@ const MorePersonalCoachChat: React.FC = () => {
                     ]}
                   >
                     {isCurrentUser ? profile.profileOfUsers.name : trainer.name}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.messageText,
-                      {
-                        color: isCurrentUser ? "#fff" : "#000",
-                      },
-                    ]}
-                  >
-                    {message.text}
-                  </Text>
-                  <Text
-                    style={{
-                      color: isCurrentUser ? "#d6d6d6" : "gray",
-                      fontSize: 9,
-                      marginTop: 5,
-                    }}
-                  >
-                    {new Date(message.timestamp).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </Text>
-                </TouchableOpacity>
-              </>
-            );
-          })}
-        </ScrollView>
+                  </Text> */}
+                    <Text
+                      style={[
+                        styles.messageText,
+                        {
+                          color: isCurrentUser ? "#fff" : "#000",
+                        },
+                      ]}
+                    >
+                      {message.text}
+                    </Text>
+                    <Text
+                      style={{
+                        color: isCurrentUser ? "#d6d6d6" : "gray",
+                        fontSize: 9,
+                        marginTop: 5,
+                      }}
+                    >
+                      {isNaN(new Date(message.timestamp))
+                        ? ""
+                        : new Date(message.timestamp).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
+          </ScrollView>
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: 500,
+                textAlign: "center",
+                marginBottom: 10,
+                marginRight: 10,
+              }}
+            >
+              Say Hello
+            </Text>
+            <HelloWave />
+          </View>
+        )}
 
         <View style={styles.inputContainer}>
           {showEmojiKeyboard && (
@@ -599,8 +631,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   messageBubble: {
-    borderRadius: 15,
+    borderRadius: 25,
     padding: 10,
+    paddingHorizontal: 15,
     marginVertical: 5,
     maxWidth: "80%",
   },
