@@ -1,11 +1,13 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   KeyboardAvoidingView,
+  Modal,
   Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -16,8 +18,11 @@ import CustomInputToolbar from "@/components/CustomInputToolbar";
 import { io } from "socket.io-client";
 import { useSelector } from "react-redux";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
-import { TextInput } from "react-native-paper";
+
 import EmojiKeyboard from "rn-emoji-keyboard";
+import { useGetProfileQuery } from "@/redux/api/apiClient";
+import { Button } from "react-native";
+import { BlurView } from "expo-blur";
 const SOCKET_SERVER_URL = "http://192.168.1.8:8082";
 const socket = io(SOCKET_SERVER_URL);
 type RootStackParamList = {
@@ -47,31 +52,7 @@ const MorePersonalCoachChat: React.FC = () => {
   const scrollViewRef = useRef();
   const [showEmojiKeyboard, setShowEmojiKeyboard] = useState(false);
   const { user, token, isLoggedIn } = useSelector((state) => state.auth);
-  // useEffect(() => {
-  //   setMessages([
-  //     {
-  //       _id: 1,
-  //       text: "Hi, I'm Stefan, certified Personal Coach with over 10 years of experience in health & fitness💪 I'm here to support you during your weight loss journey and especially during the hardest times, because I know how hard this journey can be as I've been through one myself. 👋🏻 I feel the happiest when I help people achieve their goals and dreams so I will be pushing you to the limit because in the end it will be worth it! If you're ready, then let's work together on your dream physique and make it a reality. 🔥",
-  //       createdAt: new Date(),
-  //       user: {
-  //         _id: 2,
-  //         name: trainer?.name,
-  //         avatar: trainer?.image,
-  //       },
-  //     },
-  //     {
-  //       _id: 2,
-  //       text: "Please provide me with as many details as possible, so I can make a fully custom approach for you to help you out with everything and make things clear 🙌",
-  //       createdAt: new Date(),
-  //       user: {
-  //         _id: 2,
-  //         name: trainer.name,
-  //         avatar: trainer?.image,
-  //       },
-  //     },
-  //   ]);
-  // }, [trainer]);
-
+  const { data: profile, error, isLoading } = useGetProfileQuery();
   const userId = user._id;
   const otherId = trainer.user;
 
@@ -127,6 +108,43 @@ const MorePersonalCoachChat: React.FC = () => {
   const addEmoji = (emoji) => {
     setText((prevText) => prevText + emoji.emoji);
   };
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [isEditModalVisible, setEditModalVisible] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedText, setEditedText] = useState("");
+
+  const handleLongPress = (message) => {
+    setSelectedMessage(message);
+    setEditModalVisible(true);
+    setIsEditing(false); // Reset edit state
+  };
+
+  const handleEditMessage = () => {
+    if (selectedMessage) {
+      selectedMessage.text = editedText; // Update locally for demo
+      setEditModalVisible(false);
+      setSelectedMessage(null);
+      setEditedText("");
+    }
+  };
+
+  const handleDeleteMessage = () => {
+    if (selectedMessage) {
+      // Perform delete action, e.g., call API to delete message
+      setEditModalVisible(false);
+      setSelectedMessage(null);
+    }
+  };
+
+  const startEditing = () => {
+    setIsEditing(true);
+    setEditedText(selectedMessage.text);
+  };
+
+  const handleReaction = (emoji) => {
+    console.log(`User reacted with: ${emoji}`);
+    // Add logic to save or send the reaction
+  };
   return (
     // <SafeAreaView
     //   style={{
@@ -150,13 +168,9 @@ const MorePersonalCoachChat: React.FC = () => {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={90}
+      keyboardVerticalOffset={10}
     >
       <View style={styles.chatContainer}>
-        <Text style={styles.chatHeader}>
-          Im {user?.name} Chatting with {trainer.name}
-        </Text>
-
         <ScrollView
           ref={scrollViewRef}
           onContentSizeChange={() =>
@@ -167,7 +181,7 @@ const MorePersonalCoachChat: React.FC = () => {
           {messages.map((message, index) => {
             const isCurrentUser = message.senderId._id === userId;
             return (
-              <View
+              <TouchableOpacity
                 key={index}
                 style={[
                   styles.messageBubble,
@@ -175,12 +189,13 @@ const MorePersonalCoachChat: React.FC = () => {
                     ? styles.currentUserBubble
                     : styles.otherUserBubble,
                 ]}
+                onLongPress={() => handleLongPress(message)}
               >
                 <Text style={styles.senderName}>
-                  {isCurrentUser ? user.name : trainer.name}
+                  {isCurrentUser ? profile.profileOfUsers.name : trainer.name}
                 </Text>
                 <Text style={styles.messageText}>{message.text}</Text>
-              </View>
+              </TouchableOpacity>
             );
           })}
         </ScrollView>
@@ -231,6 +246,175 @@ const MorePersonalCoachChat: React.FC = () => {
             )}
           </TouchableOpacity>
         </View>
+
+        <Modal
+          visible={isEditModalVisible}
+          transparent={true}
+          animationType="none"
+          onRequestClose={() => setEditModalVisible(false)}
+        >
+          <BlurView
+            intensity={40}
+            tint="extraLight"
+            style={styles.modalContainer}
+          >
+            <View
+              style={[
+                styles.modalContent,
+                selectedMessage?.senderId._id === userId
+                  ? styles.currentUserContent
+                  : styles.otherUserContent,
+              ]}
+            >
+              {!isEditing ? (
+                <View
+                  style={
+                    {
+                      // padding: 20,
+                    }
+                  }
+                >
+                  <View style={styles.reactionContainer}>
+                    <View
+                      style={
+                        selectedMessage?.senderId._id === userId
+                          ? {
+                              flexDirection: "row",
+                              justifyContent: "center",
+                              paddingHorizontal: 40,
+                              right: 50,
+                              borderRadius: 25,
+
+                              backgroundColor: "rgba(255, 255, 255, 0.8)",
+                              shadowColor: "#000000ae",
+                              shadowOffset: { width: 2, height: 5 },
+                              shadowOpacity: 0.3,
+                              shadowRadius: 8,
+                            }
+                          : {
+                              flexDirection: "row",
+                              justifyContent: "center",
+                              paddingHorizontal: 20,
+                              left: 40,
+                            }
+                      }
+                    >
+                      {["👍", "❤️", "😂", "😮", "😢", "😡"].map(
+                        (emoji, index) => (
+                          <TouchableOpacity
+                            key={index}
+                            onPress={() => handleReaction(emoji)}
+                            style={styles.emojiButton}
+                          >
+                            <Text style={styles.emoji}>{emoji}</Text>
+                          </TouchableOpacity>
+                        )
+                      )}
+                    </View>
+                  </View>
+                  <View
+                    style={[
+                      styles.modalContent,
+                      {
+                        borderRadius: 20,
+                        backgroundColor: colors.primary,
+                        marginBottom: 30,
+                        top: 20,
+                        padding: 9,
+
+                        shadowColor: "#0000006c",
+                        shadowOffset: { width: 2, height: 5 },
+                        shadowOpacity: 0.5,
+                        shadowRadius: 8,
+                        elevation: 10,
+                      },
+                      selectedMessage?.senderId._id === userId
+                        ? styles.currentUserContent
+                        : styles.otherUserContent,
+                    ]}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        color: "#FFF",
+                        textAlign: "center",
+                      }}
+                    >
+                      {selectedMessage?.text}
+                    </Text>
+                  </View>
+
+                  <View
+                    style={{
+                      backgroundColor: "white",
+                      borderRadius: 15,
+                      shadowColor: "#0000005b",
+                      shadowOffset: { width: 0, height: 5 },
+                      shadowOpacity: 0.3,
+                      shadowRadius: 8,
+                      elevation: 10,
+                      marginRight: 30,
+                      marginTop: 10,
+
+                      width: 180,
+                    }}
+                  >
+                    <TouchableOpacity
+                      style={{
+                        padding: 12,
+                        borderBottomWidth: 1,
+                        borderBottomColor: "#cecece56",
+                      }}
+                      onPress={() => console.log("copied")}
+                    >
+                      <Text>Copy</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{
+                        padding: 12,
+
+                        borderBottomWidth: 1,
+                        borderBottomColor: "#cecece56",
+                      }}
+                      onPress={startEditing}
+                    >
+                      <Text>Edit</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{
+                        padding: 12,
+
+                        borderBottomWidth: 1,
+                        borderBottomColor: "#cecece56",
+                      }}
+                      onPress={handleDeleteMessage}
+                    >
+                      <Text>Delete</Text>
+                    </TouchableOpacity>
+
+                    <Button
+                      title="Cancel"
+                      onPress={() => setEditModalVisible(false)}
+                    />
+                  </View>
+                </View>
+              ) : (
+                <View>
+                  <TextInput
+                    style={styles.inputs}
+                    value={editedText}
+                    onChangeText={(text) => setEditedText(text)}
+                  />
+                  <Button title="Save Changes" onPress={handleEditMessage} />
+                  <Button
+                    title="Cancel"
+                    onPress={() => setEditModalVisible(false)}
+                  />
+                </View>
+              )}
+            </View>
+          </BlurView>
+        </Modal>
       </View>
     </KeyboardAvoidingView>
   );
@@ -239,6 +423,46 @@ const MorePersonalCoachChat: React.FC = () => {
 export default MorePersonalCoachChat;
 
 const styles = StyleSheet.create({
+  reactionContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    position: "absolute",
+    top: -40, // Position above the message bubble
+    left: 0,
+    right: 0,
+    paddingHorizontal: 10,
+  },
+  emojiButton: {
+    marginHorizontal: 5,
+    borderRadius: 15,
+    padding: 5,
+  },
+  emoji: {
+    fontSize: 30,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    // padding: 20,
+    // maxWidth: "80%",
+  },
+  currentUserContent: {
+    alignSelf: "flex-end",
+    marginRight: 10,
+  },
+  otherUserContent: {
+    alignSelf: "flex-start",
+    marginLeft: 10,
+  },
+  inputs: {
+    backgroundColor: "#FFF",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
   container: {
     flex: 1,
     backgroundColor: "white",
@@ -246,6 +470,7 @@ const styles = StyleSheet.create({
   chatContainer: {
     flex: 1,
     padding: 10,
+    marginTop: 90,
   },
   chatHeader: {
     fontSize: 18,
