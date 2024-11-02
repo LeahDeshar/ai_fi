@@ -12,6 +12,8 @@ import subOutRoutes from "./routes/subWorkoutRoutes.js";
 import equipmentRoutes from "./routes/equipmentRoutes.js";
 import exerciseRoutes from "./routes/exeRoutes.js";
 import recomRoutes from "./routes/recommendation.js";
+import Conversation from "./models/conversation.js";
+import { Message } from "./models/message.js";
 
 export const app = express();
 app.use(express.json());
@@ -48,7 +50,81 @@ app.use("/api/v1/exercise", exerciseRoutes);
 // Recommendation
 app.use("/api/v1/fitness", recomRoutes);
 
-io.on("connection", (socket) => {});
+io.on("connection", (socket) => {
+  console.log(`User connected:..... ${socket.id}`);
+
+  socket.on("join", async (userId, otherId) => {
+    socket.join(userId);
+    console.log(`User ${userId} and ${otherId} joined their room`);
+
+    let conversation = await Conversation.findOne({
+      participants: { $all: [userId, otherId] },
+    });
+
+    if (!conversation) {
+      conversation = await Conversation.create({
+        participants: [userId, otherId],
+      });
+      console.log(`New conversation created between ${userId} and ${otherId}`);
+    } else {
+      console.log(
+        `Conversation already exists between ${userId} and ${otherId}`
+      );
+    }
+
+    socket.emit("conversationId", conversation._id);
+  });
+
+  socket.on("sendMessage", async ({ conversationId, senderId, text }) => {
+    const filteredGroup = await Conversation.findOne({
+      _id: conversationId,
+    });
+
+    if (filteredGroup) {
+      const newMessage = new Message({ conversationId, senderId, text });
+      await newMessage.save();
+
+      filteredGroup.messages.push(newMessage._id);
+      await filteredGroup.save();
+
+      // Broadcast the message to all users in the conversation
+      socket
+        .to(
+          filteredGroup.participants.map((participant) =>
+            participant.toString()
+          )
+        )
+        .emit("receiveMessages", {
+          conversationId,
+          messages: [newMessage],
+        });
+    } else {
+      console.error(`Group with ID ${conversationId} not found`);
+    }
+  });
+
+  socket.on("allMessageOfUser", async ({ conversationId }) => {
+    try {
+      // Fetch all messages for the given conversation ID
+      const messages = await Message.find({ conversationId }).populate(
+        "senderId",
+        "username role profilePic"
+      );
+
+      console.log("messanges sent ");
+
+      // Emit the messages back to the client
+      socket.emit("receiveMessages", { conversationId, messages });
+    } catch (error) {
+      console.error("Error retrieving messages:", error);
+      socket.emit("error", { message: "Failed to retrieve messages." });
+    }
+  });
+  // Disconnect
+  socket.on("disconnect", () => {
+    console.log(`User disconnected: ${socket.id}`);
+  });
+});
 
 httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

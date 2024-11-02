@@ -48,7 +48,7 @@ const LoginScreen = () => {
         // refetch();
         Alert.alert("Success", "Logged in successfully");
         console.log("LOGIN TEST", profile);
-        navigation.navigate("MyProfile");
+        navigation.navigate("plan");
       } else {
         Alert.alert("Error", response.message || "Login failed");
       }

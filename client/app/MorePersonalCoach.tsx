@@ -65,8 +65,8 @@ const MorePersonalCoach: React.FC = () => {
             <Image
               source={{ uri: trainer?.profilePic?.url }}
               style={{
-                width: 80,
-                height: 80,
+                width: trainer.role == "coach" ? 80 : 50,
+                height: trainer.role == "coach" ? 80 : 50,
                 borderRadius: 8,
               }}
             />
@@ -79,9 +79,11 @@ const MorePersonalCoach: React.FC = () => {
               <Text
                 style={{
                   color: colors.text,
+                  fontSize: 16,
+                  fontWeight: "bold",
                 }}
               >
-                {trainer.name} {trainer.role}
+                {trainer.name}
               </Text>
               {trainer.role == "coach" ? (
                 <>

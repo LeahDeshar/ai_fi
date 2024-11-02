@@ -51,12 +51,19 @@ const MoreItems: MoreItem[] = [
 const renderItem = (item: MoreItem) => {
   const navigation = useRouter();
   const { colors } = useTheme();
-
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const handlePress = (path) => {
+    if (isLoggedIn) {
+      navigation.navigate(path);
+    } else {
+      navigation.navigate("LoginScreen");
+    }
+  };
   return (
     <TouchableOpacity
       key={item.title}
       style={styles.itemContainer}
-      onPress={() => navigation.navigate(item.path)}
+      onPress={() => handlePress(item.path)}
     >
       <View style={styles.item}>
         <Ionicons
