@@ -9,6 +9,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { GiftedChat, IMessage } from "react-native-gifted-chat";
@@ -23,6 +24,7 @@ import EmojiKeyboard from "rn-emoji-keyboard";
 import { useGetProfileQuery } from "@/redux/api/apiClient";
 import { Button } from "react-native";
 import { BlurView } from "expo-blur";
+// import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 const SOCKET_SERVER_URL = "http://192.168.1.8:8082";
 const socket = io(SOCKET_SERVER_URL);
 type RootStackParamList = {
@@ -90,10 +92,7 @@ const MorePersonalCoachChat: React.FC = () => {
         senderId: { _id: userId, username: user.name },
         text: messageText,
       };
-      // setUnreadCounts((prevCounts) => ({
-      //   ...prevCounts,
-      //   [otherId]: (prevCounts[otherId] || 0) + 1,
-      // }));
+
       setMessages((prevMessages) => [...prevMessages, newMessage]);
 
       socket.emit("sendMessage", {
@@ -146,25 +145,6 @@ const MorePersonalCoachChat: React.FC = () => {
     // Add logic to save or send the reaction
   };
   return (
-    // <SafeAreaView
-    //   style={{
-    //     flex: 1,
-    //     backgroundColor: colors.background,
-    //   }}
-    // >
-    //   <GiftedChat
-    //     messages={messages}
-    //     onSend={() => sendMessage(text ? false : true)}
-    //     user={{
-    //       _id: 1,
-    //     }}
-    //     onInputTextChanged={(text) => setText(text)}
-    //     renderInputToolbar={(props) => (
-    //       <CustomInputToolbar {...props} text={text} onTextChanged={setText} />
-    //     )}
-    //   />
-    // </SafeAreaView>
-
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -253,167 +233,201 @@ const MorePersonalCoachChat: React.FC = () => {
           animationType="none"
           onRequestClose={() => setEditModalVisible(false)}
         >
-          <BlurView
-            intensity={40}
-            tint="extraLight"
-            style={styles.modalContainer}
-          >
-            <View
-              style={[
-                styles.modalContent,
-                selectedMessage?.senderId._id === userId
-                  ? styles.currentUserContent
-                  : styles.otherUserContent,
-              ]}
+          <TouchableWithoutFeedback onPress={() => setEditModalVisible(false)}>
+            <BlurView
+              intensity={40}
+              tint="extraLight"
+              style={styles.modalContainer}
             >
-              {!isEditing ? (
-                <View
-                  style={
-                    {
-                      // padding: 20,
-                    }
-                  }
-                >
-                  <View style={styles.reactionContainer}>
-                    <View
-                      style={
-                        selectedMessage?.senderId._id === userId
-                          ? {
-                              flexDirection: "row",
-                              justifyContent: "center",
-                              paddingHorizontal: 40,
-                              right: 50,
-                              borderRadius: 25,
-
-                              backgroundColor: "rgba(255, 255, 255, 0.8)",
-                              shadowColor: "#000000ae",
-                              shadowOffset: { width: 2, height: 5 },
-                              shadowOpacity: 0.3,
-                              shadowRadius: 8,
-                            }
-                          : {
-                              flexDirection: "row",
-                              justifyContent: "center",
-                              paddingHorizontal: 20,
-                              left: 40,
-                            }
-                      }
-                    >
-                      {["👍", "❤️", "😂", "😮", "😢", "😡"].map(
-                        (emoji, index) => (
-                          <TouchableOpacity
-                            key={index}
-                            onPress={() => handleReaction(emoji)}
-                            style={styles.emojiButton}
-                          >
-                            <Text style={styles.emoji}>{emoji}</Text>
-                          </TouchableOpacity>
-                        )
-                      )}
-                    </View>
-                  </View>
+              <View
+                style={[
+                  styles.modalContent,
+                  selectedMessage?.senderId._id === userId
+                    ? styles.currentUserContent
+                    : styles.otherUserContent,
+                ]}
+              >
+                {!isEditing ? (
                   <View
-                    style={[
-                      styles.modalContent,
+                    style={
                       {
-                        borderRadius: 20,
-                        backgroundColor: colors.primary,
-                        marginBottom: 30,
-                        top: 20,
-                        padding: 9,
+                        // padding: 20,
+                      }
+                    }
+                  >
+                    <View style={styles.reactionContainer}>
+                      <View
+                        style={[
+                          selectedMessage?.senderId._id === userId
+                            ? {
+                                right: 50,
+                              }
+                            : {
+                                left: 40,
+                              },
+                          {
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            paddingHorizontal: 40,
+                            borderRadius: 25,
+                            backgroundColor: "rgba(255, 255, 255, 0.8)",
+                            shadowColor: "#000000ae",
+                            shadowOffset: { width: 2, height: 5 },
+                            shadowOpacity: 0.3,
+                            shadowRadius: 8,
+                          },
+                        ]}
+                      >
+                        {["👍", "❤️", "😂", "😮", "😢", "😡"].map(
+                          (emoji, index) => (
+                            <TouchableOpacity
+                              key={index}
+                              onPress={() => handleReaction(emoji)}
+                              style={styles.emojiButton}
+                            >
+                              <Text style={styles.emoji}>{emoji}</Text>
+                            </TouchableOpacity>
+                          )
+                        )}
+                      </View>
+                    </View>
+                    <View
+                      style={[
+                        styles.modalContent,
+                        {
+                          borderRadius: 20,
+                          backgroundColor: colors.primary,
+                          marginBottom: 30,
+                          top: 20,
+                          padding: 9,
 
-                        shadowColor: "#0000006c",
-                        shadowOffset: { width: 2, height: 5 },
-                        shadowOpacity: 0.5,
+                          shadowColor: "#0000006c",
+                          shadowOffset: { width: 2, height: 5 },
+                          shadowOpacity: 0.5,
+                          shadowRadius: 8,
+                          elevation: 10,
+                        },
+                        selectedMessage?.senderId._id === userId
+                          ? styles.currentUserContent
+                          : styles.otherUserContent,
+                      ]}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color: "#FFF",
+                          textAlign: "center",
+                        }}
+                      >
+                        {selectedMessage?.text}
+                      </Text>
+                    </View>
+
+                    <View
+                      style={{
+                        backgroundColor: "white",
+                        borderRadius: 15,
+                        shadowColor: "#0000005b",
+                        shadowOffset: { width: 0, height: 5 },
+                        shadowOpacity: 0.3,
                         shadowRadius: 8,
                         elevation: 10,
-                      },
-                      selectedMessage?.senderId._id === userId
-                        ? styles.currentUserContent
-                        : styles.otherUserContent,
-                    ]}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        color: "#FFF",
-                        textAlign: "center",
+                        marginRight: 30,
+                        marginTop: 10,
+
+                        width: 180,
                       }}
                     >
-                      {selectedMessage?.text}
-                    </Text>
-                  </View>
+                      <TouchableOpacity
+                        style={{
+                          padding: 12,
+                          borderBottomWidth: 1,
+                          borderBottomColor: "#cecece56",
+                        }}
+                        onPress={() => console.log("copied")}
+                      >
+                        <Text>Copy</Text>
+                      </TouchableOpacity>
+                      {selectedMessage?.senderId._id === userId && (
+                        <TouchableOpacity
+                          style={{
+                            padding: 12,
 
+                            borderBottomWidth: 1,
+                            borderBottomColor: "#cecece56",
+                          }}
+                          onPress={startEditing}
+                        >
+                          <Text>Edit</Text>
+                        </TouchableOpacity>
+                      )}
+                      <TouchableOpacity
+                        style={{
+                          padding: 12,
+
+                          borderBottomWidth: 1,
+                          borderBottomColor: "#cecece56",
+                        }}
+                        onPress={handleDeleteMessage}
+                      >
+                        <Text>Delete</Text>
+                      </TouchableOpacity>
+
+                      <Button
+                        title="Cancel"
+                        onPress={() => setEditModalVisible(false)}
+                      />
+                    </View>
+                  </View>
+                ) : (
                   <View
                     style={{
-                      backgroundColor: "white",
-                      borderRadius: 15,
-                      shadowColor: "#0000005b",
-                      shadowOffset: { width: 0, height: 5 },
-                      shadowOpacity: 0.3,
-                      shadowRadius: 8,
-                      elevation: 10,
-                      marginRight: 30,
-                      marginTop: 10,
-
-                      width: 180,
+                      width: 350,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      borderRadius: 50,
                     }}
                   >
-                    <TouchableOpacity
-                      style={{
-                        padding: 12,
-                        borderBottomWidth: 1,
-                        borderBottomColor: "#cecece56",
-                      }}
-                      onPress={() => console.log("copied")}
-                    >
-                      <Text>Copy</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={{
-                        padding: 12,
-
-                        borderBottomWidth: 1,
-                        borderBottomColor: "#cecece56",
-                      }}
-                      onPress={startEditing}
-                    >
-                      <Text>Edit</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={{
-                        padding: 12,
-
-                        borderBottomWidth: 1,
-                        borderBottomColor: "#cecece56",
-                      }}
-                      onPress={handleDeleteMessage}
-                    >
-                      <Text>Delete</Text>
-                    </TouchableOpacity>
-
-                    <Button
-                      title="Cancel"
-                      onPress={() => setEditModalVisible(false)}
-                    />
-                  </View>
-                </View>
-              ) : (
-                <View>
-                  <TextInput
+                    {/* <TextInput
                     style={styles.inputs}
                     value={editedText}
                     onChangeText={(text) => setEditedText(text)}
-                  />
-                  <Button title="Save Changes" onPress={handleEditMessage} />
-                  <Button
+                  /> */}
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        padding: 10,
+                        borderRadius: 30,
+
+                        backgroundColor: "white",
+
+                        shadowColor: "#0000005b",
+                        shadowOffset: { width: 0, height: 5 },
+                        shadowOpacity: 0.5,
+                        shadowRadius: 8,
+                        elevation: 10,
+                      }}
+                    >
+                      <TextInput
+                        value={editedText}
+                        onChangeText={(text) => setEditedText(text)}
+                        placeholder="Type your message"
+                        style={styles.input}
+                      />
+                      <TouchableOpacity onPress={handleEditMessage}>
+                        <FontAwesome name="send" size={25} color="#4CAF50" />
+                      </TouchableOpacity>
+                    </View>
+                    {/* <Button
                     title="Cancel"
                     onPress={() => setEditModalVisible(false)}
-                  />
-                </View>
-              )}
-            </View>
-          </BlurView>
+                  /> */}
+                  </View>
+                )}
+              </View>
+            </BlurView>
+          </TouchableWithoutFeedback>
         </Modal>
       </View>
     </KeyboardAvoidingView>
@@ -514,7 +528,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#d3d3d3",
+    borderColor: "#e0e0e0db",
     borderRadius: 20,
     paddingHorizontal: 15,
     marginRight: 10,
