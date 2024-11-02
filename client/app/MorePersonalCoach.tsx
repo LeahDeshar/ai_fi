@@ -48,14 +48,15 @@ const MorePersonalCoach: React.FC = () => {
     >
       <ScrollView
         contentContainerStyle={{
-          paddingTop: 120,
+          paddingTop: 110,
         }}
       >
         {filteredUsers?.map((trainer, index) => (
           <TouchableOpacity
             style={{
               flexDirection: "row",
-              marginVertical: 5,
+              marginVertical: 10,
+              marginLeft: 20,
             }}
             key={index}
             onPress={() =>

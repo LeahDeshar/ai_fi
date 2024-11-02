@@ -57,3 +57,5 @@ Full Application Integration
 - [ ] notification
 - [ ] algorithm base
 - [ ] grpc to connect the fast api and express server
+- [ ] redis
+- [ ] tips and trick
