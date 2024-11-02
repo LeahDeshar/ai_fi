@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
+  Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -22,6 +23,7 @@ import EmojiKeyboard from "rn-emoji-keyboard";
 import { useGetProfileQuery } from "@/redux/api/apiClient";
 import { Button } from "react-native";
 import { BlurView } from "expo-blur";
+import * as Notifications from "expo-notifications";
 const SOCKET_SERVER_URL = "http://192.168.1.8:8082";
 const socket = io(SOCKET_SERVER_URL);
 type RootStackParamList = {
@@ -65,7 +67,7 @@ const MorePersonalCoachChat: React.FC = () => {
       socket.emit("allMessageOfUser", { conversationId: id });
     });
 
-    socket.on("receiveMessages", ({ conversationId, messages }) => {
+    socket.on("receiveMessages", async ({ conversationId, messages }) => {
       console.log("receiveMessages", messages, conversationId);
 
       setMessages((prevMessages) => [...prevMessages, ...messages]);
@@ -77,7 +79,46 @@ const MorePersonalCoachChat: React.FC = () => {
     };
   }, [userId, otherId]);
 
-  const sendMessage = (isLike = false) => {
+  // useEffect(() => {
+  //   socket.on("receiveMessages", async ({ conversationId, messages }) => {
+  //     console.log("messages", messages);
+  //     await Notifications.scheduleNotificationAsync({
+  //       content: {
+  //         title: `New message from ${trainer.name}`,
+  //         body: text,
+  //       },
+  //       trigger: null,
+  //     });
+  //   });
+
+  //   return () => {
+  //     socket.off("receiveMessages");
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    const receiveMessages = ({ conversationId, messages }) => {
+      console.log("Received messages:", messages);
+
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage && lastMessage.text) {
+        Notifications.scheduleNotificationAsync({
+          content: {
+            title: `New message from ${lastMessage.senderId.username}`,
+            body: lastMessage.text,
+          },
+          trigger: null,
+        });
+      }
+    };
+
+    socket.on("receiveMessages", receiveMessages);
+
+    return () => {
+      socket.off("receiveMessages", receiveMessages);
+    };
+  }, []);
+  const sendMessage = async (isLike = false) => {
     const messageText = isLike ? "👍" : text.trim();
     if (messageText) {
       const newMessage = {
@@ -92,7 +133,6 @@ const MorePersonalCoachChat: React.FC = () => {
         senderId: userId,
         text: messageText,
       });
-
       if (!isLike) setText("");
     }
   };

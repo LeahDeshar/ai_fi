@@ -98,6 +98,14 @@ io.on("connection", (socket) => {
           conversationId,
           messages: [newMessage],
         });
+
+      // const receiverToken = await getExpoPushToken(receiverId); // Function to retrieve the receiver's token
+      // if (receiverToken) {
+      //   await sendPushNotification(receiverToken, {
+      //     title: `New message from ${newMessage.senderId.username}`,
+      //     body: newMessage.text,
+      //   });
+      // }
     } else {
       console.error(`Group with ID ${conversationId} not found`);
     }

@@ -6,7 +6,7 @@ import "react-native-reanimated";
 
 import { ThemeProvider, useTheme } from "@/constants/ThemeProvider";
 import { StackScreenWithSearchBar } from "@/constants/layout";
-import { TouchableOpacity } from "react-native";
+import { Alert, TouchableOpacity } from "react-native";
 import { Ionicons, MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
 import { Text, View } from "react-native";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -16,12 +16,30 @@ import { persistor, store } from "@/redux/store";
 import { PersistGate } from "redux-persist/integration/react";
 import { useSelector } from "react-redux";
 SplashScreen.preventAutoHideAsync();
+import * as Notifications from "expo-notifications";
+
+const requestNotificationPermissions = async () => {
+  const { status } = await Notifications.requestPermissionsAsync();
+  if (status !== "granted") {
+    Alert.alert("You need to enable notifications for this app!");
+  }
+};
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
-
+  useEffect(() => {
+    requestNotificationPermissions();
+  }, []);
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();

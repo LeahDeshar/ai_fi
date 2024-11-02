@@ -51,8 +51,9 @@ Full Application Integration
 - [x] update the state of the challenge
 - [x] UI of generated challenges of a day
 - [x] Fasting functionality
-- [ ] Chat intergrate
-- [ ] login process fix
+- [x] Chat intergrate
+- [ ] login/logout process fix
 - [ ] all back js -> ts
+- [ ] notification
 - [ ] algorithm base
 - [ ] grpc to connect the fast api and express server
