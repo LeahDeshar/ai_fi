@@ -272,7 +272,7 @@ const MorePersonalCoachChat: React.FC = () => {
             }}
             onPress={() => setShowEmojiKeyboard(!showEmojiKeyboard)}
           >
-            <AntDesign name="smileo" size={28} color="#4CAF50" />
+            <AntDesign name="smileo" size={28} color="#3071aa" />
           </TouchableOpacity>
           <TextInput
             value={text}
@@ -282,9 +282,9 @@ const MorePersonalCoachChat: React.FC = () => {
           />
           <TouchableOpacity onPress={() => sendMessage(text ? false : true)}>
             {text ? (
-              <FontAwesome name="send" size={28} color="#4CAF50" />
+              <FontAwesome name="send" size={28} color="#3071aa" />
             ) : (
-              <AntDesign name="like1" size={28} color="#4CAF50" />
+              <AntDesign name="like1" size={28} color="#3071aa" />
             )}
           </TouchableOpacity>
         </View>
@@ -358,7 +358,7 @@ const MorePersonalCoachChat: React.FC = () => {
                         styles.modalContent,
                         {
                           borderRadius: 20,
-                          backgroundColor: colors.primary,
+                          backgroundColor: "#3071aa",
                           marginBottom: 30,
                           top: 20,
                           padding: 9,
@@ -478,7 +478,7 @@ const MorePersonalCoachChat: React.FC = () => {
                         style={styles.input}
                       />
                       <TouchableOpacity onPress={handleEditMessage}>
-                        <FontAwesome name="send" size={25} color="#4CAF50" />
+                        <FontAwesome name="send" size={25} color="#3071aa" />
                       </TouchableOpacity>
                     </View>
                     {/* <Button
