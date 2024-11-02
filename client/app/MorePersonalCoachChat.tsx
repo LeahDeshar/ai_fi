@@ -15,16 +15,13 @@ import {
 import { GiftedChat, IMessage } from "react-native-gifted-chat";
 import { useTheme } from "@/constants/ThemeProvider";
 import { RouteProp, useRoute } from "@react-navigation/native";
-import CustomInputToolbar from "@/components/CustomInputToolbar";
 import { io } from "socket.io-client";
 import { useSelector } from "react-redux";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
-
 import EmojiKeyboard from "rn-emoji-keyboard";
 import { useGetProfileQuery } from "@/redux/api/apiClient";
 import { Button } from "react-native";
 import { BlurView } from "expo-blur";
-// import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 const SOCKET_SERVER_URL = "http://192.168.1.8:8082";
 const socket = io(SOCKET_SERVER_URL);
 type RootStackParamList = {
@@ -80,11 +77,6 @@ const MorePersonalCoachChat: React.FC = () => {
     };
   }, [userId, otherId]);
 
-  const onSend = useCallback((messages: IMessage[] = []) => {
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, messages)
-    );
-  }, []);
   const sendMessage = (isLike = false) => {
     const messageText = isLike ? "👍" : text.trim();
     if (messageText) {
@@ -115,12 +107,20 @@ const MorePersonalCoachChat: React.FC = () => {
   const handleLongPress = (message) => {
     setSelectedMessage(message);
     setEditModalVisible(true);
-    setIsEditing(false); // Reset edit state
+    setIsEditing(false);
   };
 
   const handleEditMessage = () => {
     if (selectedMessage) {
-      selectedMessage.text = editedText; // Update locally for demo
+      selectedMessage.text = editedText;
+
+      console.log(selectedMessage._id, editedText);
+
+      const updatedMessage = {
+        messageId: selectedMessage._id,
+        text: editedText,
+      };
+      socket.emit("editMessage", updatedMessage);
       setEditModalVisible(false);
       setSelectedMessage(null);
       setEditedText("");
@@ -129,7 +129,8 @@ const MorePersonalCoachChat: React.FC = () => {
 
   const handleDeleteMessage = () => {
     if (selectedMessage) {
-      // Perform delete action, e.g., call API to delete message
+      const messageId = selectedMessage._id;
+      socket.emit("deleteMessage", { messageId });
       setEditModalVisible(false);
       setSelectedMessage(null);
     }
@@ -144,6 +145,34 @@ const MorePersonalCoachChat: React.FC = () => {
     console.log(`User reacted with: ${emoji}`);
     // Add logic to save or send the reaction
   };
+
+  useEffect(() => {
+    socket.on("messageUpdated", (updatedMessage) => {
+      // Update the message locally by finding and replacing it in the list
+
+      console.log(updatedMessage);
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg._id === updatedMessage.messageId
+            ? { ...msg, text: updatedMessage.text }
+            : msg
+        )
+      );
+    });
+
+    socket.on("messageDeleted", (deletedMessageId) => {
+      // Remove the message from the list locally
+      setMessages((prevMessages) =>
+        prevMessages.filter((msg) => msg._id !== deletedMessageId)
+      );
+    });
+
+    return () => {
+      // Clean up listeners when component unmounts
+      socket.off("messageUpdated");
+      socket.off("messageDeleted");
+    };
+  }, []);
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -161,21 +190,51 @@ const MorePersonalCoachChat: React.FC = () => {
           {messages.map((message, index) => {
             const isCurrentUser = message.senderId._id === userId;
             return (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.messageBubble,
-                  isCurrentUser
-                    ? styles.currentUserBubble
-                    : styles.otherUserBubble,
-                ]}
-                onLongPress={() => handleLongPress(message)}
-              >
-                <Text style={styles.senderName}>
-                  {isCurrentUser ? profile.profileOfUsers.name : trainer.name}
-                </Text>
-                <Text style={styles.messageText}>{message.text}</Text>
-              </TouchableOpacity>
+              <>
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    styles.messageBubble,
+                    isCurrentUser
+                      ? styles.currentUserBubble
+                      : styles.otherUserBubble,
+                  ]}
+                  onLongPress={() => handleLongPress(message)}
+                >
+                  <Text
+                    style={[
+                      styles.senderName,
+                      {
+                        color: isCurrentUser ? "#fff" : "#000",
+                      },
+                    ]}
+                  >
+                    {isCurrentUser ? profile.profileOfUsers.name : trainer.name}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.messageText,
+                      {
+                        color: isCurrentUser ? "#fff" : "#000",
+                      },
+                    ]}
+                  >
+                    {message.text}
+                  </Text>
+                  <Text
+                    style={{
+                      color: isCurrentUser ? "#d6d6d6" : "gray",
+                      fontSize: 9,
+                      marginTop: 5,
+                    }}
+                  >
+                    {new Date(message.timestamp).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </Text>
+                </TouchableOpacity>
+              </>
             );
           })}
         </ScrollView>
@@ -208,6 +267,9 @@ const MorePersonalCoachChat: React.FC = () => {
             />
           )}
           <TouchableOpacity
+            style={{
+              marginRight: 5,
+            }}
             onPress={() => setShowEmojiKeyboard(!showEmojiKeyboard)}
           >
             <AntDesign name="smileo" size={28} color="#4CAF50" />
@@ -503,7 +565,7 @@ const styles = StyleSheet.create({
     maxWidth: "80%",
   },
   currentUserBubble: {
-    backgroundColor: "#daf8e3",
+    backgroundColor: "#3071aa",
     alignSelf: "flex-end",
   },
   otherUserBubble: {

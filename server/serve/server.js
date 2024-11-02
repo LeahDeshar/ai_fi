@@ -120,7 +120,34 @@ io.on("connection", (socket) => {
       socket.emit("error", { message: "Failed to retrieve messages." });
     }
   });
-  // Disconnect
+
+  socket.on("editMessage", async ({ messageId, text }) => {
+    try {
+      const updatedMessage = await Message.findByIdAndUpdate(
+        messageId,
+        { $set: { text } },
+        { new: true }
+      );
+
+      if (updatedMessage) {
+        io.emit("messageUpdated", {
+          messageId: updatedMessage._id,
+          text: updatedMessage.text,
+        });
+      } else {
+        console.log("Message not found");
+      }
+    } catch (error) {
+      console.error("Error updating message:", error);
+    }
+  });
+
+  socket.on("deleteMessage", async ({ messageId }) => {
+    await Message.findByIdAndDelete(messageId);
+
+    io.emit("messageDeleted", messageId);
+  });
+
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
   });
