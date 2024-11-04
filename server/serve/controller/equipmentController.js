@@ -1,6 +1,6 @@
 import SubWorkout from "../models/subworkout.js";
 import Workout from "../models/workout.js";
-import Equipment from "../models/Equipment.js";
+import Equipment from "../models/equipment.js";
 
 import cloudinary from "cloudinary";
 import { getDataUri } from "../util/features.js";

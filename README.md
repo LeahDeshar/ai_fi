@@ -52,10 +52,13 @@ Full Application Integration
 - [x] UI of generated challenges of a day
 - [x] Fasting functionality
 - [x] Chat intergrate
-- [ ] login/logout process fix
-- [ ] all back js -> ts
 - [ ] notification
 - [ ] algorithm base
 - [ ] grpc to connect the fast api and express server
 - [ ] redis
 - [ ] tips and trick
+
+- [ ] revive and ensure everything working
+- [ ] algorithm and redis
+- [ ] login/logout process fix
+- [ ] all back js -> ts

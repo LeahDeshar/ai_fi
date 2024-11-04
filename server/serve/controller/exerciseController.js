@@ -1,4 +1,4 @@
-import Exercises from "../models/ExerciseModel.js"; // Adjust the import path as necessary
+import Exercises from "../models/exercises.js";
 import cloudinary from "cloudinary";
 import SubWorkout from "../models/subworkout.js";
 import { getDataUri } from "../util/features.js";

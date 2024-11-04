@@ -249,6 +249,7 @@ export const createUserProfileController = async (req, res) => {
       experience,
       rating,
       category,
+      role,
     } = req.body;
 
     const userId = req.user._id;
@@ -395,6 +396,7 @@ export const createUserProfileController = async (req, res) => {
       experience,
       rating,
       category: parsedCategory,
+      role,
     });
 
     // Save new profile
@@ -419,6 +421,8 @@ export const createUserProfileController = async (req, res) => {
 export const getUserProfileController = async (req, res) => {
   try {
     const user = await Users.findById(req.user._id).select("-password");
+
+    console.log(user);
 
     const profileOfUsers = await Profile.findById(user.profile);
     const bmi = profileOfUsers.calculateBMI();

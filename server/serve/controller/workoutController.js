@@ -1,5 +1,5 @@
 import Workout from "../models/workout.js";
-import SubWorkout from "../models/workout.js";
+import SubWorkout from "../models/subworkout.js";
 import cloudinary from "cloudinary";
 
 import { getDataUri } from "../util/features.js";
