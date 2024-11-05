@@ -3,6 +3,8 @@
 diet/archive
 diet/archive.zip
 
+data
+static
 
 diet/*.csv
 diet/*.json

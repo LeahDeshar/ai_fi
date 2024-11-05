@@ -58,7 +58,11 @@ Full Application Integration
 - [ ] redis
 - [ ] tips and trick
 
-- [ ] revive and ensure everything working
+- [x] revive and ensure everything working
 - [ ] algorithm and redis
 - [ ] login/logout process fix
 - [ ] all back js -> ts
+
+Workout recommendation
+anomaly detection
+GCN social media features
