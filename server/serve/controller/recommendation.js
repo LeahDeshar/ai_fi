@@ -1,18 +1,39 @@
 import axios from "axios";
+import { client } from "../util/redis.js";
+
+client
+  .on("connect", () => {
+    console.log("Connected to Redis");
+  })
+  .on("error", () => {
+    console.log("Error connecting to Redis");
+  });
 
 export const getExerciseRecomController = async (req, res) => {
   try {
-    const { fitnessData } = req.body;
+    const { target_input, k } = req.body;
 
-    const response = await axios.get(
-      "http://127.0.0.1:8000/recommend_exercises",
+    const cacheKey = `exe-recom:${target_input}:${k}`;
+
+    // Check if the response is in cache
+    const cachedData = await client.get(cacheKey);
+    if (cachedData) {
+      console.log("Cache hit");
+      return res.json({
+        exeData: JSON.parse(cachedData),
+      });
+    }
+
+    const response = await axios.post(
+      "http://localhost:8000/recommend_exercises",
       {
-        params: { target_input: fitnessData },
+        target_input: target_input,
+        k: k,
       }
     );
 
     res.json({
-      exeData: response.data.recommendations,
+      exeData: response.data.exercises,
     });
   } catch (error) {
     res.status(500).json({ error: "Error processing data with FastAPI" });
