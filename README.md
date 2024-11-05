@@ -55,7 +55,7 @@ Full Application Integration
 - [ ] notification
 - [x] algorithm base
 - [ ] http to connect the fast api and express server
-- [ ] redis
+- [x] redis
 - [ ] tips and trick
 
 - [x] revive and ensure everything working

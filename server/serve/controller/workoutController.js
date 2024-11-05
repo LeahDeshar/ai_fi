@@ -3,6 +3,7 @@ import SubWorkout from "../models/subworkout.js";
 import cloudinary from "cloudinary";
 
 import { getDataUri } from "../util/features.js";
+import { client } from "../util/redis.js";
 
 export const createWorkoutController = async (req, res) => {
   try {
@@ -51,7 +52,23 @@ export const createWorkoutController = async (req, res) => {
 
 export const getWorkoutController = async (req, res) => {
   try {
-    const workout = await Workout.find();
+    const cacheKey = "allWorkouts";
+
+    const cachedWorkouts = await client.get(cacheKey);
+    if (cachedWorkouts) {
+      const workoutsData = JSON.parse(cachedWorkouts);
+      return res.status(200).json({
+        message: "Workout fetched successfully from cache!",
+        workout: workoutsData,
+        source: "cache",
+      });
+    }
+    const workout = await Workout.find().populate({
+      path: "subWorkouts",
+    });
+    await client.set(cacheKey, JSON.stringify(workout), {
+      EX: 3600,
+    });
     res.status(201).json({
       message: "Workout fetched successfully!",
       workout,

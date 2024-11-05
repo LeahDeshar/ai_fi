@@ -2,6 +2,7 @@ import Users from "../models/user.js";
 import Profile from "../models/profile.js";
 import cloudinary from "cloudinary";
 import { getDataUri } from "../util/features.js";
+import { client } from "../util/redis.js";
 
 export const registerController = async (req, res) => {
   try {
@@ -418,36 +419,37 @@ export const createUserProfileController = async (req, res) => {
   }
 };
 
-export const getUserProfileController = async (req, res) => {
-  try {
-    const user = await Users.findById(req.user._id).select("-password");
+// export const getUserProfileController = async (req, res) => {
+//   try {
+//     const user = await Users.findById(req.user._id).select("-password");
 
-    console.log(user);
+//     console.log(user);
 
-    const profileOfUsers = await Profile.findById(user.profile);
-    const bmi = profileOfUsers.calculateBMI();
-    const waterIntake = profileOfUsers.calculateWaterIntake();
-    const dailyStepRecommendation = profileOfUsers.recommendDailySteps();
+//     const profileOfUsers = await Profile.findById(user.profile);
+//     const bmi = profileOfUsers.calculateBMI();
+//     const waterIntake = profileOfUsers.calculateWaterIntake();
+//     const dailyStepRecommendation = profileOfUsers.recommendDailySteps();
 
-    res.status(200).json({
-      success: true,
-      message: "User profile fetched successfully",
-      profileOfUsers,
-      calculations: {
-        bmi,
-        waterIntake,
-        dailyStepRecommendation,
-        weightLossDuration: profileOfUsers.calculateWeightLossDuration(),
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      success: false,
-      message: "User profile fetched failed",
-    });
-  }
-};
+//     res.status(200).json({
+//       success: true,
+//       message: "User profile fetched successfully",
+//       profileOfUsers,
+//       calculations: {
+//         bmi,
+//         waterIntake,
+//         dailyStepRecommendation,
+//         weightLossDuration: profileOfUsers.calculateWeightLossDuration(),
+//       },
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({
+//       success: false,
+//       message: "User profile fetched failed",
+//     });
+//   }
+// };
+
 // // get all user if the user.role == "coach"
 // export const getAllCoachController = async (req, res) => {
 //   try {
@@ -466,12 +468,76 @@ export const getUserProfileController = async (req, res) => {
 //     });
 //   }
 // };
+
+export const getUserProfileController = async (req, res) => {
+  try {
+    const cacheKey = `userProfile:${req.user._id}`;
+    const cachedProfile = await client.get(cacheKey);
+    if (cachedProfile) {
+      const profileData = JSON.parse(cachedProfile);
+      return res.status(200).json({
+        success: true,
+        message: "User profile fetched from cache",
+        ...profileData,
+      });
+    }
+
+    // If no cached data, fetch from the database
+    const user = await Users.findById(req.user._id).select("-password");
+    console.log(user);
+
+    const profileOfUsers = await Profile.findById(user.profile);
+    const bmi = profileOfUsers.calculateBMI();
+    const waterIntake = profileOfUsers.calculateWaterIntake();
+    const dailyStepRecommendation = profileOfUsers.recommendDailySteps();
+
+    // Prepare the response data
+    const responseData = {
+      success: true,
+      message: "User profile fetched successfully",
+      profileOfUsers,
+      calculations: {
+        bmi,
+        waterIntake,
+        dailyStepRecommendation,
+        weightLossDuration: profileOfUsers.calculateWeightLossDuration(),
+      },
+    };
+
+    // Cache the user profile data
+    await client.set(cacheKey, JSON.stringify(responseData), { EX: 3600 }); // Cache for 1 hour
+
+    // Return the response
+    return res.status(200).json(responseData);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "User profile fetch failed",
+    });
+  }
+};
+
 export const getAllUsersController = async (req, res) => {
   try {
+    const cacheKey = "allUsers"; // Create a unique cache key for all users
+
+    // Check if the users data is cached
+    const cachedUsers = await client.get(cacheKey);
+    if (cachedUsers) {
+      // If cached data exists, parse it and return
+      const usersData = JSON.parse(cachedUsers);
+      return res.status(200).json({
+        success: true,
+        data: usersData,
+        source: "cache",
+      });
+    }
+
     const currentUserId = req.user._id;
     const users = await Profile.find({ _id: { $ne: currentUserId } });
-
-    res.status(200).json({ success: true, data: users });
+    await client.set(cacheKey, JSON.stringify(users), { EX: 3600 });
+    res.status(200).json({ success: true, data: users, source: "database" });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
