@@ -53,8 +53,8 @@ Full Application Integration
 - [x] Fasting functionality
 - [x] Chat intergrate
 - [ ] notification
-- [ ] algorithm base
-- [ ] grpc to connect the fast api and express server
+- [x] algorithm base
+- [ ] http to connect the fast api and express server
 - [ ] redis
 - [ ] tips and trick
 

@@ -1,171 +1,214 @@
-import json, os
-from fastapi import FastAPI, Request, Form, Cookie
-from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI, HTTPException
 import pandas as pd
-from pymongo import MongoClient
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import linear_kernel, cosine_similarity
+import pickle
+import numpy as np
+import joblib
+from collections import Counter
+from pydantic import BaseModel
+import random
 
-# Initialize FastAPI app
 app = FastAPI()
 
-# Set up Jinja2 templates for HTML rendering
-templates = Jinja2Templates(directory="templates")
 
-# Data directory and paths
-data_dir = os.path.join(os.path.dirname(__file__), 'data')
-json_file_path = os.path.join(data_dir, 'exercises.json')
-csv_cleaned_file_path = os.path.join(data_dir, 'exercises_cleaned.csv')
+# Load the dataset
+df = pd.read_csv('./gym/Exersices.csv')
 
-# Load and preprocess JSON data
-with open(json_file_path, 'r', encoding='utf-8') as file:
-    exercises = json.load(file)
-    for exercise in exercises:
-        images = exercise["images"]
-        exercise["images"] = [image.split('/')[-1] for image in images]
+# Manual label encoding for categorical columns
+categorical_columns = ['bodyPart', 'equipment', 'target']
+label_encoders = {}
+for col in categorical_columns:
+    unique_values = df[col].unique()
+    label_encoders[col] = {value: idx for idx, value in enumerate(unique_values)}
+    df[col] = df[col].map(label_encoders[col])
 
-# Convert exercises data to DataFrame and save as CSV
-dataframe = pd.DataFrame(exercises)
-csv_file_path = os.path.join(data_dir, 'exercises.csv')
-dataframe.to_csv(csv_file_path, index=False, sep=',')
+# Separate features and target
+X = df[['bodyPart', 'equipment', 'target']].values
+y = df['target'].values
 
-# Load cleaned data from CSV
-df = pd.read_csv(csv_cleaned_file_path)
-df['images'] = df['images'].apply(lambda x: [image.strip(" '") for image in x.strip("[]").split(", ")])
-
-# MongoDB setup
-client = MongoClient("mongodb://localhost:27017/")
-db = client["exercisesdb"]
-collection = db["exercises"]
-df_dict = df.to_dict(orient='records')
-collection.insert_many(df_dict)
-
-# Priority fields and weights
-priority_fields = ['primaryMuscles', 'level', 'equipment', 'secondaryMuscles', 'force', 'mechanic', 'category']
-priority_weights = [20, 15, 10, 5, 3, 2, 1]
-
-# Content concatenation for recommendations
-df['content'] = df[priority_fields].apply(
-    lambda row: (
-        ' '.join([str(val) * weight for val, weight in zip(row, priority_weights)])
-    ),
-    axis=1
-)
-
-# Create a TF-IDF vectorizer and calculate cosine similarity
-tfidf_vectorizer = TfidfVectorizer(stop_words='english')
-tfidf_matrix = tfidf_vectorizer.fit_transform(df['content'])
-cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
-
-# Route for the welcome page
-@app.get("/", response_class=HTMLResponse)
-async def welcome(request: Request):
-    return templates.TemplateResponse("welcome.html", {"request": request})
-
-@app.get("/beginner", response_class=HTMLResponse)
-async def beginner(request: Request, selectedPrimaryMuscle: str = Cookie(None)):
-    primary_muscles = ["Chest", "Biceps", "Abdominals", "Quadriceps", "Middle Back", "Glutes", "Hamstrings", "Calves"]
-    return templates.TemplateResponse(
-        "beginner.html",
-        {"request": request, "primary_muscles": primary_muscles, "selectedPrimaryMuscle": selectedPrimaryMuscle}
-    )
-
-@app.post("/beginner")
-async def set_primary_muscle(request: Request, selectedPrimaryMuscle: str = Form(...)):
-    response = RedirectResponse(url="/recommend", status_code=303)
-    response.set_cookie(key="selectedPrimaryMuscle", value=selectedPrimaryMuscle)
-    return response
-
-@app.get("/advanced", response_class=HTMLResponse)
-async def advanced(request: Request, selectedPrimaryMuscle: str = Cookie(None)):
-    primary_muscles = [
-        "Neck", "Shoulders", "Chest", "Biceps", "Forearms", "Abdominals", "Quadriceps", "Adductors", "Calves",
-        "Traps", "Triceps", "Lats", "Middle Back", "Lower Back", "Abductors", "Glutes", "Hamstrings", "Calves"
-    ]
-    return templates.TemplateResponse(
-        "advanced.html",
-        {"request": request, "primary_muscles": primary_muscles, "selectedPrimaryMuscle": selectedPrimaryMuscle}
-    )
-
-@app.post("/advanced")
-async def set_advanced_primary_muscle(request: Request, selectedPrimaryMuscle: str = Form(...)):
-    response = RedirectResponse(url="/recommend", status_code=303)
-    response.set_cookie(key="selectedPrimaryMuscle", value=selectedPrimaryMuscle)
-    return response
-
-@app.get("/recommend", response_class=HTMLResponse)
-async def recommend_exercises(request: Request, selectedPrimaryMuscle: str = Cookie(None)):
-    return templates.TemplateResponse("recommendations.html", {"request": request, "selectedPrimaryMuscle": selectedPrimaryMuscle})
-
-@app.post("/recommend")
-async def recommend_exercises_post(
-    request: Request,
-    selectedPrimaryMuscle: str = Cookie(None),
-    level: str = Form(""),
-    equipment: str = Form(""),
-    secondaryMuscles: list = Form([]),
-    force: str = Form(""),
-    mechanic: str = Form(""),
-    category: str = Form("")
-):
-    # Prepare user input and content for recommendations
-    user_content = (
-        selectedPrimaryMuscle * priority_weights[0] + ' ' +
-        level * priority_weights[1] + ' ' +
-        equipment * priority_weights[2] + ' ' +
-        ' '.join(secondaryMuscles) * priority_weights[3] + ' ' +
-        force * priority_weights[4] + ' ' +
-        mechanic * priority_weights[5] + ' ' +
-        category * priority_weights[6]
-    )
-
-    # Convert user content to TF-IDF and calculate similarity
-    user_tfidf_matrix = tfidf_vectorizer.transform([user_content])
-    user_cosine_sim = linear_kernel(user_tfidf_matrix, tfidf_matrix)
-    sim_scores = user_cosine_sim[0]
-    exercise_indices = sim_scores.argsort()[::-1][:5]  # Select top 5
-
-    exercise_data = []
-    for index in exercise_indices:
-        exercise = df.iloc[index].to_dict()
-        exercise["instructions"] = exercise.get("instructions", "").replace('.,', '<br>')
-        exercise_data.append(exercise)
-
-    return templates.TemplateResponse(
-        "recommendations.html",
-        {"request": request, "recommendations": exercise_data, "selectedPrimaryMuscle": selectedPrimaryMuscle}
-    )
-
-@app.get("/more_recommendations", response_class=HTMLResponse)
-async def more_recommendations(request: Request, selectedPrimaryMuscle: str = Cookie(None)):
-    return templates.TemplateResponse("more_recommendations.html", {"request": request, "selectedPrimaryMuscle": selectedPrimaryMuscle})
-
-@app.post("/more_recommendations", response_class=HTMLResponse)
-async def more_recommendations_post(
-    request: Request,
-    user_input: str = Form(...),
-    selectedPrimaryMuscle: str = Cookie(None),
-    secondaryMuscles: list = Form([])
-):
-    # Load user input and calculate recommendations
-    user_content = (
-        selectedPrimaryMuscle * priority_weights[0] + ' ' +
-        ' '.join(secondaryMuscles) * priority_weights[3]
-    )
+# Manual train-test split
+def train_test_split_manual(X, y, test_size=0.2):
+    indices = list(range(len(X)))
+    test_indices = random.sample(indices, int(test_size * len(X)))
+    train_indices = list(set(indices) - set(test_indices))
     
-    # Convert user content to TF-IDF and calculate item-based similarity
-    user_tfidf_matrix = tfidf_vectorizer.transform([user_content])
-    item_sim_scores = cosine_similarity(user_tfidf_matrix, tfidf_matrix.T)[0]
-    exercise_indices = item_sim_scores.argsort()[-5:][::-1]
+    X_train = X[train_indices]
+    y_train = y[train_indices]
+    X_test = X[test_indices]
+    y_test = y[test_indices]
+    return X_train, X_test, y_train, y_test
 
-    exercise_data = []
-    for index in exercise_indices:
-        exercise = df.iloc[index].to_dict()
-        exercise["instructions"] = exercise.get("instructions", "").replace('.,', '<br>')
-        exercise_data.append(exercise)
+X_train, X_test, y_train, y_test = train_test_split_manual(X, y, test_size=0.2)
 
-    return templates.TemplateResponse(
-        "more_recommendations.html",
-        {"request": request, "recommendations": exercise_data, "selectedPrimaryMuscle": selectedPrimaryMuscle}
-    )
+# Helper functions for building the Decision Tree
+class DecisionNode:
+    def __init__(self, feature=None, threshold=None, left=None, right=None, *, value=None):
+        self.feature = feature
+        self.threshold = threshold
+        self.left = left
+        self.right = right
+        self.value = value
+
+def gini(y):
+    counts = np.bincount(y)
+    probabilities = counts / len(y)
+    return 1 - np.sum(probabilities ** 2)
+
+def split_dataset(X, y, feature, threshold):
+    left_indices = np.where(X[:, feature] <= threshold)[0]
+    right_indices = np.where(X[:, feature] > threshold)[0]
+    return X[left_indices], X[right_indices], y[left_indices], y[right_indices]
+
+def grow_tree(X, y, depth=0, max_depth=10):
+    num_samples, num_features = X.shape
+    if num_samples <= 1 or depth >= max_depth:
+        leaf_value = most_common_label(y)
+        return DecisionNode(value=leaf_value)
+
+    best_gini = 1.0
+    best_feature, best_threshold = None, None
+
+    for feature in range(num_features):
+        thresholds = np.unique(X[:, feature])
+        for threshold in thresholds:
+            X_left, X_right, y_left, y_right = split_dataset(X, y, feature, threshold)
+            if len(y_left) == 0 or len(y_right) == 0:
+                continue
+            gini_left = gini(y_left)
+            gini_right = gini(y_right)
+            weighted_gini = (len(y_left) * gini_left + len(y_right) * gini_right) / len(y)
+            if weighted_gini < best_gini:
+                best_gini = weighted_gini
+                best_feature = feature
+                best_threshold = threshold
+
+    if best_gini == 1.0:
+        leaf_value = most_common_label(y)
+        return DecisionNode(value=leaf_value)
+
+    X_left, X_right, y_left, y_right = split_dataset(X, y, best_feature, best_threshold)
+    left_child = grow_tree(X_left, y_left, depth + 1, max_depth)
+    right_child = grow_tree(X_right, y_right, depth + 1, max_depth)
+    return DecisionNode(best_feature, best_threshold, left_child, right_child)
+
+def most_common_label(y):
+    counter = Counter(y)
+    return counter.most_common(1)[0][0]
+
+class DecisionTreeClassifier:
+    def __init__(self, max_depth=10):
+        self.max_depth = max_depth
+        self.root = None
+
+    def fit(self, X, y):
+        self.root = grow_tree(X, y, max_depth=self.max_depth)
+
+    def _predict(self, inputs):
+        node = self.root
+        while node.value is None:
+            if inputs[node.feature] <= node.threshold:
+                node = node.left
+            else:
+                node = node.right
+        return node.value
+
+    def predict(self, X):
+        return np.array([self._predict(inputs) for inputs in X])
+
+class RandomForestClassifierFromScratch:
+    def __init__(self, n_trees=10, max_depth=10, sample_size=None):
+        self.n_trees = n_trees
+        self.max_depth = max_depth
+        self.sample_size = sample_size
+        self.trees = []
+
+    def _bootstrap_sample(self, X, y):
+        n_samples = X.shape[0]
+        indices = np.random.choice(n_samples, self.sample_size or n_samples, replace=True)
+        return X[indices], y[indices]
+
+    def fit(self, X, y):
+        self.trees = []
+        for _ in range(self.n_trees):
+            tree = DecisionTreeClassifier(max_depth=self.max_depth)
+            X_sample, y_sample = self._bootstrap_sample(X, y)
+            tree.fit(X_sample, y_sample)
+            self.trees.append(tree)
+
+    def predict(self, X):
+        tree_preds = np.array([tree.predict(X) for tree in self.trees])
+        tree_preds = np.swapaxes(tree_preds, 0, 1)
+        y_pred = [most_common_label(tree_pred) for tree_pred in tree_preds]
+        return np.array(y_pred)
+
+# Initialize and train the model
+rf_scratch = RandomForestClassifierFromScratch(n_trees=10, max_depth=10)
+rf_scratch.fit(X_train, y_train)
+
+# Predict on test set and calculate accuracy
+y_pred = rf_scratch.predict(X_test)
+accuracy = np.mean(y_pred == y_test)
+print(f'Random Forest Accuracy (from scratch): {accuracy * 100:.2f}%')
+
+# Exercise recommendation based on target muscle group
+def recommend_exercises(target_input, k=5):
+    target_encoded = label_encoders['target'][target_input]
+    probabilities = np.mean([tree.predict(X_test) == target_encoded for tree in rf_scratch.trees], axis=0)
+    recommended_indices = np.argsort(probabilities)[-k:][::-1]
+    recommendations = df.iloc[recommended_indices]
+    return recommendations
+
+# # Example usage
+# target_input = 'traps'  # Example muscle group to target
+# recommended_exercises = recommend_exercises(target_input)
+# print(recommended_exercises)
+
+class RecommendationRequest(BaseModel):
+    target_input: str
+    k: int = 5  # Default to 5 recommendations
+
+class RecommendationResponse(BaseModel):
+    exercises: list
+
+# Helper function to get exercise recommendations
+# def recommend_exercises(target_input, k=5):
+#     target_encoded = label_encoders['target'].get(target_input)
+#     if target_encoded is None:
+#         raise ValueError("Invalid target input")
+#     probabilities = np.mean([tree.predict(X_test) == target_encoded for tree in rf_scratch.trees], axis=0)
+#     recommended_indices = np.argsort(probabilities)[-k:][::-1]
+#     recommendations = df.iloc[recommended_indices][['bodyPart', 'equipment', 'target', 'instructions','name']]
+    
+#     return recommendations.to_dict(orient="records")
+# Reverse the label encoders to create label decoders
+label_decoders = {col: {idx: value for value, idx in encoder.items()} for col, encoder in label_encoders.items()}
+
+def recommend_exercises(target_input, k=5):
+    target_encoded = label_encoders['target'].get(target_input)
+    if target_encoded is None:
+        raise ValueError("Invalid target input")
+    
+    probabilities = np.mean([tree.predict(X_test) == target_encoded for tree in rf_scratch.trees], axis=0)
+    recommended_indices = np.argsort(probabilities)[-k:][::-1]
+    recommendations = df.iloc[recommended_indices][['bodyPart', 'equipment', 'target', 'instructions', 'name']]
+    
+    # Decode the categorical columns in recommendations
+    decoded_recommendations = []
+    for _, row in recommendations.iterrows():
+        decoded_recommendations.append({
+            "bodyPart": label_decoders['bodyPart'][row['bodyPart']],
+            "equipment": label_decoders['equipment'][row['equipment']],
+            "target": label_decoders['target'][row['target']],
+            "instructions": row['instructions'],
+            "name": row['name']
+        })
+    
+    return decoded_recommendations
+
+# API endpoint for exercise recommendation
+@app.post("/recommend_exercises", response_model=RecommendationResponse)
+def get_recommendations(request: RecommendationRequest):
+    try:
+        recommended_exercises = recommend_exercises(request.target_input, request.k)
+        return {"exercises": recommended_exercises}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

@@ -4,9 +4,12 @@ export const getExerciseRecomController = async (req, res) => {
   try {
     const { fitnessData } = req.body;
 
-    const response = await axios.get("http://localhost:8000/recommend-exes", {
-      params: { target_input: fitnessData },
-    });
+    const response = await axios.get(
+      "http://127.0.0.1:8000/recommend_exercises",
+      {
+        params: { target_input: fitnessData },
+      }
+    );
 
     res.json({
       exeData: response.data.recommendations,
