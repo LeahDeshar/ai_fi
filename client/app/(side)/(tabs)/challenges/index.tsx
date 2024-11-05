@@ -13,12 +13,12 @@ import { screenPadding } from "@/constants/token";
 import { useTheme } from "@/constants/ThemeProvider";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { API_KEYS } from "@/config";
 import { useGetProfileQuery } from "@/redux/api/apiClient";
 import axios from "axios";
 import { setSavedChallenges } from "@/redux/slices/profileSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
+import { API_KEYS } from "@/config/config";
 
 const challengeData = [
   {

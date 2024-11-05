@@ -13,7 +13,8 @@ import {
   useRouter,
   useGlobalSearchParams,
 } from "expo-router";
-import { API_KEYS } from "@/config";
+import { API_KEYS } from "@/config/config";
+
 import { useDispatch } from "react-redux";
 import { useGetProfileQuery } from "@/redux/api/apiClient";
 import { useSelector } from "react-redux";

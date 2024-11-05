@@ -14,7 +14,8 @@ import {
   Animated,
 } from "react-native";
 import axios from "axios";
-import { API_KEYS } from "@/config";
+import { API_KEYS } from "@/config/config";
+
 import { useTheme } from "@/constants/ThemeProvider";
 import { TouchableOpacity } from "react-native";
 import { BlurView } from "expo-blur";

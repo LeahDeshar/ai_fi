@@ -16,7 +16,8 @@ import {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import Button from "@/components/Button";
-import { API_KEYS } from "@/config";
+import { API_KEYS } from "@/config/config";
+
 import { useDispatch } from "react-redux";
 import { useGetProfileQuery } from "@/redux/api/apiClient";
 import { useSelector } from "react-redux";
