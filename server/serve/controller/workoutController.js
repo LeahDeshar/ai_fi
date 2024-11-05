@@ -85,12 +85,28 @@ export const getWorkoutController = async (req, res) => {
 export const getWorkoutByIdController = async (req, res) => {
   try {
     const workoutId = req.params.id;
-    const workout = await Workout.findById(workoutId);
+    const cacheKey = `workoutById:${workoutId}`; // Define a unique cache key for the specific workout
+
+    // Check if the workout data is cached
+    const cachedWorkout = await client.get(cacheKey);
+    if (cachedWorkout) {
+      // If cached data exists, parse it and return
+      const workoutData = JSON.parse(cachedWorkout);
+      return res.status(200).json({
+        message: "Workout fetched successfully from cache!",
+        workout: workoutData,
+        source: "cache", // Indicate that the data is from cache
+      });
+    }
+    const workout = await Workout.findById(workoutId).populate("subWorkouts");
     if (!workout) {
       return res.status(404).json({
         message: "Workout not found",
       });
     }
+    await client.set(cacheKey, JSON.stringify(workout), {
+      EX: 3600, // Set an expiration time of 1 hour
+    });
     res.status(201).json({
       message: "Workout fetched successfully!",
       workout,
