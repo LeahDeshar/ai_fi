@@ -59,7 +59,7 @@ Full Application Integration
 - [ ] tips and trick
 
 - [x] revive and ensure everything working
-- [ ] algorithm and redis
+- [ ] algorithm base and redis
 - [ ] login/logout process fix
 - [ ] all back js -> ts
 
