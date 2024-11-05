@@ -1,14 +1,6 @@
 import axios from "axios";
 import { client } from "../util/redis.js";
 
-client
-  .on("connect", () => {
-    console.log("Connected to Redis");
-  })
-  .on("error", () => {
-    console.log("Error connecting to Redis");
-  });
-
 export const getExerciseRecomController = async (req, res) => {
   try {
     const { target_input, k } = req.body;
@@ -31,6 +23,10 @@ export const getExerciseRecomController = async (req, res) => {
         k: k,
       }
     );
+    // cache the response
+    await client.set(cacheKey, JSON.stringify(response.data.exercises), {
+      EX: 3600,
+    });
 
     res.json({
       exeData: response.data.exercises,
