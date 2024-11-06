@@ -3,6 +3,7 @@ import Profile from "../models/profile.js";
 import cloudinary from "cloudinary";
 import { getDataUri } from "../util/features.js";
 import { client } from "../util/redis.js";
+import FastingSchedule from "../models/FastingScheduleSchema.js";
 
 export const registerController = async (req, res) => {
   try {
@@ -255,7 +256,24 @@ export const createUserProfileController = async (req, res) => {
 
     const userId = req.user._id;
 
-    // Check if profile already exists
+    const startTime = new Date();
+    const fastingHours = 16;
+    const eatingHours = 24 - fastingHours;
+
+    const endTime = new Date(
+      startTime.getTime() + fastingHours * 60 * 60 * 1000
+    );
+
+    const fastingSchedule = new FastingSchedule({
+      user: userId,
+      startTime,
+      endTime,
+      fastingHours,
+      eatingHours,
+    });
+
+    await fastingSchedule.save();
+
     const existingProfile = await Profile.findOne({ user: userId });
     if (existingProfile) {
       return res

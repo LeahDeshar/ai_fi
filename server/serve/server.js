@@ -10,6 +10,7 @@ import userRoutes from "./routes/userRoutes.js";
 import workoutRoutes from "./routes/workoutRoutes.js";
 import subOutRoutes from "./routes/subWorkoutRoutes.js";
 import equipmentRoutes from "./routes/equipmentRoutes.js";
+import fastingRoutes from "./routes/fastingRoutes.js";
 import exerciseRoutes from "./routes/exeRoutes.js";
 import recomRoutes from "./routes/recommendation.js";
 import Conversation from "./models/conversation.js";
@@ -46,6 +47,7 @@ app.use("/api/v1/workout", workoutRoutes);
 app.use("/api/v1/subWorkout", subOutRoutes);
 app.use("/api/v1/equipment", equipmentRoutes);
 app.use("/api/v1/exercise", exerciseRoutes);
+app.use("/api/v1/fasting", fastingRoutes);
 
 // Recommendation
 app.use("/api/v1/fitness", recomRoutes);
