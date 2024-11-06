@@ -64,7 +64,7 @@ io.on("connection", (socket) => {
   console.log(`User connected:..... ${socket.id}`);
 
   socket.on("anomaliesDetected", (anomalies) => {
-    console.log("Received anomalies:", anomalies);
+    console.log("Received data:", anomalies);
   });
 
   socket.on("join", async (userId, otherId) => {
