@@ -63,7 +63,8 @@ Full Application Integration
 - [ ] login/logout process fix
 - [ ] all back js -> ts
 - [ ] anomaly detection progressing ....
-- [ ]
+- [ ] user activity tracker
+- [ ] fasting schedule
 
 Workout recommendation
 anomaly detection

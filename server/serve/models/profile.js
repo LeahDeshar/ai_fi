@@ -159,7 +159,8 @@ const profileSchema = new mongoose.Schema({
     type: String,
     default: "No recommendation yet",
   },
-
+  dailyWaterIntake: { type: Number, required: true },
+  dailyCalorieIntake: { type: Number, required: true },
   preferredDietType: {
     type: String,
     enum: [
@@ -223,7 +224,6 @@ profileSchema.methods.calculateWaterIntake = function () {
   return parseFloat(waterIntakeInLiters.toFixed(2));
 };
 
-// Recommend daily steps based on BMI
 profileSchema.methods.recommendDailySteps = function () {
   const bmi = this.calculateBMI();
   let recommendation;
@@ -246,12 +246,11 @@ profileSchema.methods.calculateWeightLossDuration = function () {
     ? this.currentHeight.centimeters
     : this.currentHeight.feet * 30.48 + this.currentHeight.inches * 2.54;
   const currentWeight =
-    this.currentWeight.kilograms || this.currentWeight.pounds / 2.20462; // Convert pounds to kg if needed
+    this.currentWeight.kilograms || this.currentWeight.pounds / 2.20462;
   const goalWeight =
-    this.goalWeight.kilograms || this.goalWeight.pounds / 2.20462; // Convert pounds to kg if needed
+    this.goalWeight.kilograms || this.goalWeight.pounds / 2.20462;
   const activityLevel = this.activityLevel;
 
-  // Calculate BMR using Mifflin-St Jeor Equation
   let BMR;
   if (gender === "male") {
     BMR = 10 * currentWeight + 6.25 * heightCm - 5 * age + 5;
@@ -259,7 +258,6 @@ profileSchema.methods.calculateWeightLossDuration = function () {
     BMR = 10 * currentWeight + 6.25 * heightCm - 5 * age - 161;
   }
 
-  // Adjust for activity level
   let activityFactor;
   if (activityLevel < 20) activityFactor = 1.2;
   else if (activityLevel < 40) activityFactor = 1.375;
@@ -269,7 +267,6 @@ profileSchema.methods.calculateWeightLossDuration = function () {
 
   let dailyCalorieNeeds = BMR * activityFactor;
 
-  // Calculate weight to lose
   let weightToLose = currentWeight - goalWeight;
   let weightToLoseInPounds = weightToLose * 2.20462;
 
@@ -285,7 +282,6 @@ profileSchema.methods.calculateWeightLossDuration = function () {
   const minMonths = minWeeks / 4;
   const maxMonths = maxWeeks / 4;
 
-  // Return the calculated weight loss duration and recommended calorie intake
   return {
     weeks: {
       minWeeks: Math.ceil(minWeeks),
