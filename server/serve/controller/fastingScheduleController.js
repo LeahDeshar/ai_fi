@@ -103,7 +103,6 @@ export const updateUserSchedule = async (req, res) => {
     res.json({
       message: "Fasting schedule updated",
       updatedSchedule,
-      // time in string
       startTime: updatedSchedule.startTime.toLocaleString(),
       endTime: updatedSchedule.endTime.toLocaleString(),
     });

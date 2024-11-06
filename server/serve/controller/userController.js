@@ -4,6 +4,7 @@ import cloudinary from "cloudinary";
 import { getDataUri } from "../util/features.js";
 import { client } from "../util/redis.js";
 import FastingSchedule from "../models/FastingScheduleSchema.js";
+import UserActivity from "../models/activitySchema.js";
 
 export const registerController = async (req, res) => {
   try {
@@ -271,8 +272,22 @@ export const createUserProfileController = async (req, res) => {
       fastingHours,
       eatingHours,
     });
-
     await fastingSchedule.save();
+
+    const activityData = {
+      userId: userId,
+      date: new Date(),
+      waterIntake: 0,
+      calorieIntake: 0,
+      sleepDuration: 0,
+      dailySteps: 0,
+      fastingOption: "16:8",
+      fastingStartTime: new Date(),
+      fastingEndTime: new Date(new Date().getTime() + 16 * 60 * 60 * 1000),
+      isFastingAdhered: false,
+      fastingDeviation: 0,
+    };
+    await new UserActivity(activityData).save();
 
     const existingProfile = await Profile.findOne({ user: userId });
     if (existingProfile) {
@@ -417,11 +432,7 @@ export const createUserProfileController = async (req, res) => {
       category: parsedCategory,
       role,
     });
-
-    // Save new profile
     await newProfile.save();
-
-    // Link profile to user
     await Users.findByIdAndUpdate(userId, { profile: newProfile._id });
 
     // Recommend daily steps based on BMI and update profile
