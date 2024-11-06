@@ -161,11 +161,14 @@ export const getAllUserActivity = async (req, res) => {
     const cacheKey = `user-activity:${userId}`;
     const cachedData = await client.get(cacheKey);
     if (cachedData) {
+      req.io.emit("userActivities", { activities: JSON.parse(cachedData) });
+
       console.log("Data retrieved from cache");
       return res.status(200).json({ activities: JSON.parse(cachedData) });
     }
 
     const activities = await UserActivity.find({ userId });
+    req.io.emit("userActivities", { activities });
 
     client.set(cacheKey, JSON.stringify(activities), "EX", 259200);
 

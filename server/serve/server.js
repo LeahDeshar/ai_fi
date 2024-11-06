@@ -43,6 +43,10 @@ const io = new Server(httpServer, {
     methods: ["GET", "POST", "DELETE", "UPDATE"],
   },
 });
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
 app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/workout", workoutRoutes);
@@ -58,6 +62,10 @@ app.use("/api/v1/fitness", recomRoutes);
 
 io.on("connection", (socket) => {
   console.log(`User connected:..... ${socket.id}`);
+
+  socket.on("anomaliesDetected", (anomalies) => {
+    console.log("Received anomalies:", anomalies);
+  });
 
   socket.on("join", async (userId, otherId) => {
     socket.join(userId);
