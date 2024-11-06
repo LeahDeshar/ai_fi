@@ -62,9 +62,12 @@ Full Application Integration
 - [x] algorithm base and redis
 - [ ] login/logout process fix
 - [ ] all back js -> ts
+- [x] user activity tracker
+- [x] fasting schedule
+
 - [ ] anomaly detection progressing ....
-- [ ] user activity tracker
-- [ ] fasting schedule
+- [x] year worth activity information of the user mock data
+- [ ] getAllUserActivity
 
 Workout recommendation
 anomaly detection

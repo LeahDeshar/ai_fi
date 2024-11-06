@@ -1,54 +1,8 @@
 import UserActivity from "../models/activitySchema.js";
 import FastingSchedule from "../models/FastingScheduleSchema.js";
-
-// const checkAndCreateActivity = async (userId) => {
-//   const today = new Date();
-//   const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-//   const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-
-//   const activityExists = await Activity.findOne({
-//     userId: userId,
-//     date: {
-//       $gte: startOfDay,
-//       $lte: endOfDay,
-//     },
-//   });
-
-//   // If activity doesn't exist, create a new one
-//   if (!activityExists) {
-//     // Fetch the user's current fasting settings
-//     const user = await User.findById(userId);
-//     if (!user) {
-//       throw new Error("User not found");
-//     }
-
-//     const fastingOption = user.fastingOption || "16:8"; // Default to "16:8" if not set
-//     const fastingStartTime = user.fastingStartTime || new Date(); // Default to now if not set
-//     const fastingHours = parseInt(fastingOption.split(":")[0]);
-
-//     // Calculate fasting end time based on fasting hours and start time
-//     const fastingEndTime = new Date(
-//       fastingStartTime.getTime() + fastingHours * 60 * 60 * 1000
-//     );
-
-//     // Create a new activity for today with the user's current fasting settings
-//     const newActivity = new Activity({
-//       userId: userId,
-//       date: new Date(), // Set to today
-//       waterIntake: 0,
-//       calorieIntake: 0,
-//       sleepDuration: 0,
-//       dailySteps: 0,
-//       fastingOption: fastingOption,
-//       fastingStartTime: fastingStartTime,
-//       fastingEndTime: fastingEndTime,
-//     });
-
-//     await newActivity.save();
-//   }
-// };
-
-// Example API endpoint to create activity for the next day
+import WeeklySummary from "../models/weeklySummarySchema.js";
+import moment from "moment";
+import { client } from "../util/redis.js";
 
 const checkAndCreateActivity = async (userId) => {
   const today = new Date();
@@ -184,5 +138,40 @@ export const updateUserActivity = async (req, res) => {
     return res
       .status(500)
       .json({ message: "Server error", error: error.message });
+  }
+};
+
+// delete all the useractivity of the user
+export const deleteAllUserActivity = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    await UserActivity.deleteMany({ userId });
+    res.status(200).json({ message: "All activities deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error deleting activities", error });
+  }
+};
+
+// get all te useractivity of the user
+export const getAllUserActivity = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const cacheKey = `user-activity:${userId}`;
+    const cachedData = await client.get(cacheKey);
+    if (cachedData) {
+      console.log("Data retrieved from cache");
+      return res.status(200).json({ activities: JSON.parse(cachedData) });
+    }
+
+    const activities = await UserActivity.find({ userId });
+
+    client.set(cacheKey, JSON.stringify(activities), "EX", 259200);
+
+    res.status(200).json({ activities });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error getting activities", error });
   }
 };
