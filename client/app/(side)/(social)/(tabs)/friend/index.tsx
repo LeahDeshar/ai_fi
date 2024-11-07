@@ -18,7 +18,7 @@ import {
 import Button from "@/components/Button";
 
 const FriendScreen = () => {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const navigation = useNavigation();
 
   const { data: userProfile } = useGetallUsersProfileQuery();
@@ -86,16 +86,14 @@ const FriendScreen = () => {
               >
                 <Button
                   title="Add Friend"
-                  handlePress={() =>
-                    navigation.navigate("ViewProfile", {
-                      user: JSON.stringify(item),
-                    })
-                  }
+                  handlePress={() => console.log("Add friend")}
                 />
                 <Button
                   title="View Profile"
                   handlePress={() => {
-                    console.log("Profile");
+                    navigation.navigate("ViewProfile", {
+                      user: JSON.stringify(item),
+                    });
                   }}
                 />
               </View>
