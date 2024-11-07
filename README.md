@@ -67,8 +67,14 @@ Full Application Integration
 
 - [ ] anomaly detection progressing ....
 - [x] year worth activity information of the user mock data
-- [ ] getAllUserActivity
+- [x] getAllUserActivity
 
 Workout recommendation
 anomaly detection
 GCN social media features
+
+- [ ] social media features
+  - [ ] display "to find friend if the user is not friend with anyone" and -->
+  - [ ] list all user that a user is not friend with
+  - [ ] list all user that a user is a friend with
+  - [ ]

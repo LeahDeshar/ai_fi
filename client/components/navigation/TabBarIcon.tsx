@@ -15,10 +15,13 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { StyleProp, TextStyle } from "react-native";
 import { type IconProps } from "@expo/vector-icons/build/createIconSet";
 import { type ComponentProps } from "react";
+import { FontAwesome, FontAwesome6 } from "@expo/vector-icons";
 
 const iconSets = {
   Ionicons,
   MaterialCommunityIcons,
+  FontAwesome6,
+  FontAwesome,
 };
 
 type IconNames =

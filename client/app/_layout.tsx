@@ -196,6 +196,33 @@ const InnerStack = () => {
           ),
         })}
       />
+
+      <Stack.Screen
+        name="ViewProfile"
+        options={({ navigation }) => ({
+          headerTitle: "Profile",
+          headerTintColor: colors.text,
+          headerTransparent: true,
+          headerBlurEffect: "prominent",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "rgba(0, 0, 0, 0.2)",
+          },
+
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ marginLeft: 5 }}
+            >
+              <MaterialIcons
+                name="arrow-back-ios-new"
+                size={24}
+                color={colors.text}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      />
       <Stack.Screen
         name="LoginScreen"
         options={{

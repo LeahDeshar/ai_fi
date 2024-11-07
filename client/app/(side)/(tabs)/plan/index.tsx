@@ -14,6 +14,11 @@ import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { StackScreenWithSearchBar } from "@/constants/layout";
 import { StatusBar } from "react-native";
+import {
+  useGetallUsersProfileQuery,
+  useGetProfileQuery,
+} from "@/redux/api/apiClient";
+import { useSelector } from "react-redux";
 
 const planScreen = () => {
   const navigation = useNavigation();
@@ -56,6 +61,17 @@ const planScreen = () => {
   const handleNavigate = (path) => () => {
     navigation.navigate(path);
   };
+
+  const { data: userProfile } = useGetallUsersProfileQuery();
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+  const { data: profile, error, isLoading } = useGetProfileQuery();
+  // console.log(// profile.profileOfUsers.role);
+  // const currentUserRole = profile?.profileOfUsers?.role;
+  // const filteredUsers = userProfile?.data?.filter((trainer) =>
+  //   currentUserRole === "coach"
+  //     ? trainer.role === "user"
+  //     : trainer.role === "coach"
+  // );
   return (
     <View
       style={[
@@ -75,6 +91,9 @@ const planScreen = () => {
         }}
         contentInsetAdjustmentBehavior="automatic"
       >
+        {/* <View style={{
+          backgroundColor: "#5f5f5f9c"
+        }}></View> */}
         <View>
           {/* <View
             style={{
