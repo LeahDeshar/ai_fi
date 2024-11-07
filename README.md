@@ -75,6 +75,24 @@ GCN social media features
 
 - [ ] social media features
   - [ ] display "to find friend if the user is not friend with anyone" and -->
+  - [ ] all the social media models
+  - [ ] controller
+  - [ ] routes
+  - [ ] test
   - [ ] list all user that a user is not friend with
   - [ ] list all user that a user is a friend with
-  - [ ]
+
+Summary of Features for Networking:
+Friendship/Follow System: Friend requests, following, and friends list.
+Social Feed/Activity Feed: Post, comment, like, and tag.
+Groups/Communities: Join public/private groups, group challenges.
+Mentorship/Coaching: Mentorship programs, coaching feedback, and direct messaging.
+Messaging: Direct and group messaging, media sharing.
+Achievements & Badges: Fitness achievements, badges, and leaderboards.
+Event Scheduling: Schedule fitness events, sessions, and classes.
+Profile Customization: Personalize profiles with fitness history, goals, and achievements.
+Notifications & Alerts: Real-time notifications for interactions and reminders.
+Gamification: Challenges, rewards, and leaderboards.
+Tracker Integration: Sync with fitness devices and share activity.
+User Reviews and Ratings: Review coaches, programs, and others.
+Search & Discovery: Search for users, content, or activities.

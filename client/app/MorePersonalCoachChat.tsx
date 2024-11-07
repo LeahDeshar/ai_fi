@@ -26,6 +26,7 @@ import { Button } from "react-native";
 import { BlurView } from "expo-blur";
 import * as Notifications from "expo-notifications";
 import { HelloWave } from "@/components/HelloWave";
+
 const SOCKET_SERVER_URL = "http://192.168.1.11:8080";
 const socket = io(SOCKET_SERVER_URL);
 type RootStackParamList = {
