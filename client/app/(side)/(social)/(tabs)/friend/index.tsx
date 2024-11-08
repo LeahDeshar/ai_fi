@@ -1,79 +1,3 @@
-//   const userId = user._id;
-
-//   // const filteredUsers = userProfile?.data?.filter((trainer) =>
-//   //   currentUserRole === "coach"
-//   //     ? trainer.role === "coach"
-//   //     : trainer.role === "user"
-//   // );
-//   const [friendStatuses, setFriendStatuses] = useState({}); // Track friend request statuses
-
-//   const filteredUsers = userProfile?.data?.filter((trainer) =>
-//     currentUserRole === "coach"
-//       ? trainer.role === "coach"
-//       : trainer.role === "user"
-//   );
-
-//   useEffect(() => {
-//     // Listen for incoming friend request updates
-//     socket.on("friendRequestUpdate", (notification) => {
-//       const { recipient, status } = notification;
-//       setFriendStatuses((prevStatuses) => ({
-//         ...prevStatuses,
-//         [recipient]: status,
-//       }));
-//     });
-
-//     return () => {
-//       socket.off("friendRequestUpdate");
-//     };
-//   }, []);
-
-//   const handleFriendRequest = async ({ requesterId, recipientId }) => {
-//     try {
-//       const response = await axios.post(
-//         `${SOCKET_SERVER_URL}/api/v1/social/request`,
-//         {
-//           requester: requesterId,
-//           recipient: recipientId,
-//         }
-//       );
-//       // Update local status to "pending" after sending the request
-//       setFriendStatuses((prevStatuses) => ({
-//         ...prevStatuses,
-//         [recipientId]: "pending",
-//       }));
-//       console.log("Friend request sent:", response.data);
-//     } catch (error) {
-//       console.error("Error sending friend request:", error);
-//       Alert.alert("Error", "Failed to send friend request");
-//     }
-//   };
-//   // useEffect(() => {
-//   //   socket.on("friendRequest", (notification) => {
-//   //     Alert.alert("Notification", notification.message);
-//   //   });
-
-//   //   return () => {
-//   //     socket.off("friendRequest");
-//   //   };
-//   // }, [userId]);
-
-//   // const handleFriendRequest = async ({ requesterId, recipientId }) => {
-//   //   try {
-//   //     const response = await axios.post(
-//   //       `${SOCKET_SERVER_URL}/api/v1/social/request`,
-//   //       {
-//   //         requester: requesterId,
-//   //         recipient: recipientId,
-//   //       }
-//   //     );
-//   //     console.log("Friend request sent:", response.data);
-//   //   } catch (error) {
-//   //     console.error("Error sending friend request:", error);
-//   //     throw error;
-//   //   }
-//   // };
-
 import React, { useEffect, useState } from "react";
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "@/constants/ThemeProvider";
@@ -144,7 +68,7 @@ const FriendScreen = () => {
 
   useEffect(() => {
     fetchRequests();
-
+    handleFetchList();
     socket.on("friendRequestUpdate", (notification) => {
       fetchRequests();
     });
@@ -260,7 +184,9 @@ const FriendScreen = () => {
       <Friends acceptedFriends={acceptedFriends} colors={colors} />
     ),
   });
-
+  const filteredUsers = availUsers.filter(
+    (pep) => pep?.profile && pep?.profile.role === "user"
+  );
   return (
     <>
       <View
@@ -275,82 +201,105 @@ const FriendScreen = () => {
             paddingVertical: 10,
           }}
         >
-          {availUsers?.map(
-            (pep, index) =>
-              pep?.profile &&
-              pep?.profile.role == "user" && ( // Check if user.profile exists
-                <TouchableOpacity
-                  key={index}
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map((pep, index) => (
+              <TouchableOpacity
+                key={index}
+                style={{
+                  padding: 10,
+                  marginHorizontal: 10,
+                  borderRadius: 25,
+                  backgroundColor: colors.opacity,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Image
+                  source={{ uri: pep.profile.profilePic.url }}
+                  style={{ width: "100%", height: 120, borderRadius: 25 }}
+                />
+                <Text
                   style={{
-                    padding: 10,
-                    marginHorizontal: 10,
-                    borderRadius: 25,
-                    backgroundColor: colors.opacity,
-                    alignItems: "center",
-                    justifyContent: "center",
+                    marginVertical: 5,
+                    marginTop: 10,
+                    fontSize: 16,
+                    fontWeight: "bold",
+                    color: colors.text,
                   }}
                 >
-                  <Image
-                    source={{ uri: pep.profile.profilePic.url }}
-                    style={{ width: "100%", height: 120, borderRadius: 25 }}
-                  />
-                  <Text
+                  {pep?.profile.name}
+                </Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                    marginTop: 10,
+                    gap: 10,
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() =>
+                      handleFriendRequest({
+                        requesterId: user._id,
+                        recipientId: pep._id,
+                      })
+                    }
                     style={{
-                      marginVertical: 5,
-                      marginTop: 10,
-                      fontSize: 16,
-                      fontWeight: "bold",
-                      color: colors.text,
+                      backgroundColor: colors.primary,
+                      paddingVertical: 8,
+                      paddingHorizontal: 15,
+                      borderRadius: 25,
                     }}
                   >
-                    {pep?.profile.name}
-                  </Text>
-                  <View
+                    <Text style={{ color: colors.text, fontWeight: "500" }}>
+                      Add
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
                     style={{
-                      flexDirection: "row",
-                      justifyContent: "space-around",
-                      marginTop: 10,
-                      gap: 10,
+                      backgroundColor: colors.primary,
+                      paddingVertical: 8,
+                      paddingHorizontal: 15,
+                      borderRadius: 25,
+                    }}
+                    onPress={() => {
+                      navigation.navigate("ViewProfile", {
+                        user: JSON.stringify(pep.profile),
+                      });
                     }}
                   >
-                    <TouchableOpacity
-                      onPress={() =>
-                        handleFriendRequest({
-                          requesterId: user._id,
-                          recipientId: pep._id,
-                        })
-                      }
-                      style={{
-                        backgroundColor: colors.primary,
-                        paddingVertical: 8,
-                        paddingHorizontal: 15,
-                        borderRadius: 25,
-                      }}
-                    >
-                      <Text style={{ color: colors.text, fontWeight: "500" }}>
-                        Add
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={{
-                        backgroundColor: colors.primary,
-                        paddingVertical: 8,
-                        paddingHorizontal: 15,
-                        borderRadius: 25,
-                      }}
-                      onPress={() => {
-                        navigation.navigate("ViewProfile", {
-                          user: JSON.stringify(pep.profile),
-                        });
-                      }}
-                    >
-                      <Text style={{ color: colors.text, fontWeight: "500" }}>
-                        View
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </TouchableOpacity>
-              )
+                    <Text style={{ color: colors.text, fontWeight: "500" }}>
+                      View
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <View
+              style={{
+                padding: 10,
+                marginHorizontal: 10,
+                borderRadius: 25,
+                backgroundColor: colors.opacity,
+                alignItems: "center",
+                justifyContent: "center",
+                width: 150,
+                height: 150,
+              }}
+            >
+              <Text
+                style={{
+                  marginVertical: 5,
+                  marginTop: 10,
+                  fontSize: 16,
+                  fontWeight: "bold",
+                  color: colors.text,
+                }}
+              >
+                No users available
+              </Text>
+            </View>
           )}
         </ScrollView>
       </View>
@@ -363,7 +312,7 @@ const FriendScreen = () => {
           <TabBar
             {...props}
             style={{
-              backgroundColor: colors.opacity,
+              backgroundColor: colors.background,
             }}
             indicatorStyle={{
               backgroundColor: colors.primary,
@@ -392,10 +341,7 @@ const NewRequests = ({
   <ScrollView style={{ backgroundColor: colors.background, paddingTop: 20 }}>
     {newRequests?.length > 0 ? (
       newRequests.map((request, index) => (
-        <View
-          key={index}
-          style={{ flexDirection: "row", padding: 15, borderBottomWidth: 1 }}
-        >
+        <View key={index} style={{ flexDirection: "row", padding: 15 }}>
           <Image
             source={{ uri: request?.requester?.profile.profilePic.url }}
             style={{ width: 50, height: 50, borderRadius: 25 }}
@@ -466,7 +412,7 @@ const PendingRequests = ({ pendingRequests, colors }) => (
           style={{
             flexDirection: "row",
             padding: 15,
-            borderBottomWidth: 1,
+
             alignItems: "center",
             gap: 20,
           }}
@@ -504,7 +450,6 @@ const Friends = ({ acceptedFriends, colors }) => (
           style={{
             flexDirection: "row",
             padding: 15,
-            borderBottomWidth: 1,
             alignItems: "center",
             gap: 20,
           }}

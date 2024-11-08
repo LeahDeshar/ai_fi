@@ -12,6 +12,11 @@ const messageSchema = new mongoose.Schema({
     required: true,
   },
   text: { type: String, required: true },
+  sharedPost: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Post",
+    default: null,
+  },
   timestamp: { type: Date, default: Date.now },
 });
 

@@ -13,6 +13,8 @@ import equipmentRoutes from "./routes/equipmentRoutes.js";
 import activityRoutes from "./routes/activityRoutes.js";
 import weeklyRoutes from "./routes/weeklySummaryRoutes.js";
 import setupFriendRoutes from "./routes/friendshipRoutes.js";
+import setupPostRoutes from "./routes/postRoutes.js";
+
 import fastingRoutes from "./routes/fastingRoutes.js";
 import exerciseRoutes from "./routes/exeRoutes.js";
 import recomRoutes from "./routes/recommendation.js";
@@ -58,6 +60,7 @@ app.use("/api/v1/fasting", fastingRoutes);
 app.use("/api/v1/daily", activityRoutes);
 app.use("/api/v1/weekly", weeklyRoutes);
 app.use("/api/v1/social", setupFriendRoutes(io));
+app.use("/api/v1/post", setupPostRoutes(io));
 
 // Recommendation
 app.use("/api/v1/fitness", recomRoutes);

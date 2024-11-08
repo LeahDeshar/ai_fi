@@ -74,13 +74,17 @@ anomaly detection
 GCN social media features
 
 - [ ] social media features
-  - [ ] display "to find friend if the user is not friend with anyone" and -->
-  - [ ] all the social media models
+  - [x] display "to find friend if the user is not friend with anyone" and -->
+  - [x] all the social media models
   - [ ] controller
   - [ ] routes
   - [ ] test
-  - [ ] list all user that a user is not friend with
-  - [ ] list all user that a user is a friend with
+  - [x] list all user that a user is not friend with
+  - [x] list all user that a user is a friend with
+  - [ ] Post, comment, like, and tag.
+    - [ ] post and comment models
+    - [ ] controller and routes with socket
+    - [ ] front end integration
 
 Summary of Features for Networking:
 Friendship/Follow System: Friend requests, following, and friends list.

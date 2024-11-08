@@ -4,17 +4,17 @@ const postSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Users",
       required: true,
     },
     content: {
       type: String,
-      required: true,
       trim: true,
     },
     media: [
       {
-        url: { type: String, required: true }, // URL to the media file (image, video, etc.)
+        public_id: { type: String, required: true },
+        url: { type: String, required: true },
         type: {
           type: String,
           enum: ["image", "video", "audio", "other"],
@@ -25,13 +25,13 @@ const postSchema = new mongoose.Schema(
     tags: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Users",
       },
     ],
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Users",
       },
     ],
     comments: [
@@ -60,7 +60,7 @@ const postSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true,
   }
 );
 
