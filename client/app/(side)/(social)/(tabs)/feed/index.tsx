@@ -12,6 +12,8 @@ import { useGetAllUserPostQuery } from "@/redux/api/apiClient";
 import { useTheme } from "@/constants/ThemeProvider";
 import { Video } from "expo-av";
 const { width } = Dimensions.get("window");
+import Carousel from "react-native-reanimated-carousel";
+
 const FeedScreen = () => {
   const { colors } = useTheme();
   const { data: posts, error, isLoading } = useGetAllUserPostQuery();
@@ -53,34 +55,22 @@ const FeedScreen = () => {
     }
     return null;
   };
-  const renderPost = ({ item }) => (
-    <View style={[styles.postCard, { backgroundColor: colors.card }]}>
-      {/* Render Multiple Media */}
-      <View style={styles.mediaContainer}>
-        {item.media.map((mediaItem) => renderMedia(mediaItem))}
-      </View>
 
-      {/* Post Content */}
-      <View style={styles.postContent}>
-        <Text style={[styles.postTitle, { color: colors.text }]}>
-          Post {item._id}
-        </Text>
-        <Text style={[styles.postBody, { color: colors.text }]}>
-          Created at: {new Date(item.createdAt).toLocaleString()}
-        </Text>
-      </View>
+  const renderCarousel = (media) => {
+    return (
+      <Carousel
+        data={media}
+        renderItem={({ item }) => renderMedia(item)}
+        width={width}
+        height={500} // Set height according to aspect ratio
+        scrollAnimationDuration={300}
+        loop={false}
+        mode="parallax"
+        parallaxOffset={50}
+      />
+    );
+  };
 
-      {/* Action Buttons */}
-      <View style={styles.postActions}>
-        <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionButtonText}>Like</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionButtonText}>Comment</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Text style={[styles.title, { color: colors.primary }]}>User Feed</Text>
@@ -88,7 +78,47 @@ const FeedScreen = () => {
       <FlatList
         data={posts}
         keyExtractor={(item) => item._id}
-        renderItem={renderPost}
+        renderItem={({ item }) => (
+          <View
+            style={[
+              {
+                marginBottom: 16,
+                borderRadius: 10,
+                overflow: "hidden",
+                marginHorizontal: 15,
+
+                padding: 10,
+              },
+              { backgroundColor: colors.opacity },
+            ]}
+          >
+            {/* Render Media Carousel (Images and Videos) */}
+            {item.media && item.media.length > 1
+              ? renderCarousel(item.media)
+              : item.media &&
+                item.media.map((mediaItem) => renderMedia(mediaItem))}
+
+            {/* Post Content */}
+            <View style={styles.postContent}>
+              <Text style={[styles.postTitle, { color: colors.text }]}>
+                Post {item._id}
+              </Text>
+              <Text style={[styles.postBody, { color: colors.text }]}>
+                Created at: {new Date(item.createdAt).toLocaleString()}
+              </Text>
+            </View>
+
+            {/* Action Buttons */}
+            <View style={styles.postActions}>
+              <TouchableOpacity style={styles.actionButton}>
+                <Text style={styles.actionButtonText}>Like</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.actionButton}>
+                <Text style={styles.actionButtonText}>Comment</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       />
     </View>
   );
@@ -97,7 +127,8 @@ const FeedScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    // padding: 16,
+    paddingTop: 110,
   },
   title: {
     fontSize: 24,
@@ -113,33 +144,21 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "red",
   },
-  postCard: {
-    marginBottom: 16,
+  postCard: {},
+  postImage: {
+    width: "100%",
+    height: 450,
+    right: 30,
     borderRadius: 10,
-    overflow: "hidden",
-    padding: 10,
-    elevation: 5, // Shadow effect for Android
-    shadowColor: "#000", // iOS shadow
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    marginHorizontal: 10,
-  },
-  mediaContainer: {
-    flexDirection: "row", // Display media horizontally
-    flexWrap: "wrap", // Allow media to wrap to the next row
     marginBottom: 10,
   },
-  postImage: {
-    width: width / 2 - 20, // 2 images per row
-    height: width / 2 - 20, // Maintain square aspect ratio
-    margin: 5,
-    borderRadius: 10,
-  },
   postVideo: {
-    width: width - 20, // Full width for videos
-    height: width * (9 / 16), // 16:9 aspect ratio
-    margin: 10,
+    width: "100%",
+    height: 450,
+    right: 30,
+
     borderRadius: 10,
+    marginBottom: 10,
   },
   postContent: {
     marginVertical: 10,
@@ -168,5 +187,4 @@ const styles = StyleSheet.create({
     color: "#333",
   },
 });
-
 export default FeedScreen;
