@@ -51,6 +51,9 @@ export const authApi = createApi({
     getallUsersProfile: builder.query({
       query: () => "/auth/get-all-user",
     }),
+    getAllUserPost: builder.query({
+      query: () => "/post/all",
+    }),
     createProfile: builder.mutation({
       query: (profileData) => {
         const formData = new FormData();
@@ -111,4 +114,5 @@ export const {
   useGetProfileQuery,
   useCreateProfileMutation,
   useGetallUsersProfileQuery,
+  useGetAllUserPostQuery,
 } = authApi;

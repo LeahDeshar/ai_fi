@@ -5,6 +5,7 @@ import { defaultStyles } from "@/styles";
 import { useTheme } from "@/constants/ThemeProvider";
 import { Image } from "react-native";
 import Button from "@/components/Button";
+import { useRoute } from "@react-navigation/native";
 
 const ViewProfile = () => {
   const { user } = useLocalSearchParams();
@@ -17,7 +18,7 @@ const ViewProfile = () => {
     }
   }, [user]);
 
-  console.log(profile);
+  console.log(user);
   return (
     <View
       style={[

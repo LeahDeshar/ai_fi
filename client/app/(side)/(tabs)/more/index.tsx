@@ -91,8 +91,7 @@ const MoreScreen = () => {
   const { user, token, isLoggedIn } = useSelector((state) => state.auth);
   const { data: profile, error, isLoading } = useGetProfileQuery();
 
-  console.log("Test", profile);
-
+  const userProfile = profile?.profileOfUsers || null;
   return (
     <View
       style={[
@@ -109,8 +108,7 @@ const MoreScreen = () => {
         contentInsetAdjustmentBehavior="automatic"
       >
         <ThemedView>
-          <TouchableOpacity
-            onPress={() => navigation.push("MyProfile")}
+          <View
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
@@ -120,7 +118,18 @@ const MoreScreen = () => {
               borderBottomColor: "#4a4a4a5f",
             }}
           >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TouchableOpacity
+              onPress={() => {
+                if (userProfile) {
+                  navigation.push("ViewProfile", {
+                    user: JSON.stringify(userProfile),
+                  });
+                } else {
+                  console.log("User profile data is missing.");
+                }
+              }}
+              style={{ flexDirection: "row", alignItems: "center" }}
+            >
               <Image
                 source={{
                   uri:
@@ -135,13 +144,16 @@ const MoreScreen = () => {
                 </Text>
                 <Text style={{ color: colors.text }}>My Profile</Text>
               </View>
-            </View>
-            <MaterialIcons
-              style={{ color: colors.text }}
-              name="chevron-right"
-              size={24}
-            />
-          </TouchableOpacity>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => navigation.push("MyProfile")}>
+              <MaterialIcons
+                style={{ color: colors.text }}
+                name="chevron-right"
+                size={24}
+              />
+            </TouchableOpacity>
+          </View>
         </ThemedView>
 
         <TouchableOpacity
