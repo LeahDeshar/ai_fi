@@ -50,6 +50,7 @@ const MoreItems: MoreItem[] = [
 
 const renderItem = (item: MoreItem) => {
   const navigation = useRouter();
+  const nav = useNavigation();
   const { colors } = useTheme();
   const { user, token, isLoggedIn } = useSelector((state) => state.auth);
   const handlePress = (path) => {
@@ -87,11 +88,13 @@ const renderItem = (item: MoreItem) => {
 const MoreScreen = () => {
   const { colors } = useTheme();
   const navigation = useRouter();
+  const nav = useNavigation();
 
   const { user, token, isLoggedIn } = useSelector((state) => state.auth);
   const { data: profile, error, isLoading } = useGetProfileQuery();
 
   const userProfile = profile?.profileOfUsers || null;
+
   return (
     <View
       style={[
@@ -121,7 +124,7 @@ const MoreScreen = () => {
             <TouchableOpacity
               onPress={() => {
                 if (userProfile) {
-                  navigation.push("ViewProfile", {
+                  nav.navigate("ViewProfile", {
                     user: JSON.stringify(userProfile),
                   });
                 } else {

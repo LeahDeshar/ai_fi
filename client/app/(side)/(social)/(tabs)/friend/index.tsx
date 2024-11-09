@@ -456,9 +456,7 @@ const Friends = ({ acceptedFriends, colors }) => (
         >
           <Image
             source={{
-              uri:
-                friend.requester?.profile?.profilePic.url ||
-                friend.recipient?.profile?.profilePic.url,
+              uri: friend.recipient?.profile?.profilePic.url,
             }}
             style={{ width: 50, height: 50, borderRadius: 25 }}
           />
@@ -466,8 +464,7 @@ const Friends = ({ acceptedFriends, colors }) => (
             <Text
               style={{ fontSize: 16, fontWeight: "600", color: colors.text }}
             >
-              {friend.requester?.profile?.name ||
-                friend.recipient?.profile?.name}
+              {friend.recipient?.profile?.name}
             </Text>
             <View
               style={{
