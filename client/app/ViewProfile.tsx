@@ -1,6 +1,7 @@
 import {
   Dimensions,
   FlatList,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -22,7 +23,15 @@ import {
 } from "@/redux/api/apiClient";
 import { BlurView } from "expo-blur";
 import PostDate from "@/utils/PostDate";
-import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Entypo,
+  EvilIcons,
+  Feather,
+  FontAwesome,
+  Fontisto,
+  Ionicons,
+} from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 const { width } = Dimensions.get("window");
 
@@ -95,6 +104,25 @@ const ViewProfile = () => {
       />
     );
   };
+
+  const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState(null);
+
+  // Function to open the comment section for a specific post
+  const openComments = (postId) => {
+    console.log(postId);
+    setSelectedPostId(postId);
+    setIsCommentModalVisible(true);
+  };
+
+  // Function to close the comment modal
+  const closeCommentModal = () => {
+    setIsCommentModalVisible(false);
+    setSelectedPostId(null);
+  };
+  // const handleCommentPress = () => {
+  //   openComments(item.id); // Call function to open comment section for this post
+  // };
   return (
     <View
       style={[
@@ -107,82 +135,122 @@ const ViewProfile = () => {
     >
       <FlatList
         data={posts}
-        keyExtractor={(item) => item._id}
+        keyExtractor={(item) => item?._id}
         renderItem={({ item }) => (
           <View
-            // tint="light"
-            style={{
-              marginBottom: 25,
+            style={[
+              {
+                marginBottom: 16,
+                overflow: "hidden",
+                borderBottomWidth: 0.5,
+                borderTopWidth: 0.5,
+                borderBottomColor: "#cccccc2a",
+                borderTopColor: "#cccccc2a",
 
-              overflow: "hidden",
-            }}
+                paddingVertical: 10,
+              },
+            ]}
           >
             <View
-              style={[
-                {
-                  marginBottom: 16,
-                  borderRadius: 10,
-                  overflow: "hidden",
-                },
-              ]}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginHorizontal: 8,
+                marginVertical: 10,
+              }}
+            >
+              <Image
+                source={{ uri: profile?.profilePic?.url }}
+                style={{ width: 40, height: 40, borderRadius: 50 }}
+              />
+              <View
+                style={{
+                  marginLeft: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    color: colors.text,
+                    fontSize: 16,
+                    fontWeight: "semibold",
+                  }}
+                >
+                  {profile?.name}
+                </Text>
+                <PostDate colors={colors} createdAt={item.createdAt} />
+              </View>
+            </View>
+            {item.content && (
+              <View
+                style={{
+                  marginVertical: 15,
+                  marginHorizontal: 8,
+                }}
+              >
+                <Text style={{ color: colors.text, fontSize: 15 }}>
+                  {item.content}
+                </Text>
+              </View>
+            )}
+
+            {item.media && item.media.length > 1
+              ? renderCarousel(item.media)
+              : item.media &&
+                item.media.map((mediaItem) => renderMedia(mediaItem))}
+
+            <View style={styles.postActions}>
+              <TouchableOpacity style={styles.actionButton}>
+                <Entypo name="thumbs-up" size={20} color={colors.text} />
+                <Text style={[{ color: colors.text }, styles.actionText]}>
+                  Like
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => openComments(item._id)}
+              >
+                <EvilIcons name="comment" size={25} color={colors.text} />
+                <Text style={[{ color: colors.text }, styles.actionText]}>
+                  Comment
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.actionButton}>
+                <Fontisto name="share-a" size={20} color={colors.text} />
+                <Text style={[{ color: colors.text }, styles.actionText]}>
+                  Share
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <Modal
+              visible={isCommentModalVisible}
+              transparent={true}
+              animationType="slide"
+              onRequestClose={closeCommentModal}
             >
               <View
                 style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginHorizontal: 8,
-                  marginVertical: 10,
+                  flex: 1,
+                  justifyContent: "flex-end",
+                  backgroundColor: "rgba(0, 0, 0, 0.3)",
                 }}
               >
-                <Image
-                  source={{ uri: profile?.profilePic?.url }}
-                  style={{ width: 40, height: 40, borderRadius: 50 }}
-                />
                 <View
                   style={{
-                    marginLeft: 10,
+                    width: "100%",
+                    padding: 20,
+                    backgroundColor: "white",
+                    borderTopRightRadius: 10,
+                    borderTopLeftRadius: 10,
+                    height: 400,
                   }}
                 >
-                  <Text
-                    style={{
-                      color: colors.text,
-                      fontSize: 16,
-                      fontWeight: "semibold",
-                    }}
-                  >
-                    {profile?.name}
-                  </Text>
-                  <PostDate colors={colors} createdAt={item.createdAt} />
+                  <Text>Comments for Post ID: {selectedPostId}</Text>
+
+                  <Button title="Close" handlePress={closeCommentModal} />
                 </View>
               </View>
-              {item.content && (
-                <View
-                  style={{
-                    marginVertical: 15,
-                    marginHorizontal: 8,
-                  }}
-                >
-                  <Text style={{ color: colors.text, fontSize: 15 }}>
-                    {item.content}
-                  </Text>
-                </View>
-              )}
-
-              {item.media && item.media.length > 1
-                ? renderCarousel(item.media)
-                : item.media &&
-                  item.media.map((mediaItem) => renderMedia(mediaItem))}
-
-              {/* Action Buttons */}
-              <View style={styles.postActions}>
-                <TouchableOpacity style={styles.actionButton}>
-                  <Text style={styles.actionButtonText}>Like</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.actionButton}>
-                  <Text style={styles.actionButtonText}>Comment</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+            </Modal>
           </View>
         )}
         ListHeaderComponent={() => (
@@ -235,7 +303,7 @@ const ViewProfile = () => {
                       marginBottom: 5,
                     }}
                   >
-                    {friends.requests.length || 0}
+                    {friends?.requests?.length || 0}
                   </Text>
                   <Text
                     style={{
@@ -269,7 +337,7 @@ const ViewProfile = () => {
                 </View>
               </View>
 
-              {me?.profile == profile._id ? (
+              {me?.profile == profile?._id ? (
                 <Button
                   title="Edit Profile"
                   handlePress={() => {
@@ -554,10 +622,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
-    backgroundColor: "#e0e0e0",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
-  actionButtonText: {
-    fontSize: 14,
-    color: "#333",
-  },
+  actionText: {},
 });
