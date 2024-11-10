@@ -1,7 +1,11 @@
 import {
   Dimensions,
   FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -31,15 +35,52 @@ import {
   FontAwesome,
   Fontisto,
   Ionicons,
+  SimpleLineIcons,
 } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
+import { TextInput } from "react-native";
+import {
+  GestureHandlerRootView,
+  TouchableWithoutFeedback,
+} from "react-native-gesture-handler";
 const { width } = Dimensions.get("window");
-
 const ViewProfile = () => {
+  const mockComments = [
+    {
+      id: "1",
+      user: "John Doe",
+      content: "This is a great post!",
+      likes: 12,
+      dislikes: 1,
+      createdAt: "2024-10-22",
+      replies: [
+        {
+          id: "1-1",
+          user: "Jane Smith",
+          content: "I agree!",
+          likes: 5,
+          dislikes: 0,
+          createdAt: "2024-10-23",
+        },
+      ],
+    },
+    {
+      id: "2",
+      user: "Alice Johnson",
+      content: "Can you elaborate more?",
+      likes: 5,
+      dislikes: 2,
+      createdAt: "2024-10-24",
+      replies: [],
+    },
+  ];
   const { user } = useLocalSearchParams();
   const { colors, dark } = useTheme();
   const [profile, setProfile] = useState(null);
   const { user: me, token, isLoggedIn } = useSelector((state) => state.auth);
+  const [comments, setComments] = useState(mockComments);
+  const [replyingTo, setReplyingTo] = useState(null);
+  const flatListRef = useRef(null);
 
   useEffect(() => {
     if (user) {
@@ -108,21 +149,107 @@ const ViewProfile = () => {
   const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
 
-  // Function to open the comment section for a specific post
   const openComments = (postId) => {
     console.log(postId);
     setSelectedPostId(postId);
     setIsCommentModalVisible(true);
   };
 
-  // Function to close the comment modal
   const closeCommentModal = () => {
     setIsCommentModalVisible(false);
     setSelectedPostId(null);
   };
-  // const handleCommentPress = () => {
-  //   openComments(item.id); // Call function to open comment section for this post
-  // };
+
+  const [newComment, setNewComment] = useState("");
+
+  const handleAddComment = () => {
+    const newCommentObject = {
+      id: (comments.length + 1).toString(),
+      user: "New User",
+      content: newComment,
+      likes: 0,
+      dislikes: 0,
+      createdAt: new Date().toISOString(),
+      replies: [],
+    };
+
+    if (replyingTo) {
+      // Add as a reply to the specified comment
+      const updatedComments = comments.map((comment) => {
+        if (comment.id === replyingTo) {
+          return {
+            ...comment,
+            replies: [
+              ...comment.replies,
+              {
+                ...newCommentObject,
+                id: `${replyingTo}-${comment.replies.length + 1}`,
+              },
+            ],
+          };
+        }
+        return comment;
+      });
+      setComments(updatedComments);
+    } else {
+      // Add as a new top-level comment
+      setComments([newCommentObject, ...comments]);
+    }
+
+    setNewComment("");
+    setReplyingTo(null);
+    Keyboard.dismiss();
+  };
+
+  const renderReply = (reply) => (
+    <View
+      key={reply.id}
+      style={{
+        marginLeft: 40,
+        marginTop: 5,
+        paddingVertical: 5,
+        borderBottomWidth: 1,
+        borderColor: "#e0e0e0",
+      }}
+    >
+      <Text style={{ fontWeight: "bold" }}>{reply.user}</Text>
+      <Text>{reply.content}</Text>
+    </View>
+  );
+
+  const renderComment = ({ item }) => (
+    <View
+      style={{
+        paddingVertical: 10,
+        borderBottomWidth: 1,
+        borderColor: "#e0e0e0",
+      }}
+    >
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 5,
+        }}
+      >
+        <Text style={{ fontWeight: "bold" }}>{item?.user}</Text>
+        <TouchableOpacity>
+          <SimpleLineIcons name="options-vertical" size={13} color="black" />
+        </TouchableOpacity>
+      </View>
+      <Text>{item?.content}</Text>
+      <View
+        style={{ flexDirection: "row", alignItems: "center", marginTop: 5 }}
+      >
+        <TouchableOpacity onPress={() => setReplyingTo(item)}>
+          <Text style={{ color: "blue" }}>Reply</Text>
+        </TouchableOpacity>
+      </View>
+      {item.replies && item.replies.map(renderReply)}
+    </View>
+  );
+
   return (
     <View
       style={[
@@ -192,12 +319,10 @@ const ViewProfile = () => {
                 </Text>
               </View>
             )}
-
             {item.media && item.media.length > 1
               ? renderCarousel(item.media)
               : item.media &&
                 item.media.map((mediaItem) => renderMedia(mediaItem))}
-
             <View style={styles.postActions}>
               <TouchableOpacity style={styles.actionButton}>
                 <Entypo name="thumbs-up" size={20} color={colors.text} />
@@ -235,20 +360,125 @@ const ViewProfile = () => {
                   backgroundColor: "rgba(0, 0, 0, 0.3)",
                 }}
               >
-                <View
+                <Pressable
+                  style={{
+                    flex: 1,
+                  }}
+                  onPress={closeCommentModal}
+                />
+                <KeyboardAvoidingView
+                  behavior={Platform.OS === "ios" ? "padding" : "height"}
                   style={{
                     width: "100%",
-                    padding: 20,
+                    flex: 1,
+                    // height: 600,
+
                     backgroundColor: "white",
-                    borderTopRightRadius: 10,
-                    borderTopLeftRadius: 10,
-                    height: 400,
+                    paddingHorizontal: 10,
+                    paddingTop: 20,
+                    borderTopRightRadius: 25,
+                    borderTopLeftRadius: 25,
                   }}
                 >
-                  <Text>Comments for Post ID: {selectedPostId}</Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: 15,
+                      borderBottomColor: "#c1c1c194",
+                      borderBottomWidth: 1,
+                      paddingBottom: 10,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Comments
+                    </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 15,
+                      }}
+                    >
+                      <TouchableOpacity>
+                        <Ionicons name="options" size={24} color="black" />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={closeCommentModal}>
+                        <AntDesign name="close" size={24} color="black" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
 
-                  <Button title="Close" handlePress={closeCommentModal} />
-                </View>
+                  <FlatList
+                    ref={flatListRef}
+                    data={comments}
+                    renderItem={renderComment}
+                    keyExtractor={(item) => item.id.toString()}
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                    style={{ flex: 1 }}
+                  />
+
+                  <View style={{ marginBottom: 5 }}>
+                    {replyingTo && (
+                      <Text style={{ color: "gray" }}>
+                        Replying to {replyingTo.user}
+                        <Text
+                          style={{ color: "red", marginLeft: 5 }}
+                          onPress={() => setReplyingTo(null)}
+                        >
+                          {" "}
+                          (Cancel)
+                        </Text>
+                      </Text>
+                    )}
+                  </View>
+
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      borderTopWidth: 1,
+                      borderColor: "#e0e0e0",
+                      paddingTop: 10,
+                      backgroundColor: "white",
+                      paddingBottom: 10,
+                      gap: 5,
+                      bottom: 20,
+                      paddingHorizontal: 10,
+                    }}
+                  >
+                    <Image
+                      source={{ uri: profile?.profilePic?.url }}
+                      style={{ width: 30, height: 30, borderRadius: 50 }}
+                    />
+                    <TextInput
+                      style={{
+                        flex: 1,
+                        borderWidth: 1,
+                        borderColor: "#e0e0e0",
+                        borderRadius: 20,
+                        padding: 10,
+                        marginRight: 10,
+                      }}
+                      placeholder={
+                        replyingTo ? "Replying..." : "Add a comment..."
+                      }
+                      value={newComment}
+                      onChangeText={setNewComment}
+                    />
+                    <TouchableOpacity onPress={handleAddComment}>
+                      <Text style={{ color: "blue" }}>
+                        {replyingTo ? "Reply" : "Post"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </KeyboardAvoidingView>
               </View>
             </Modal>
           </View>

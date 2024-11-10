@@ -14,6 +14,7 @@ import activityRoutes from "./routes/activityRoutes.js";
 import weeklyRoutes from "./routes/weeklySummaryRoutes.js";
 import setupFriendRoutes from "./routes/friendshipRoutes.js";
 import setupPostRoutes from "./routes/postRoutes.js";
+import setupCommentRoutes from "./routes/commentRoutes.js";
 
 import fastingRoutes from "./routes/fastingRoutes.js";
 import exerciseRoutes from "./routes/exeRoutes.js";
@@ -62,6 +63,7 @@ app.use("/api/v1/weekly", weeklyRoutes);
 app.use("/api/v1/social", setupFriendRoutes(io));
 app.use("/api/v1/post", setupPostRoutes(io));
 
+app.use("/api/v1/comment", setupCommentRoutes(io));
 // Recommendation
 app.use("/api/v1/fitness", recomRoutes);
 
