@@ -246,6 +246,7 @@ const ProfileItem = ({
 const ProfileScreen = ({ profile }) => {
   const { colors } = useTheme();
   const navigation = useRouter();
+  console.log(profile);
   // const { data: profile, error, isLoading } = useGetProfileQuery();
 
   // const { data: profile, error, isLoading, refetch } = useGetProfileQuery();

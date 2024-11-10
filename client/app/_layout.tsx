@@ -748,6 +748,12 @@ const InnerStack = () => {
         }}
       />
       <Stack.Screen
+        name="PlanSleep"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="PlanLogCalories"
         options={{
           headerShown: false,

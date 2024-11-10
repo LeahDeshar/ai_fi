@@ -33,7 +33,6 @@ const ProfileDOBScreen = () => {
     (state) => state.auth
   );
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
-  console.log(profile);
 
   useEffect(() => {
     if (profile && profile?.profileOfUsers && profile.profileOfUsers.birthday) {

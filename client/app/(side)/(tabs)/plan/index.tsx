@@ -56,6 +56,12 @@ const planScreen = () => {
         "https://images.pexels.com/photos/13580544/pexels-photo-13580544.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load",
       path: "PlanSteps",
     },
+    {
+      title: "Sleep Tracker",
+      image:
+        "https://www.nia.nih.gov/sites/default/files/inline-images/sleep-older-adults-inline.jpg",
+      path: "PlanSleep",
+    },
   ];
 
   const handleNavigate = (path) => () => {
