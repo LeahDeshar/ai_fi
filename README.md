@@ -81,10 +81,10 @@ GCN social media features
   - [ ] test
   - [x] list all user that a user is not friend with
   - [x] list all user that a user is a friend with
-  - [ ] Post, comment, like, and tag.
-    - [ ] post and comment models
-    - [ ] controller and routes with socket
-    - [ ] front end integration
+  - [ ] Post, comment, like
+    - [x] post and comment models
+    - [x] controller and routes with socket
+    - [x] front end integration
 
 Summary of Features for Networking:
 Friendship/Follow System: Friend requests, following, and friends list.

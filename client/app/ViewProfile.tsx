@@ -7,6 +7,7 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -40,6 +41,7 @@ import { TextInput } from "react-native";
 const { width } = Dimensions.get("window");
 import { io } from "socket.io-client";
 import axios from "axios";
+import { Alert } from "react-native";
 
 const SOCKET_SERVER_URL = "http://192.168.1.11:8080";
 const socket = io(SOCKET_SERVER_URL);
@@ -386,6 +388,33 @@ const ViewProfile = () => {
     </View>
   );
 
+  const handleShare = async ({ post }) => {
+    const postContent = post.content || "Check out this post!";
+    const postMediaUrl = post.media?.[0]?.url || "";
+
+    try {
+      const result = await Share.share({
+        message: `${postContent}\n${postMediaUrl}`,
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          console.log("Shared with activity type:", result.activityType);
+        } else {
+          console.log("Post shared successfully");
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log("Share dismissed");
+      }
+    } catch (error) {
+      console.error("Error sharing post:", error);
+      Alert.alert(
+        "Error",
+        "An error occurred while trying to share this post."
+      );
+    }
+  };
+
   return (
     <View
       style={[
@@ -482,7 +511,7 @@ const ViewProfile = () => {
                 >
                   <View
                     style={{
-                      backgroundColor: "#3a68ff",
+                      backgroundColor: "#00a2ff",
                       borderRadius: 25,
                       padding: 3,
                     }}
@@ -525,7 +554,10 @@ const ViewProfile = () => {
                     Comment
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.actionButton}>
+                <TouchableOpacity
+                  onPress={() => handleShare({ post: item })}
+                  style={styles.actionButton}
+                >
                   <Fontisto name="share-a" size={20} color={colors.text} />
                   <Text style={[{ color: colors.text }, styles.actionText]}>
                     Share
