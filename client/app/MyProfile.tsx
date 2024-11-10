@@ -62,7 +62,7 @@ const MyProfile = () => {
               padding: 16,
             }}
           >
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => navigation.push("ProfileSummaryScreen")}
             >
               <Text
@@ -74,7 +74,7 @@ const MyProfile = () => {
               >
                 Temp
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity
               onPress={() => navigation.push("ProfileAvatar")}
               style={{
@@ -358,6 +358,16 @@ const ProfileScreen = ({ profile }) => {
           // dailySteps
           value={`${profile?.profileOfUsers?.dailySteps} steps`}
           onPress={() => navigation.navigate("ProfileDailyStepsScreen")}
+        />
+        <ProfileItem
+          title="Time to sleep"
+          value={`${profile?.profileOfUsers?.timeToSleep}`}
+          onPress={() => navigation.navigate("ProfileTimeToSleep")}
+        />
+        <ProfileItem
+          title="Sleep Goal"
+          value={`${profile?.profileOfUsers?.sleepGoal}`}
+          onPress={() => navigation.navigate("ProfileSleepGoal")}
         />
         <ProfileItem
           title="Units"

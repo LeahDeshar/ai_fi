@@ -87,6 +87,7 @@ GCN social media features
     - [x] front end integration
   - [ ] post creation
   - [ ] user analytics
+  - [ ] sleep tracker
 
 Summary of Features for Networking:
 
