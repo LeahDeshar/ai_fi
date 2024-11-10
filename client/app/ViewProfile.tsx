@@ -25,62 +25,58 @@ import {
   useGetAllUserPostQuery,
   useGetMyFriendsQuery,
 } from "@/redux/api/apiClient";
-import { BlurView } from "expo-blur";
 import PostDate from "@/utils/PostDate";
 import {
   AntDesign,
   Entypo,
   EvilIcons,
-  Feather,
-  FontAwesome,
   Fontisto,
   Ionicons,
   SimpleLineIcons,
 } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import { TextInput } from "react-native";
-import {
-  GestureHandlerRootView,
-  TouchableWithoutFeedback,
-} from "react-native-gesture-handler";
+
 const { width } = Dimensions.get("window");
+import { io } from "socket.io-client";
+import axios from "axios";
+
+const SOCKET_SERVER_URL = "http://192.168.1.11:8080";
+const socket = io(SOCKET_SERVER_URL);
 const ViewProfile = () => {
-  const mockComments = [
-    {
-      id: "1",
-      user: "John Doe",
-      content: "This is a great post!",
-      likes: 12,
-      dislikes: 1,
-      createdAt: "2024-10-22",
-      replies: [
-        {
-          id: "1-1",
-          user: "Jane Smith",
-          content: "I agree!",
-          likes: 5,
-          dislikes: 0,
-          createdAt: "2024-10-23",
-        },
-      ],
-    },
-    {
-      id: "2",
-      user: "Alice Johnson",
-      content: "Can you elaborate more?",
-      likes: 5,
-      dislikes: 2,
-      createdAt: "2024-10-24",
-      replies: [],
-    },
-  ];
   const { user } = useLocalSearchParams();
   const { colors, dark } = useTheme();
   const [profile, setProfile] = useState(null);
   const { user: me, token, isLoggedIn } = useSelector((state) => state.auth);
-  const [comments, setComments] = useState(mockComments);
-  const [replyingTo, setReplyingTo] = useState(null);
   const flatListRef = useRef(null);
+
+  const [comments, setComments] = useState(null);
+  const [newComment, setNewComment] = useState("");
+  const [replyingTo, setReplyingTo] = useState(null);
+  // console.log(comments.map((item) => item.replies));
+
+  comments.forEach((comment) => {
+    // Log the comment itself
+    console.log("Comment:", comment);
+
+    // Access replies if they exist
+    if (comment.replies && comment.replies.length > 0) {
+      comment.replies.forEach((reply) => {
+        console.log("Reply Content:", reply.content);
+
+        // Access the user profile for the reply
+        if (reply.user && reply.user.profile) {
+          console.log("Reply User:", reply.user.profile.name);
+        } else {
+          console.log("Reply User data is missing");
+        }
+      });
+    } else {
+      console.log("No replies found for this comment");
+    }
+  });
+
+  // [{"__v": 0, "_id": "673071ee0827492d5cdb2a88", "content": "Hi", "createdAt": "2024-11-10T08:42:22.824Z", "parentComment": null, "post": "672e2248b4340a33e39b9452", "reactions": {"dislikes": [Array], "likes": [Array]}, "updatedAt": "2024-11-10T08:42:22.824Z", "user": {"_id": "67189a704f4eed52a1cfb7ae"}}]
 
   useEffect(() => {
     if (user) {
@@ -149,8 +145,24 @@ const ViewProfile = () => {
   const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
 
-  const openComments = (postId) => {
-    console.log(postId);
+  const openComments = async (postId) => {
+    try {
+      const response = await axios.get(
+        `http://192.168.1.11:8080/api/v1/comment/get`,
+        {
+          params: {
+            postId: postId,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setComments(response.data);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    }
     setSelectedPostId(postId);
     setIsCommentModalVisible(true);
   };
@@ -159,41 +171,55 @@ const ViewProfile = () => {
     setIsCommentModalVisible(false);
     setSelectedPostId(null);
   };
+  const handleAddReply = async () => {
+    try {
+      const response = await axios.post(
+        `${SOCKET_SERVER_URL}/api/v1/comment/reply`,
+        {
+          postId: selectedPostId,
+          content: newComment,
+          parentCommentId: replyingTo?._id, // Replying to this comment
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-  const [newComment, setNewComment] = useState("");
-
-  const handleAddComment = () => {
-    const newCommentObject = {
-      id: (comments.length + 1).toString(),
-      user: "New User",
-      content: newComment,
-      likes: 0,
-      dislikes: 0,
-      createdAt: new Date().toISOString(),
-      replies: [],
-    };
-
-    if (replyingTo) {
-      // Add as a reply to the specified comment
-      const updatedComments = comments.map((comment) => {
-        if (comment.id === replyingTo) {
-          return {
-            ...comment,
-            replies: [
-              ...comment.replies,
-              {
-                ...newCommentObject,
-                id: `${replyingTo}-${comment.replies.length + 1}`,
-              },
-            ],
-          };
+      // Update comments state with the new reply
+      const updatedComments = comments?.map((comment) => {
+        if (comment._id === replyingTo?._id) {
+          return { ...comment, replies: [...comment.replies, response.data] };
         }
         return comment;
       });
+
       setComments(updatedComments);
-    } else {
-      // Add as a new top-level comment
-      setComments([newCommentObject, ...comments]);
+      setReplyingTo(null);
+    } catch (error) {
+      console.error("Error adding reply:", error);
+    }
+  };
+  const handleAddComment = async () => {
+    try {
+      const response = await axios.post(
+        `${SOCKET_SERVER_URL}/api/v1/comment/add`,
+        {
+          post: selectedPostId,
+          content: newComment,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log(response.data);
+      setNewComment("");
+    } catch (error) {
+      console.error("Error adding comment:", error);
     }
 
     setNewComment("");
@@ -201,9 +227,26 @@ const ViewProfile = () => {
     Keyboard.dismiss();
   };
 
-  const renderReply = (reply) => (
+  // const renderReply = ({ reply }) => (
+  //   <View
+  //     key={reply._id}
+  //     style={{
+  //       marginLeft: 40,
+  //       marginTop: 5,
+  //       paddingVertical: 5,
+  //       borderBottomWidth: 1,
+  //       borderColor: "#e0e0e0",
+  //     }}
+  //   >
+  //     <Text style={{ fontWeight: "bold", color: "black" }}>{reply._id}</Text>
+  //     <Text style={{ fontWeight: "bold", color: "black" }}>{reply._id}</Text>
+  //     <Text>{reply.content}</Text>
+  //   </View>
+  // );
+
+  const renderReply = ({ reply }) => (
     <View
-      key={reply.id}
+      key={reply._id}
       style={{
         marginLeft: 40,
         marginTop: 5,
@@ -212,11 +255,23 @@ const ViewProfile = () => {
         borderColor: "#e0e0e0",
       }}
     >
-      <Text style={{ fontWeight: "bold" }}>{reply.user}</Text>
-      <Text>{reply.content}</Text>
+      {/* Reply Content */}
+      <Text style={{ fontWeight: "bold", color: "black" }}>
+        {reply.content}
+      </Text>
+
+      {/* User Profile */}
+      {reply.user && reply.user.profile ? (
+        <Text style={{ color: "gray", fontStyle: "italic" }}>
+          Replied by: {reply.user.profile.name}
+        </Text>
+      ) : (
+        <Text style={{ color: "red", fontStyle: "italic" }}>
+          User data missing
+        </Text>
+      )}
     </View>
   );
-
   const renderComment = ({ item }) => (
     <View
       style={{
@@ -228,25 +283,96 @@ const ViewProfile = () => {
       <View
         style={{
           flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
           marginBottom: 5,
         }}
       >
-        <Text style={{ fontWeight: "bold" }}>{item?.user}</Text>
-        <TouchableOpacity>
-          <SimpleLineIcons name="options-vertical" size={13} color="black" />
-        </TouchableOpacity>
+        <Image
+          source={{ uri: item?.user?.profile.profilePic.url }}
+          style={{ width: 30, height: 30, borderRadius: 50 }}
+        />
+        <View
+          style={{
+            flex: 1,
+            marginLeft: 8,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+                @{item?.user?.profile.name}
+              </Text>
+              <PostDate colors={colors} createdAt={item.createdAt} />
+            </View>
+            <TouchableOpacity>
+              <SimpleLineIcons
+                name="options-vertical"
+                size={13}
+                color="black"
+              />
+            </TouchableOpacity>
+          </View>
+          <Text
+            style={{
+              fontSize: 16,
+              marginTop: 5,
+            }}
+          >
+            {item?.content}
+          </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginTop: 5,
+              width: "35%",
+              alignItems: "center",
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <AntDesign name="like2" size={20} color="black" />
+              <Text>{item?.reactions?.likes.length || ""}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <AntDesign name="dislike2" size={20} color="black" />
+              <Text>{item?.reactions?.dislikes.length || ""}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setReplyingTo(item)}>
+              <Text style={{ color: "blue" }}>
+                {item?.replies.length} Reply
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {item?.replies?.length > 0 && (
+            <View style={{ marginLeft: 20 }}>
+              {item.replies.map((reply) => renderReply({ reply }))}
+            </View>
+          )}
+        </View>
       </View>
-      <Text>{item?.content}</Text>
-      <View
-        style={{ flexDirection: "row", alignItems: "center", marginTop: 5 }}
-      >
-        <TouchableOpacity onPress={() => setReplyingTo(item)}>
-          <Text style={{ color: "blue" }}>Reply</Text>
-        </TouchableOpacity>
-      </View>
-      {item.replies && item.replies.map(renderReply)}
     </View>
   );
 
@@ -371,8 +497,6 @@ const ViewProfile = () => {
                   style={{
                     width: "100%",
                     flex: 1,
-                    // height: 600,
-
                     backgroundColor: "white",
                     paddingHorizontal: 10,
                     paddingTop: 20,
@@ -419,23 +543,30 @@ const ViewProfile = () => {
                     ref={flatListRef}
                     data={comments}
                     renderItem={renderComment}
-                    keyExtractor={(item) => item.id.toString()}
+                    keyExtractor={(item) => item._id}
                     contentContainerStyle={{ paddingBottom: 20 }}
                     style={{ flex: 1 }}
                   />
 
-                  <View style={{ marginBottom: 5 }}>
+                  <View style={{ marginBottom: 15 }}>
                     {replyingTo && (
-                      <Text style={{ color: "gray" }}>
-                        Replying to {replyingTo.user}
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          marginBottom: 10,
+                        }}
+                      >
+                        <Text style={{ color: "gray" }}>
+                          Replying to {replyingTo?.user?.profile.name}
+                        </Text>
                         <Text
                           style={{ color: "red", marginLeft: 5 }}
                           onPress={() => setReplyingTo(null)}
                         >
-                          {" "}
                           (Cancel)
                         </Text>
-                      </Text>
+                      </View>
                     )}
                   </View>
 
@@ -466,15 +597,24 @@ const ViewProfile = () => {
                         padding: 10,
                         marginRight: 10,
                       }}
+                      placeholderTextColor={"grey"}
                       placeholder={
                         replyingTo ? "Replying..." : "Add a comment..."
                       }
                       value={newComment}
                       onChangeText={setNewComment}
                     />
-                    <TouchableOpacity onPress={handleAddComment}>
+                    {/* <TouchableOpacity onPress={handleAddComment}>
                       <Text style={{ color: "blue" }}>
                         {replyingTo ? "Reply" : "Post"}
+                      </Text>
+                    </TouchableOpacity> */}
+
+                    <TouchableOpacity
+                      onPress={replyingTo ? handleAddReply : handleAddComment}
+                    >
+                      <Text style={{ color: "blue" }}>
+                        {replyingTo ? "Post Reply" : "Post Comment"}
                       </Text>
                     </TouchableOpacity>
                   </View>

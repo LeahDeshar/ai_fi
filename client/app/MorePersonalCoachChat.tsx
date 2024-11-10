@@ -17,7 +17,7 @@ import {
 import { GiftedChat, IMessage } from "react-native-gifted-chat";
 import { useTheme } from "@/constants/ThemeProvider";
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { io } from "socket.io-client";
+
 import { useSelector } from "react-redux";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import EmojiKeyboard from "rn-emoji-keyboard";
@@ -26,7 +26,7 @@ import { Button } from "react-native";
 import { BlurView } from "expo-blur";
 import * as Notifications from "expo-notifications";
 import { HelloWave } from "@/components/HelloWave";
-
+import { io } from "socket.io-client";
 const SOCKET_SERVER_URL = "http://192.168.1.11:8080";
 const socket = io(SOCKET_SERVER_URL);
 type RootStackParamList = {

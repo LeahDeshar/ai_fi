@@ -10,6 +10,8 @@ const router = express.Router();
 const setupCommentRoutes = (io) => {
   router.post("/add", isAuth, async (req, res) => {
     const { post, content, parentComment } = req.body;
+
+    console.log(post, content, parentComment);
     try {
       const newComment = new Comment({
         post,
@@ -17,14 +19,10 @@ const setupCommentRoutes = (io) => {
         content,
         parentComment,
       });
-
       await newComment.save();
-
       const populatedComment = await newComment.populate("user", "profile");
       console.log(populatedComment);
-
       io.emit("newComment", populatedComment);
-
       res.status(201).json(populatedComment);
     } catch (error) {
       console.error("Error adding comment:", error);
@@ -66,6 +64,95 @@ const setupCommentRoutes = (io) => {
     } catch (error) {
       console.error("Error updating comment reaction:", error);
       res.status(500).json({ error: "Failed to update reaction" });
+    }
+  });
+
+  //   getCommentsByPost
+  router.get("/get", isAuth, async (req, res) => {
+    try {
+      const { postId } = req.query;
+
+      console.log("postId", postId);
+
+      const comments = await Comment.find({ post: postId, parentComment: null })
+        .populate({
+          path: "user",
+          select: "profile",
+          populate: {
+            path: "profile",
+            select: "name profilePic",
+          },
+        })
+        .populate({
+          path: "replies",
+          populate: {
+            path: "user",
+            populate: {
+              path: "profile",
+              select: "name profilePic",
+            },
+          },
+        })
+        .sort({ createdAt: -1 });
+
+      io.emit("commentsForPost", { postId, comments });
+
+      console.log(comments);
+      res.status(200).json(comments);
+    } catch (error) {
+      console.error("Failed to fetch comments:", error);
+      res.status(500).json({ message: "Failed to fetch comments", error });
+    }
+  });
+
+  //   router.post("/reply", isAuth, async (req, res) => {
+  //     try {
+  //       const userId = req.user._id;
+  //       const { postId, content, parentCommentId } = req.body;
+
+  //       const reply = new Comment({
+  //         post: postId,
+  //         user: userId,
+  //         content,
+  //         parentComment: parentCommentId,
+  //       });
+
+  //       await reply.save();
+
+  //       res.status(201).json(reply);
+  //     } catch (error) {
+  //       res.status(500).json({ message: "Failed to add reply", error });
+  //     }
+  //   });
+
+  router.post("/reply", isAuth, async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const { postId, content, parentCommentId } = req.body;
+
+      // Create a new reply comment
+      const reply = new Comment({
+        post: postId,
+        user: userId,
+        content,
+        parentComment: parentCommentId, // Set the parent comment
+      });
+
+      // Save the reply
+      await reply.save();
+
+      // Now update the parent comment with this reply by pushing the reply to the 'replies' array
+      const parentComment = await Comment.findById(parentCommentId);
+
+      if (parentComment) {
+        parentComment.replies.push(reply._id); // Add the reply to the parent comment's 'replies' field
+        await parentComment.save(); // Save the updated parent comment
+      }
+
+      res.status(201).json(reply); // Send back the reply
+    } catch (error) {
+      console.error("Error adding reply:", error);
+      res.status(500).json({ message: "Failed to add reply", error });
     }
   });
 
