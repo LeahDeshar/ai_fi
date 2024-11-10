@@ -20,6 +20,11 @@ const setupCommentRoutes = (io) => {
         parentComment,
       });
       await newComment.save();
+
+      const postToUpdate = await Post.findById(post);
+      postToUpdate.comments.push(newComment._id);
+      await postToUpdate.save();
+
       const populatedComment = await newComment.populate("user", "profile");
       console.log(populatedComment);
       io.emit("newComment", populatedComment);

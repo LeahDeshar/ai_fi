@@ -73,7 +73,33 @@ const setupPostRoutes = (io) => {
     }
   });
 
-  //   delete the sepc post of the user
+  router.post("/like", isAuth, async (req, res) => {
+    try {
+      const { postId } = req.body;
+      const userId = req.user._id;
+
+      const post = await Post.findById(postId);
+      if (!post) return res.status(404).json({ message: "Post not found" });
+
+      const alreadyLiked = post.likes.includes(userId);
+
+      if (alreadyLiked) {
+        post.likes = post.likes.filter(
+          (id) => id.toString() !== userId.toString()
+        );
+      } else {
+        post.likes.push(userId);
+      }
+
+      await post.save();
+      console.log({ likes: post.likes });
+      res.status(200).json({ likes: post.likes });
+    } catch (error) {
+      console.error("Error handling like:", error);
+      res.status(500).json({ message: "Failed to like post", error });
+    }
+  });
+
   router.delete("/delete/:id", isAuth, async (req, res) => {
     try {
       const post = await Post.findById(req.params.id);

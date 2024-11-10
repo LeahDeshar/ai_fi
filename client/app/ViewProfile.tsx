@@ -53,30 +53,14 @@ const ViewProfile = () => {
   const [comments, setComments] = useState(null);
   const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState(null);
-  // console.log(comments.map((item) => item.replies));
 
-  comments.forEach((comment) => {
-    // Log the comment itself
-    console.log("Comment:", comment);
-
-    // Access replies if they exist
-    if (comment.replies && comment.replies.length > 0) {
-      comment.replies.forEach((reply) => {
-        console.log("Reply Content:", reply.content);
-
-        // Access the user profile for the reply
-        if (reply.user && reply.user.profile) {
-          console.log("Reply User:", reply.user.profile.name);
-        } else {
-          console.log("Reply User data is missing");
-        }
-      });
-    } else {
-      console.log("No replies found for this comment");
-    }
-  });
-
-  // [{"__v": 0, "_id": "673071ee0827492d5cdb2a88", "content": "Hi", "createdAt": "2024-11-10T08:42:22.824Z", "parentComment": null, "post": "672e2248b4340a33e39b9452", "reactions": {"dislikes": [Array], "likes": [Array]}, "updatedAt": "2024-11-10T08:42:22.824Z", "user": {"_id": "67189a704f4eed52a1cfb7ae"}}]
+  const [visibleReplies, setVisibleReplies] = useState({});
+  const handleReplyShow = (commentId) => {
+    setVisibleReplies((prevVisibleReplies) => ({
+      ...prevVisibleReplies,
+      [commentId]: !prevVisibleReplies[commentId],
+    }));
+  };
 
   useEffect(() => {
     if (user) {
@@ -90,7 +74,7 @@ const ViewProfile = () => {
     isLoading: friendIsLoading,
   } = useGetMyFriendsQuery();
 
-  const { data: posts, error, isLoading } = useGetAllUserPostQuery();
+  const { data: posts, error, isLoading, refetch } = useGetAllUserPostQuery();
 
   if (isLoading) {
     return (
@@ -218,6 +202,7 @@ const ViewProfile = () => {
 
       console.log(response.data);
       setNewComment("");
+      refetch();
     } catch (error) {
       console.error("Error adding comment:", error);
     }
@@ -227,44 +212,38 @@ const ViewProfile = () => {
     Keyboard.dismiss();
   };
 
-  // const renderReply = ({ reply }) => (
-  //   <View
-  //     key={reply._id}
-  //     style={{
-  //       marginLeft: 40,
-  //       marginTop: 5,
-  //       paddingVertical: 5,
-  //       borderBottomWidth: 1,
-  //       borderColor: "#e0e0e0",
-  //     }}
-  //   >
-  //     <Text style={{ fontWeight: "bold", color: "black" }}>{reply._id}</Text>
-  //     <Text style={{ fontWeight: "bold", color: "black" }}>{reply._id}</Text>
-  //     <Text>{reply.content}</Text>
-  //   </View>
-  // );
-
   const renderReply = ({ reply }) => (
     <View
       key={reply._id}
       style={{
-        marginLeft: 40,
+        marginLeft: 5,
         marginTop: 5,
         paddingVertical: 5,
         borderBottomWidth: 1,
         borderColor: "#e0e0e0",
       }}
     >
-      {/* Reply Content */}
-      <Text style={{ fontWeight: "bold", color: "black" }}>
-        {reply.content}
-      </Text>
-
-      {/* User Profile */}
       {reply.user && reply.user.profile ? (
-        <Text style={{ color: "gray", fontStyle: "italic" }}>
-          Replied by: {reply.user.profile.name}
-        </Text>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 5,
+          }}
+        >
+          <Image
+            source={{ uri: reply?.user?.profile.profilePic.url }}
+            style={{ width: 30, height: 30, borderRadius: 50 }}
+          />
+          <View>
+            <Text style={{ fontWeight: "bold", color: "black" }}>
+              {reply.content}
+            </Text>
+            <Text style={{ color: "gray", fontStyle: "italic" }}>
+              Replied by: {reply.user.profile.name}
+            </Text>
+          </View>
+        </View>
       ) : (
         <Text style={{ color: "red", fontStyle: "italic" }}>
           User data missing
@@ -335,8 +314,8 @@ const ViewProfile = () => {
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
-              marginTop: 5,
-              width: "35%",
+              marginTop: 10,
+              width: "75%",
               alignItems: "center",
             }}
           >
@@ -347,7 +326,7 @@ const ViewProfile = () => {
                 gap: 5,
               }}
             >
-              <AntDesign name="like2" size={20} color="black" />
+              <AntDesign name="like2" size={20} color="#757575ea" />
               <Text>{item?.reactions?.likes.length || ""}</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -357,7 +336,7 @@ const ViewProfile = () => {
                 gap: 5,
               }}
             >
-              <AntDesign name="dislike2" size={20} color="black" />
+              <AntDesign name="dislike2" size={20} color="#757575ea" />
               <Text>{item?.reactions?.dislikes.length || ""}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setReplyingTo(item)}>
@@ -365,12 +344,43 @@ const ViewProfile = () => {
                 {item?.replies.length} Reply
               </Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 5,
+              }}
+              onPress={() => handleReplyShow(item._id)}
+            >
+              <AntDesign name="caretdown" size={15} color="#757575ea" />
+              <Text
+                style={{
+                  color: "#757575ea",
+                  fontSize: 13,
+                }}
+              >
+                {visibleReplies[item._id] ? "Hide Replies" : "Show Replies"}
+              </Text>
+            </TouchableOpacity>
           </View>
-          {item?.replies?.length > 0 && (
-            <View style={{ marginLeft: 20 }}>
-              {item.replies.map((reply) => renderReply({ reply }))}
-            </View>
-          )}
+
+          <View>
+            {visibleReplies[item._id] && item?.replies?.length > 0 && (
+              <View
+                style={{
+                  marginLeft: 0,
+                  borderColor: "#afaaaa3d",
+                  borderRadius: 25,
+                  paddingVertical: 10,
+                  borderWidth: 1,
+                  marginTop: 8,
+                }}
+              >
+                {item.replies.map((reply) => renderReply({ reply }))}
+              </View>
+            )}
+          </View>
         </View>
       </View>
     </View>
@@ -449,28 +459,79 @@ const ViewProfile = () => {
               ? renderCarousel(item.media)
               : item.media &&
                 item.media.map((mediaItem) => renderMedia(mediaItem))}
-            <View style={styles.postActions}>
-              <TouchableOpacity style={styles.actionButton}>
-                <Entypo name="thumbs-up" size={20} color={colors.text} />
-                <Text style={[{ color: colors.text }, styles.actionText]}>
-                  Like
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => openComments(item._id)}
+            <View
+              style={{
+                marginTop: 10,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginHorizontal: 10,
+                  gap: 5,
+                }}
               >
-                <EvilIcons name="comment" size={25} color={colors.text} />
-                <Text style={[{ color: colors.text }, styles.actionText]}>
-                  Comment
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
-                <Fontisto name="share-a" size={20} color={colors.text} />
-                <Text style={[{ color: colors.text }, styles.actionText]}>
-                  Share
-                </Text>
-              </TouchableOpacity>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 5,
+                  }}
+                >
+                  <View
+                    style={{
+                      backgroundColor: "#3a68ff",
+                      borderRadius: 25,
+                      padding: 3,
+                    }}
+                  >
+                    <Entypo name="thumbs-up" size={15} color={colors.text} />
+                  </View>
+                  <Text style={[{ color: colors.text }, styles.actionText]}>
+                    {item?.likes.length || 0}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 5,
+                    marginLeft: 10,
+                  }}
+                >
+                  <Text style={[{ color: colors.text }, styles.actionText]}>
+                    {item?.comments.length || 0} comments
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.postActions}>
+                <PostLikeComponent
+                  post={item}
+                  token={token}
+                  colors={colors}
+                  refetch={refetch}
+                  me={me}
+                />
+
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => openComments(item._id)}
+                >
+                  <EvilIcons name="comment" size={25} color={colors.text} />
+                  <Text style={[{ color: colors.text }, styles.actionText]}>
+                    Comment
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.actionButton}>
+                  <Fontisto name="share-a" size={20} color={colors.text} />
+                  <Text style={[{ color: colors.text }, styles.actionText]}>
+                    Share
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <Modal
@@ -943,6 +1004,51 @@ const ViewProfile = () => {
 
 export default ViewProfile;
 
+const PostLikeComponent = ({ post, token, colors, refetch, me }) => {
+  const likeIds = post.likes.map((like) => like._id);
+
+  const [likeCount, setLikeCount] = useState(likeIds.length);
+  const [userLiked, setUserLiked] = useState(likeIds.includes(me._id));
+
+  const handleLikePost = async () => {
+    try {
+      const response = await axios.post(
+        `${SOCKET_SERVER_URL}/api/v1/post/like`,
+        { postId: post._id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setUserLiked((prevLiked) => !prevLiked);
+      setLikeCount(response.data.likes.length);
+      refetch();
+    } catch (error) {
+      console.error("Error liking post:", error);
+    }
+  };
+
+  return (
+    <TouchableOpacity onPress={handleLikePost} style={styles.actionButton}>
+      <Entypo
+        name="thumbs-up"
+        size={20}
+        color={userLiked ? "#00a2ff" : colors.text}
+      />
+      <Text
+        style={[
+          { color: userLiked ? "#00a2ff" : colors.text },
+          styles.actionText,
+        ]}
+      >
+        Like
+      </Text>
+    </TouchableOpacity>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -986,7 +1092,7 @@ const styles = StyleSheet.create({
   postActions: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 10,
+    marginTop: 15,
   },
   actionButton: {
     paddingVertical: 8,
