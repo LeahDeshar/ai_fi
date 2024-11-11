@@ -6,27 +6,44 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Modal,
+  Button,
+  Vibration,
+  LogBox,
 } from "react-native";
-import { CameraView, Camera } from "expo-camera";
-import { Button } from "react-native";
+import { BarCodeScanner } from "expo-barcode-scanner";
+
+// log box to remove warning
+LogBox.ignoreLogs([
+  "BarCodeScanner has been deprecated and will be removed in a future SDK version. Please use `expo-camera` instead. See https://expo.fyi/barcode-scanner-to-expo-camera for more details on how to migrate",
+]);
+
 const CalorieFoodTracker = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(true);
-
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [scannedData, setScannedData] = useState(null);
 
   useEffect(() => {
     const getCameraPermissions = async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
+      const { status } = await BarCodeScanner.requestPermissionsAsync();
       setHasPermission(status === "granted");
     };
 
     getCameraPermissions();
   }, []);
 
+  const handleBarcodeScanned = ({ data }) => {
+    Vibration.vibrate(500);
+    setScanned(true);
+    setScannedData(data);
+    setIsScannerOpen(false);
+  };
+
   if (hasPermission === null) {
-    return <Text>Requesting for camera permission</Text>;
+    return <Text>Requesting camera permission...</Text>;
   }
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
@@ -34,6 +51,7 @@ const CalorieFoodTracker = () => {
 
   return (
     <ScrollView style={styles.container}>
+      {/* Header with Cancel, Breakfast, and Done buttons */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerButton}>
           <Text style={styles.headerButtonText}>Cancel</Text>
@@ -51,7 +69,17 @@ const CalorieFoodTracker = () => {
         onChangeText={(text) => setSearchQuery(text)}
       />
 
-      <TouchableOpacity style={styles.collapsibleHeader}>
+      <TouchableOpacity
+        style={styles.scanButton}
+        onPress={() => setIsScannerOpen(true)}
+      >
+        <Text style={styles.scanButtonText}>Scan Barcode</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.collapsibleHeader}
+        onPress={() => setIsCollapsed(!isCollapsed)}
+      >
         <Text style={styles.collapsibleHeaderText}>Logging Options</Text>
       </TouchableOpacity>
       <View>
@@ -63,23 +91,36 @@ const CalorieFoodTracker = () => {
         </View>
       </View>
 
-      {/* Search Results Section */}
       <View style={styles.resultsSection}>
         <Text style={styles.resultsTitle}>Search Results</Text>
-        {/* Render search results here */}
-        <Text>No results found</Text>
+        {scannedData ? (
+          <Text>Scanned Data: {scannedData}</Text>
+        ) : (
+          <Text>No results found</Text>
+        )}
       </View>
 
-      <CameraView
-        onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
-        barcodeScannerSettings={{
-          barcodeTypes: ["qr", "pdf417"],
-        }}
-        style={StyleSheet.absoluteFillObject}
-      />
-      {scanned && (
-        <Button title={"Tap to Scan Again"} onPress={() => setScanned(false)} />
-      )}
+      <Modal
+        visible={isScannerOpen}
+        animationType="slide"
+        onRequestClose={() => setIsScannerOpen(false)}
+      >
+        <View style={styles.scannerContainer}>
+          <BarCodeScanner
+            onBarCodeScanned={scanned ? undefined : handleBarcodeScanned}
+            style={StyleSheet.absoluteFillObject}
+          />
+
+          {scanned && (
+            <Button title="Scan Again" onPress={() => setScanned(false)} />
+          )}
+
+          <Button
+            title="Close Scanner"
+            onPress={() => setIsScannerOpen(false)}
+          />
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -114,6 +155,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginBottom: 16,
   },
+  scanButton: {
+    backgroundColor: "#007AFF",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  scanButtonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
   collapsibleHeader: {
     paddingVertical: 12,
     backgroundColor: "#f2f2f2",
@@ -146,6 +198,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 8,
+  },
+
+  scannerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  scannerFrame: {
+    width: 200,
+    height: 200,
+    borderWidth: 2,
+    borderColor: "#cfe9cf83",
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  scannerText: {
+    color: "#ffffffb3",
+    fontSize: 16,
+    marginTop: 10,
+    textAlign: "center",
   },
 });
 
