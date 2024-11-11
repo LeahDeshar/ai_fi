@@ -11,15 +11,12 @@ const foodSchema = new mongoose.Schema({
   },
   carbs: {
     type: Number,
-    required: true,
   },
   fats: {
     type: Number,
-    required: true,
   },
   protein: {
     type: Number,
-    required: true,
   },
   barcode: {
     type: String,

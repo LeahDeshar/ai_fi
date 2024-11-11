@@ -44,6 +44,15 @@ export const authApi = createApi({
         };
       },
     }),
+    createFood: builder.mutation({
+      query: (foodData) => {
+        return {
+          url: "/food/create",
+          method: "POST",
+          body: foodData,
+        };
+      },
+    }),
     getProfile: builder.query({
       query: () => "/auth/profile",
     }),
@@ -59,6 +68,12 @@ export const authApi = createApi({
     }),
     getUserInsight: builder.query({
       query: () => "/data/get-insight",
+    }),
+    getAllFood: builder.query({
+      query: () => "/food/get",
+    }),
+    getFoodByBarcode: builder.query({
+      query: (barcode) => `/food/barcode/${barcode}`,
     }),
     createProfile: builder.mutation({
       query: (profileData) => {
@@ -117,10 +132,13 @@ export const {
   useRegisterMutation,
   useLoginMutation,
   useUpdateProfileMutation,
-  useGetProfileQuery,
   useCreateProfileMutation,
+  useCreateFoodMutation,
+  useGetProfileQuery,
   useGetallUsersProfileQuery,
   useGetAllUserPostQuery,
   useGetMyFriendsQuery,
   useGetUserInsightQuery,
+  useGetAllFoodQuery,
+  useGetFoodByBarcodeQuery,
 } = authApi;

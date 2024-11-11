@@ -12,11 +12,15 @@ import {
   FlatList,
 } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
-import { foodList } from "@/assets/data/food";
+// import { foodList } from "@/assets/data/food";
 import { AntDesign, Entypo, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+
 import { useTheme } from "@/constants/ThemeProvider";
+import {
+  useGetAllFoodQuery,
+  useGetFoodByBarcodeQuery,
+} from "@/redux/api/apiClient";
 LogBox.ignoreLogs([
   "BarCodeScanner has been deprecated and will be removed in a future SDK version. Please use `expo-camera` instead. See https://expo.fyi/barcode-scanner-to-expo-camera for more details on how to migrate",
 ]);
@@ -71,6 +75,7 @@ const CalorieFoodTracker = () => {
   const [foodName, setFoodName] = useState("");
   const [calorieValue, setCalorieValue] = useState("");
   // const [foodList, setFoodList] = useState([]);
+  const { data: allFood, error, isLoading } = useGetAllFoodQuery();
 
   const route = useRouter();
   // Add calorie to food list
@@ -93,7 +98,7 @@ const CalorieFoodTracker = () => {
 
   const filteredFoodList = useMemo(() => {
     if (!searchQuery) return [];
-    return fuzzySearch(searchQuery, foodList);
+    return fuzzySearch(searchQuery, allFood);
   }, [searchQuery]);
 
   useEffect(() => {
@@ -103,11 +108,35 @@ const CalorieFoodTracker = () => {
     };
     getCameraPermissions();
   }, []);
+  // const {
+  //   data: food,
+  //   error: foodError,
+  //   isLoading: foodIsLoading,
+  // } = useGetFoodByBarcodeQuery(scannedData);
+
+  // const handleBarcodeScanned = ({ data }) => {
+  //   Vibration.vibrate(500);
+  //   setScanned(true);
+  //   setScannedData(data);
+  //   setIsScannerOpen(false);
+  //   console.log(data);
+  // };
+
+  const [scanneds, setScanneds] = useState(false);
+  const [barcode, setBarcode] = useState(null);
+
+  const {
+    data: food,
+    error: foodError,
+    isLoading: foodIsLoading,
+  } = useGetFoodByBarcodeQuery(barcode, {
+    skip: !scanneds || !barcode,
+  });
 
   const handleBarcodeScanned = ({ data }) => {
     Vibration.vibrate(500);
-    setScanned(true);
-    setScannedData(data);
+    setScanneds(true);
+    setBarcode(data);
     setIsScannerOpen(false);
   };
 
@@ -117,6 +146,8 @@ const CalorieFoodTracker = () => {
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
+
+  console.log(food);
 
   return (
     <View style={styles.container}>
@@ -226,6 +257,58 @@ const CalorieFoodTracker = () => {
                 <Text style={styles.resultsTitle}>Search Results</Text>
                 {scannedData ? <Text>Scanned Data: {scannedData}</Text> : null}
               </View>
+            )}
+
+            {food && (
+              <>
+                <Text style={[styles.resultsTitle, { marginTop: 20 }]}>
+                  Scanned Results
+                </Text>
+                <View
+                  style={{
+                    padding: 10,
+                    borderBottomWidth: 1,
+                    borderBottomColor: "#d4d4d49e",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginVertical: 3,
+                  }}
+                >
+                  <View>
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {food?.name}
+                    </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        gap: 20,
+                        marginTop: 5,
+                      }}
+                    >
+                      <Text>{food?.calories}kcal</Text>
+                      <Text>C: {food?.carbs} g</Text>
+                      <Text>F: {food?.fats} g</Text>
+                      <Text>P: {food?.protein} g</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={{
+                      borderRadius: 50,
+                      borderWidth: 2,
+                      padding: 2,
+                      borderColor: colors.primary,
+                    }}
+                  >
+                    <Ionicons name="add" color={colors.primary} size={25} />
+                  </TouchableOpacity>
+                </View>
+              </>
             )}
           </>
         }

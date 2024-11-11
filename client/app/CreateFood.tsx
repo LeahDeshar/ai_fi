@@ -12,15 +12,18 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "@gorhom/bottom-sheet";
 import { BarCodeScanner } from "expo-barcode-scanner";
+import { useCreateFoodMutation } from "@/redux/api/apiClient";
+import { useNavigation } from "expo-router";
 
 const CreateFood = () => {
-  const [foodName, setFoodName] = useState("");
   const [isAddCalorieOpen, setIsAddCalorieOpen] = useState(false);
-  const handleAddCalories = () => {};
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [scannedData, setScannedData] = useState(null);
+
+  const [foodName, setFoodName] = useState("");
+
   const [barCode, setBarCode] = useState("");
   const [calories, setCalories] = useState("");
   const [carbs, setCarbs] = useState("");
@@ -33,6 +36,22 @@ const CreateFood = () => {
     };
     getCameraPermissions();
   }, []);
+  //   useCreateFoodMutation()
+  const [createFood, { isLoading: isCreating }] = useCreateFoodMutation();
+
+  const navigation = useNavigation();
+  const handleAddFood = async () => {
+    const foodData = {
+      name: foodName,
+      barcode: barCode,
+      calories: calories,
+      carbs: carbs,
+      fats: fats,
+      protein: protein,
+    };
+    await createFood(foodData).unwrap();
+    navigation.goBack();
+  };
 
   const handleBarcodeScanned = ({ data }) => {
     Vibration.vibrate(500);
@@ -57,7 +76,7 @@ const CreateFood = () => {
           <Text style={styles.modalButtonText}>Cancel</Text>
         </TouchableOpacity>
         <Text style={styles.modalTitle}>Add Food Item</Text>
-        <TouchableOpacity onPress={handleAddCalories}>
+        <TouchableOpacity onPress={handleAddFood}>
           <Text style={styles.modalButtonText}>Add</Text>
         </TouchableOpacity>
       </View>

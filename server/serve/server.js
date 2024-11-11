@@ -20,6 +20,7 @@ import fastingRoutes from "./routes/fastingRoutes.js";
 import exerciseRoutes from "./routes/exeRoutes.js";
 import recomRoutes from "./routes/recommendation.js";
 import insightRoutes from "./routes/activityInsight.js";
+import foodRoutes from "./routes/foodRoutes.js";
 import Conversation from "./models/conversation.js";
 import { Message } from "./models/message.js";
 
@@ -59,6 +60,7 @@ app.use("/api/v1/subWorkout", subOutRoutes);
 app.use("/api/v1/equipment", equipmentRoutes);
 app.use("/api/v1/exercise", exerciseRoutes);
 app.use("/api/v1/fasting", fastingRoutes);
+app.use("/api/v1/food", foodRoutes);
 app.use("/api/v1/daily", activityRoutes);
 app.use("/api/v1/weekly", weeklyRoutes);
 app.use("/api/v1/data", insightRoutes);
