@@ -101,20 +101,6 @@ const CreateFood = () => {
 
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Nutritional Information</Text>
-        {/* {["Calories (kcal)", "Carbs (g)", "Fats (g)", "Protein (g)"].map(
-          (label) => (
-            <View style={styles.inputRow} key={label}>
-              <Text style={styles.inputLabel}>{label}</Text>
-              <TextInput
-                style={styles.foodInput}
-                placeholder={`Enter ${label.toLowerCase()}`}
-                placeholderTextColor="#a4a3a3"
-                value={foodName}
-                onChangeText={setFoodName}
-              />
-            </View>
-          )
-        )} */}
 
         <View style={styles.inputRow}>
           <Text style={styles.inputLabel}>Calories (kcal)</Text>
@@ -128,7 +114,6 @@ const CreateFood = () => {
           />
         </View>
 
-        {/* Carbs Input */}
         <View style={styles.inputRow}>
           <Text style={styles.inputLabel}>Carbs (g)</Text>
           <TextInput
@@ -141,7 +126,6 @@ const CreateFood = () => {
           />
         </View>
 
-        {/* Fats Input */}
         <View style={styles.inputRow}>
           <Text style={styles.inputLabel}>Fats (g)</Text>
           <TextInput
@@ -154,7 +138,6 @@ const CreateFood = () => {
           />
         </View>
 
-        {/* Protein Input */}
         <View style={styles.inputRow}>
           <Text style={styles.inputLabel}>Protein (g)</Text>
           <TextInput

@@ -13,9 +13,10 @@ import {
 } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { foodList } from "@/assets/data/food";
-import { AntDesign, Entypo, FontAwesome5 } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { AntDesign, Entypo, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useTheme } from "@/constants/ThemeProvider";
 LogBox.ignoreLogs([
   "BarCodeScanner has been deprecated and will be removed in a future SDK version. Please use `expo-camera` instead. See https://expo.fyi/barcode-scanner-to-expo-camera for more details on how to migrate",
 ]);
@@ -57,17 +58,19 @@ const fuzzySearch = (query, list, threshold = 3) => {
 };
 
 const CalorieFoodTracker = () => {
+  const { colors } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [scannedData, setScannedData] = useState(null);
+  const { title } = useLocalSearchParams();
 
   const [isAddCalorieOpen, setIsAddCalorieOpen] = useState(false);
   const [foodName, setFoodName] = useState("");
   const [calorieValue, setCalorieValue] = useState("");
-  const [foodList, setFoodList] = useState([]);
+  // const [foodList, setFoodList] = useState([]);
 
   const route = useRouter();
   // Add calorie to food list
@@ -126,7 +129,7 @@ const CalorieFoodTracker = () => {
               <TouchableOpacity style={styles.headerButton}>
                 <Text style={styles.headerButtonText}>Cancel</Text>
               </TouchableOpacity>
-              <Text style={styles.headerTitle}>Breakfast</Text>
+              <Text style={styles.headerTitle}>{title}</Text>
               <TouchableOpacity style={styles.headerButton}>
                 <Text style={styles.headerButtonText}>Done</Text>
               </TouchableOpacity>
@@ -218,19 +221,58 @@ const CalorieFoodTracker = () => {
               </View>
             )}
 
-            <View style={styles.resultsSection}>
-              <Text style={styles.resultsTitle}>Search Results</Text>
-              {scannedData ? <Text>Scanned Data: {scannedData}</Text> : null}
-            </View>
+            {searchQuery && (
+              <View style={styles.resultsSection}>
+                <Text style={styles.resultsTitle}>Search Results</Text>
+                {scannedData ? <Text>Scanned Data: {scannedData}</Text> : null}
+              </View>
+            )}
           </>
         }
         renderItem={({ item }) => (
-          <View style={styles.item}>
-            <Text>{item.name}</Text>
-            <Text>Calories: {item.calories}</Text>
-            <Text>Carbs: {item.carbs}</Text>
-            <Text>Fats: {item.fats}</Text>
-            <Text>Protein: {item.protein}</Text>
+          <View
+            style={{
+              padding: 10,
+              borderBottomWidth: 1,
+              borderBottomColor: "#d4d4d49e",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginVertical: 3,
+            }}
+          >
+            <View>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: "bold",
+                }}
+              >
+                {item.name}
+              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 20,
+                  marginTop: 5,
+                }}
+              >
+                <Text>{item.calories}kcal</Text>
+                <Text>C: {item.carbs} g</Text>
+                <Text>F: {item.fats} g</Text>
+                <Text>P: {item.protein} g</Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={{
+                borderRadius: 50,
+                borderWidth: 2,
+                padding: 2,
+                borderColor: colors.primary,
+              }}
+            >
+              <Ionicons name="add" color={colors.primary} size={25} />
+            </TouchableOpacity>
           </View>
         )}
         ListEmptyComponent={() =>
