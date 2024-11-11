@@ -750,6 +750,13 @@ const InnerStack = () => {
         }}
       />
       <Stack.Screen
+        name="CreateFood"
+        options={{
+          headerShown: false,
+          presentation: "modal",
+        }}
+      />
+      <Stack.Screen
         name="PlanWeight"
         options={{
           headerShown: false,
