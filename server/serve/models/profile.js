@@ -179,13 +179,13 @@ const profileSchema = new mongoose.Schema({
     type: Date,
     default: () => {
       const currentDate = new Date();
-      currentDate.setHours(23, 0, 0, 0); // Set default time to 11:00 PM today
+      currentDate.setHours(23, 0, 0, 0);
       return currentDate;
     },
   },
   sleepGoal: {
     type: Number,
-    default: 8, // Default sleep goal is 8 hours
+    default: 8,
   },
 
   profilePic: {

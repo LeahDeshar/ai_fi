@@ -533,10 +533,8 @@ export const getUserProfileController = async (req, res) => {
       },
     };
 
-    // Cache the user profile data
-    await client.set(cacheKey, JSON.stringify(responseData), { EX: 3600 }); // Cache for 1 hour
+    await client.set(cacheKey, JSON.stringify(responseData), { EX: 3600 });
 
-    // Return the response
     return res.status(200).json(responseData);
   } catch (error) {
     console.log(error);

@@ -43,7 +43,7 @@ import { io } from "socket.io-client";
 import axios from "axios";
 import { Alert } from "react-native";
 
-const SOCKET_SERVER_URL = "http://192.168.1.11:8080";
+const SOCKET_SERVER_URL = "http://192.168.1.3:8080";
 const socket = io(SOCKET_SERVER_URL);
 const ViewProfile = () => {
   const { user } = useLocalSearchParams();
