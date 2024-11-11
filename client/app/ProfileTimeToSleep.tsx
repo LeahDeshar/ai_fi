@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Switch, ScrollView } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useTheme } from "@/constants/ThemeProvider";
@@ -19,7 +19,6 @@ const ProfileTimeToSleep = () => {
     setSleepGoalTime(currentDate);
   };
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
-  // Format the selected time to 12-hour AM/PM format
   const formatTime = (time) => {
     const hours = time.getHours();
     const minutes = time.getMinutes();
@@ -28,6 +27,19 @@ const ProfileTimeToSleep = () => {
     const minute = minutes < 10 ? `0${minutes}` : minutes;
     return `${hour}:${minute} ${ampm}`;
   };
+  const [timeToSleep, setSleepTime] = useState(new Date());
+  useEffect(() => {
+    if (profile && profile.profileOfUsers) {
+      const parsedTimeToSleep = new Date(profile.profileOfUsers.timeToSleep);
+      // const parsedSleepGoalTime = new Date(profile.profileOfUsers.sleepTime);
+
+      setSleepTime(parsedTimeToSleep);
+
+      refetch();
+    }
+  }, [profile]);
+
+  console.log(timeToSleep);
 
   const handleSave = async () => {
     const profileData = {
@@ -61,11 +73,11 @@ const ProfileTimeToSleep = () => {
           color: colors.text,
         }}
       >
-        Sleep goal time: {formatTime(sleepGoalTime)}
+        Sleep goal time: {formatTime(timeToSleep)}
       </Text>
 
       <DateTimePicker
-        value={sleepGoalTime}
+        value={timeToSleep}
         mode="time"
         is24Hour={false}
         display="spinner"

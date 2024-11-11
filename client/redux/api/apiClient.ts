@@ -57,6 +57,9 @@ export const authApi = createApi({
     getMyFriends: builder.query({
       query: () => "/social/requests/accepted",
     }),
+    getUserInsight: builder.query({
+      query: () => "/data/get-insight",
+    }),
     createProfile: builder.mutation({
       query: (profileData) => {
         const formData = new FormData();
@@ -119,4 +122,5 @@ export const {
   useGetallUsersProfileQuery,
   useGetAllUserPostQuery,
   useGetMyFriendsQuery,
+  useGetUserInsightQuery,
 } = authApi;

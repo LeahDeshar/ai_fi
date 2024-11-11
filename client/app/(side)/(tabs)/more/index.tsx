@@ -167,6 +167,9 @@ const MoreScreen = () => {
             marginTop: 25,
             overflow: "hidden",
           }}
+          onPress={() => {
+            navigation.push("ActivityInsight");
+          }}
         >
           <View
             style={{

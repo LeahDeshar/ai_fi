@@ -27,6 +27,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { resetProfile } from "@/redux/slices/profileSlice";
 import axios from "axios";
 import { persistor } from "@/redux/store";
+import { format } from "date-fns";
 
 const MyProfile = () => {
   const { colors, dark } = useTheme();
@@ -247,6 +248,11 @@ const ProfileScreen = ({ profile }) => {
   const { colors } = useTheme();
   const navigation = useRouter();
   console.log(profile);
+
+  const formatTimeToSleep = (time) => {
+    return format(new Date(time), "hh:mm a");
+  };
+
   // const { data: profile, error, isLoading } = useGetProfileQuery();
 
   // const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
@@ -362,12 +368,12 @@ const ProfileScreen = ({ profile }) => {
         />
         <ProfileItem
           title="Time to sleep"
-          value={`${profile?.profileOfUsers?.timeToSleep}`}
+          value={`${formatTimeToSleep(profile?.profileOfUsers?.timeToSleep)}`}
           onPress={() => navigation.navigate("ProfileTimeToSleep")}
         />
         <ProfileItem
           title="Sleep Goal"
-          value={`${profile?.profileOfUsers?.sleepGoal}`}
+          value={`${profile?.profileOfUsers?.sleepGoal} hr`}
           onPress={() => navigation.navigate("ProfileSleepGoal")}
         />
         <ProfileItem

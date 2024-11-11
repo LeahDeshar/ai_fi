@@ -660,6 +660,13 @@ const InnerStack = () => {
           ),
         }}
       />
+
+      <Stack.Screen
+        name="ActivityInsight"
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="MoreTipsAndTricks"
         options={{
@@ -733,6 +740,13 @@ const InnerStack = () => {
         name="PlanWorkout"
         options={{
           headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="CalorieFoodTracker"
+        options={{
+          headerShown: false,
+          presentation: "modal",
         }}
       />
       <Stack.Screen

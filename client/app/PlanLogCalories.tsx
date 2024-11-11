@@ -277,6 +277,7 @@ const PlanLogCalories = () => {
                         borderRadius: 25,
                         padding: 8,
                       }}
+                      onPress={() => navigation.navigate("CalorieFoodTracker")}
                     >
                       <Ionicons name="add" color={"#66BB6A"} size={25} />
                     </TouchableOpacity>
