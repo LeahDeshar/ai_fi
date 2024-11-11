@@ -19,7 +19,11 @@ import { Calendar } from "react-native-calendars";
 import { Circle, G, Rect, Svg } from "react-native-svg";
 import { Image } from "react-native";
 import { useSelector } from "react-redux";
-import { useGetProfileQuery } from "@/redux/api/apiClient";
+import {
+  useGetDailyConmpQuery,
+  useGetMealOfDayQuery,
+  useGetProfileQuery,
+} from "@/redux/api/apiClient";
 
 const meals = [
   {
@@ -53,26 +57,42 @@ const PlanLogCalories = () => {
   const openEditBottomSheet = () => {
     bottomSheetEditRef.current?.present();
   };
-  const progress = 1;
   const size = 185;
   const strokeWidth = 8;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (circumference * progress) / 100;
-
-  const carbs = 5;
-  const fat = 40;
-  const protein = 70;
 
   const { user, token, isLoggedIn } = useSelector((state) => state.auth);
-  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+  const { data: profile, error, isLoading } = useGetProfileQuery();
 
-  // useEffect(() => {
-  //   if (profile && profile.profileOfUsers) {
-  //     setSelectedImage(profile?.profileOfUsers?.profilePic?.url);
-  //     refetch();
-  //   }
-  // }, [profile]);
+  const {
+    data: mealOfDay,
+    error: mealError,
+    isLoading: isMealError,
+  } = useGetMealOfDayQuery();
+  const {
+    data: daily,
+    error: dailyError,
+    isLoading: isDailyError,
+    refetch,
+  } = useGetDailyConmpQuery();
+
+  // refetch();
+
+  if (isLoading || isMealError || isDailyError) {
+    return <Text>Loading...</Text>;
+  }
+  if (error) {
+    return <Text>{error}</Text>;
+  }
+  const targetCalories =
+    profile?.calculations?.weightLossDuration?.calories?.targetCalories || 1;
+  const totalCalories = daily?.totalCalories || 0;
+
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+
+  const progressRatio = Math.min(totalCalories / targetCalories, 1);
+  const strokeDashoffset = circumference * (1 - progressRatio);
+
   return (
     <GestureHandlerRootView>
       <BottomSheetModalProvider>
@@ -159,7 +179,7 @@ const PlanLogCalories = () => {
                         color: colors.text,
                       }}
                     >
-                      0
+                      {daily?.totalCalories}
                     </Text>
                     <Text
                       style={{
@@ -191,17 +211,15 @@ const PlanLogCalories = () => {
                   }}
                 >
                   <NutrientProgressBars
-                    carbs={carbs}
-                    fat={fat}
-                    protein={protein}
+                    carbs={daily?.totalCarbs}
+                    fat={daily?.totalFat}
+                    protein={daily?.totalProtein}
                     colors={colors}
                   />
                 </View>
               </View>
               <View
                 style={{
-                  // borderTopLeftRadius: 25,
-                  // borderTopRightRadius: 25,
                   paddingTop: 20,
                 }}
               >
@@ -218,75 +236,91 @@ const PlanLogCalories = () => {
                 >
                   Daily meals
                 </Text>
-                {meals?.map((item, index) => (
-                  <View
-                    key={index}
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      backgroundColor: colors.background,
-                      marginVertical: 5,
-                      marginHorizontal: 15,
-                      paddingHorizontal: 10,
-                      paddingVertical: 15,
-                      borderRadius: 15,
-                    }}
-                  >
+                {meals?.map((item, index) => {
+                  const mealCalorie = mealOfDay[item.title];
+
+                  return (
                     <View
+                      key={index}
                       style={{
                         flexDirection: "row",
+                        justifyContent: "space-between",
                         alignItems: "center",
+                        backgroundColor: colors.background,
+                        marginVertical: 5,
+                        marginHorizontal: 15,
+                        paddingHorizontal: 10,
+                        paddingVertical: 15,
+                        borderRadius: 15,
                       }}
                     >
                       <View
                         style={{
-                          backgroundColor: item.color,
-                          width: 35,
-                          height: 35,
-                          borderRadius: 25,
-                          justifyContent: "center",
+                          flexDirection: "row",
                           alignItems: "center",
-                          padding: 20,
                         }}
                       >
-                        <Image
-                          source={item.images}
+                        <View
                           style={{
-                            width: 32,
-                            height: 32,
-                            resizeMode: "contain",
+                            backgroundColor: item.color,
+                            width: 35,
+                            height: 35,
+                            borderRadius: 25,
+                            justifyContent: "center",
+                            alignItems: "center",
+                            padding: 20,
                           }}
-                        />
+                        >
+                          <Image
+                            source={item.images}
+                            style={{
+                              width: 32,
+                              height: 32,
+                              resizeMode: "contain",
+                            }}
+                          />
+                        </View>
+                        <View>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              fontWeight: 500,
+                              marginLeft: 10,
+                              color: colors.text,
+                            }}
+                          >
+                            {item.title}
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 13,
+                              marginLeft: 10,
+                              marginTop: 5,
+                              color: "#777",
+                            }}
+                          >
+                            {mealCalorie?.totalCalories || 0}kcal
+                          </Text>
+                        </View>
                       </View>
-                      <Text
+                      <TouchableOpacity
                         style={{
-                          fontSize: 16,
-                          fontWeight: 500,
-                          marginLeft: 10,
-                          color: colors.text,
+                          borderWidth: 1,
+                          borderColor: "#66bb6ac6",
+                          borderRadius: 25,
+                          padding: 8,
                         }}
+                        onPress={() =>
+                          navigation.navigate("CalorieFoodTracker", {
+                            title: item.title,
+                          })
+                        }
                       >
-                        {item.title}
-                      </Text>
+                        <Ionicons name="add" color={"#66BB6A"} size={25} />
+                      </TouchableOpacity>
                     </View>
-                    <TouchableOpacity
-                      style={{
-                        borderWidth: 1,
-                        borderColor: "#66bb6ac6",
-                        borderRadius: 25,
-                        padding: 8,
-                      }}
-                      onPress={() =>
-                        navigation.navigate("CalorieFoodTracker", {
-                          title: item.title,
-                        })
-                      }
-                    >
-                      <Ionicons name="add" color={"#66BB6A"} size={25} />
-                    </TouchableOpacity>
-                  </View>
-                ))}
+                  );
+                })}
               </View>
             </ScrollView>
           </View>
@@ -544,7 +578,7 @@ const SvgProgressBar = ({ label, percentage, color, colors }) => {
           },
         ]}
       >
-        {percentage} g
+        {percentage.toFixed(1)} g
       </Text>
     </View>
   );

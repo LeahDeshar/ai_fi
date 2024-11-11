@@ -18,8 +18,10 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { useTheme } from "@/constants/ThemeProvider";
 import {
+  useCreateMealMutation,
   useGetAllFoodQuery,
   useGetFoodByBarcodeQuery,
+  useGetMealByTypeQuery,
 } from "@/redux/api/apiClient";
 LogBox.ignoreLogs([
   "BarCodeScanner has been deprecated and will be removed in a future SDK version. Please use `expo-camera` instead. See https://expo.fyi/barcode-scanner-to-expo-camera for more details on how to migrate",
@@ -74,11 +76,11 @@ const CalorieFoodTracker = () => {
   const [isAddCalorieOpen, setIsAddCalorieOpen] = useState(false);
   const [foodName, setFoodName] = useState("");
   const [calorieValue, setCalorieValue] = useState("");
-  // const [foodList, setFoodList] = useState([]);
+
   const { data: allFood, error, isLoading } = useGetAllFoodQuery();
+  const { data: mealTypeFood, refetch } = useGetMealByTypeQuery(title);
 
   const route = useRouter();
-  // Add calorie to food list
   const handleAddCalories = () => {
     if (foodName && calorieValue) {
       const newFoodItem = {
@@ -108,19 +110,14 @@ const CalorieFoodTracker = () => {
     };
     getCameraPermissions();
   }, []);
-  // const {
-  //   data: food,
-  //   error: foodError,
-  //   isLoading: foodIsLoading,
-  // } = useGetFoodByBarcodeQuery(scannedData);
+  const [createMeal] = useCreateMealMutation();
 
-  // const handleBarcodeScanned = ({ data }) => {
-  //   Vibration.vibrate(500);
-  //   setScanned(true);
-  //   setScannedData(data);
-  //   setIsScannerOpen(false);
-  //   console.log(data);
-  // };
+  const handleAddMeal = async (id) => {
+    console.log(id, title);
+    const mealData = { foodId: id, mealType: title };
+    await createMeal(mealData).unwrap();
+    refetch();
+  };
 
   const [scanneds, setScanneds] = useState(false);
   const [barcode, setBarcode] = useState(null);
@@ -146,9 +143,6 @@ const CalorieFoodTracker = () => {
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
-
-  console.log(food);
-
   return (
     <View style={styles.container}>
       <FlatList
@@ -252,6 +246,46 @@ const CalorieFoodTracker = () => {
               </View>
             )}
 
+            {mealTypeFood && (
+              <>
+                <Text style={styles.resultsTitle}>Your {title}</Text>
+                {mealTypeFood?.map((meal, index) => (
+                  <View
+                    style={{
+                      flexDirection: "row",
+
+                      alignItems: "center",
+                      marginVertical: 3,
+                      gap: 10,
+                    }}
+                    key={meal._id}
+                  >
+                    {meal.foods?.map((food, foodIndex) => (
+                      <TouchableOpacity
+                        style={{
+                          padding: 5,
+                          paddingHorizontal: 8,
+
+                          flexDirection: "row",
+                          alignItems: "center",
+                          marginVertical: 3,
+                          borderWidth: 1,
+                          borderColor: "#bbb9b9",
+                          borderRadius: 25,
+                        }}
+                        key={foodIndex}
+                      >
+                        <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                          {food?.name}
+                        </Text>
+
+                        <Ionicons name="close" size={24} color={"black"} />
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ))}
+              </>
+            )}
             {searchQuery && (
               <View style={styles.resultsSection}>
                 <Text style={styles.resultsTitle}>Search Results</Text>
@@ -347,6 +381,7 @@ const CalorieFoodTracker = () => {
               </View>
             </View>
             <TouchableOpacity
+              onPress={() => handleAddMeal(item?._id)}
               style={{
                 borderRadius: 50,
                 borderWidth: 2,

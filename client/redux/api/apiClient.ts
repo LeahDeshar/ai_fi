@@ -53,6 +53,15 @@ export const authApi = createApi({
         };
       },
     }),
+    createMeal: builder.mutation({
+      query: (mealData) => {
+        return {
+          url: "/meals/create",
+          method: "POST",
+          body: mealData,
+        };
+      },
+    }),
     getProfile: builder.query({
       query: () => "/auth/profile",
     }),
@@ -71,6 +80,15 @@ export const authApi = createApi({
     }),
     getAllFood: builder.query({
       query: () => "/food/get",
+    }),
+    getMealByType: builder.query({
+      query: (mealType) => `/meals/get/${mealType}`,
+    }),
+    getMealOfDay: builder.query({
+      query: () => `/meals/get`,
+    }),
+    getDailyConmp: builder.query({
+      query: () => `/meals/daily`,
     }),
     getFoodByBarcode: builder.query({
       query: (barcode) => `/food/barcode/${barcode}`,
@@ -134,11 +152,15 @@ export const {
   useUpdateProfileMutation,
   useCreateProfileMutation,
   useCreateFoodMutation,
+  useCreateMealMutation,
   useGetProfileQuery,
   useGetallUsersProfileQuery,
   useGetAllUserPostQuery,
+  useGetDailyConmpQuery,
   useGetMyFriendsQuery,
   useGetUserInsightQuery,
   useGetAllFoodQuery,
+  useGetMealOfDayQuery,
   useGetFoodByBarcodeQuery,
+  useGetMealByTypeQuery,
 } = authApi;
