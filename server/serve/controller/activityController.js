@@ -1,15 +1,37 @@
 import UserActivity from "../models/activitySchema.js";
 import FastingSchedule from "../models/FastingScheduleSchema.js";
 import WeeklySummary from "../models/weeklySummarySchema.js";
-import moment from "moment";
 import { client } from "../util/redis.js";
 
-const checkAndCreateActivity = async (userId) => {
-  const today = new Date();
-  const startOfDay = new Date(today.setHours(0, 0, 0, 0)); // Start of today
-  const endOfDay = new Date(today.setHours(23, 59, 59, 999)); // End of today
+// cron.schedule("50 13 * * *", async () => {
+//   console.log("Running daily activity check for all users...");
 
-  // Check if activity exists for today
+//   try {
+//     const users = await User.find({ profile: { $ne: null } }, "_id");
+//     const userIds = users.map((user) => user._id);
+
+//     // Call checkAndCreateActivity for each user
+//     await Promise.all(
+//       userIds.map(async (userId) => {
+//         try {
+//           await checkAndCreateActivity(userId);
+//           console.log(`Daily activity checked/created for user ${userId}`);
+//         } catch (error) {
+//           console.error(`Error processing activity for user ${userId}:`, error);
+//         }
+//       })
+//     );
+//     console.log("Daily activity check completed for all users.");
+//   } catch (error) {
+//     console.error("Error fetching users for daily activity check:", error);
+//   }
+// });
+
+export const checkAndCreateActivity = async (userId) => {
+  const today = new Date();
+  const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+  const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
   const activityExists = await UserActivity.findOne({
     userId: userId,
     date: { $gte: startOfDay, $lte: endOfDay },
@@ -18,13 +40,30 @@ const checkAndCreateActivity = async (userId) => {
   // If activity doesn't exist, create a new one
   if (!activityExists) {
     // Fetch the user's current fasting settings
-    const fastingSchedule = await FastingSchedule.findOne({
+    let fastingSchedule = await FastingSchedule.findOne({
       user: userId,
       isActive: true,
     });
 
     if (!fastingSchedule) {
-      throw new Error("Active fasting schedule not found for user");
+      const defaultFastingHours = 16;
+      const defaultEatingHours = 8;
+      const startTime = new Date();
+      const endTime = new Date(
+        startTime.getTime() + defaultFastingHours * 60 * 60 * 1000
+      );
+
+      fastingSchedule = new FastingSchedule({
+        user: userId,
+        fastingHours: defaultFastingHours,
+        eatingHours: defaultEatingHours,
+        startTime: startTime,
+        endTime: endTime,
+        isActive: true,
+      });
+
+      await fastingSchedule.save();
+      console.log(`Created new fasting schedule for user ${userId}.`);
     }
 
     const { fastingHours, eatingHours, startTime } = fastingSchedule;
@@ -32,7 +71,6 @@ const checkAndCreateActivity = async (userId) => {
       startTime.getTime() + fastingHours * 60 * 60 * 1000
     );
 
-    // Create a new activity for today with the user's current fasting settings
     const newActivity = new UserActivity({
       userId: userId,
       date: startOfDay,
@@ -73,26 +111,55 @@ export const createActivityForNextDay = async (req, res) => {
 
 // http://localhost:8080/api/v1/daily/activity
 export const getUserActivity = async (req, res) => {
+  // try {
+  //   // const { date } = req.params;
+
+  //   // console.log(date);
+  //   // today date
+  //   const today = new Date();
+  //   const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+
+  //   const userId = req.user._id;
+  //   // const startOfDay = new Date(date);
+  //   // startOfDay.setHours(0, 0, 0, 0);
+
+  //   const endOfDay = new Date(date);
+  //   endOfDay.setHours(23, 59, 59, 999);
+
+  //   const activity = await UserActivity.findOne({
+  //     userId,
+  //     date: { $gte: startOfDay, $lte: endOfDay },
+  //   });
+
+  //   if (!activity) {
+  //     return res
+  //       .status(404)
+  //       .json({ message: "Activity not found for this date." });
+  //   }
+
+  //   return res.json({ activity });
+  // } catch (error) {
+  //   console.error(error);
+  //   return res
+  //     .status(500)
+  //     .json({ message: "Server error", error: error.message });
+  // }
+
   try {
-    const { date } = req.body;
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0)); // Set time to 00:00:00
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999)); // Set time to 23:59:59
 
-    console.log(date);
     const userId = req.user._id;
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
 
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
-
+    // Find activity for the user within today's date range
     const activity = await UserActivity.findOne({
       userId,
-      date: { $gte: startOfDay, $lte: endOfDay },
+      date: { $gte: startOfDay, $lte: endOfDay }, // Match the date for the entire day
     });
 
     if (!activity) {
-      return res
-        .status(404)
-        .json({ message: "Activity not found for this date." });
+      return res.status(404).json({ message: "Activity not found for today." });
     }
 
     return res.json({ activity });
@@ -107,7 +174,7 @@ export const getUserActivity = async (req, res) => {
 // http://localhost:8080/api/v1/daily/activity/2024-11-06
 export const updateUserActivity = async (req, res) => {
   try {
-    const { date } = req.params;
+    // const { date } = req.params;
     const userId = req.user._id;
     const updates = req.body;
 
@@ -153,7 +220,7 @@ export const deleteAllUserActivity = async (req, res) => {
   }
 };
 
-// get all te useractivity of the user
+// get all the useractivity of the user
 export const getAllUserActivity = async (req, res) => {
   try {
     const userId = req.user._id;
