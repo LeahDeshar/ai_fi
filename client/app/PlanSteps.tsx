@@ -663,18 +663,14 @@ const WeeklyStatsComponent = ({
   const barWidth = 10;
   const barSpacing = 43;
 
-  console.log(userActivityWeek);
-
-  const stats = days.map((day) => {
-    const activity = userActivityWeek.find((act) => {
+  const stats = days?.map((day) => {
+    const activity = userActivityWeek?.find((act) => {
       const activityDate = new Date(act.date);
-      const activityDay = activityDate.toLocaleString("en", {
+      const activityDay = activityDate?.toLocaleString("en", {
         weekday: "short",
       });
       return activityDay === day;
     });
-
-    console.log(activity?.dailySteps);
 
     return activity
       ? Math.min((activity?.dailySteps / selectedDailyStep) * 100, 100)

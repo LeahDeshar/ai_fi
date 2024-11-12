@@ -61,7 +61,7 @@ const PlanDrinkWater = () => {
 
   const { data: userActivityWeek, refetch: refetchWeek } =
     useGetUserActivityWeekQuery();
-  console.log("userActivityWeek", userActivityWeek.activities);
+  console.log("userActivityWeek", userActivityWeek?.activities);
 
   const waterIntakeInMl = profile?.calculations.waterIntake * 1000 || 0;
 

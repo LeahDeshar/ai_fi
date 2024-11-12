@@ -136,6 +136,23 @@
 //   );
 // };
 
+// import React, { useState, useEffect, useRef } from "react";
+// import {
+//   View,
+//   Text,
+//   TouchableOpacity,
+//   Button,
+//   FlatList,
+//   Vibration,
+//   SafeAreaView,
+// } from "react-native";
+// import { Accelerometer } from "expo-sensors";
+// import Svg, { G, Circle } from "react-native-svg";
+// import { useTheme } from "@react-navigation/native";
+// import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+// import { GestureHandlerRootView } from "react-native-gesture-handler";
+// import AntDesign from "react-native-vector-icons/AntDesign";
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
@@ -143,15 +160,19 @@ import {
   TouchableOpacity,
   Button,
   FlatList,
-  Vibration,
   SafeAreaView,
+  Dimensions,
+  ScrollView,
 } from "react-native";
 import { Accelerometer } from "expo-sensors";
 import Svg, { G, Circle } from "react-native-svg";
-import { useTheme } from "@react-navigation/native";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import AntDesign from "react-native-vector-icons/AntDesign";
+import { LineChart } from "react-native-chart-kit";
+import { useTheme } from "@/constants/ThemeProvider";
+
+const screenWidth = Dimensions.get("window").width;
 
 const PlanSleep = () => {
   const { colors } = useTheme();
@@ -168,12 +189,15 @@ const PlanSleep = () => {
     y: 0,
     z: 0,
   });
+  const [dataPoints, setDataPoints] = useState({ x: [], y: [], z: [] });
+
+  const MAX_DATA_POINTS = 50;
+  const DATA_CAPTURE_INTERVAL = 1800;
 
   const handleToggleTracking = () => {
     if (isTracking) {
-      // Stop tracking
       const endTime = new Date();
-      const duration = (endTime - startTime) / 3600000; // Convert ms to hours
+      const duration = (endTime - startTime) / 3600000;
       setSleepDuration(duration);
       setSleepHistory((prev) => [
         ...prev,
@@ -181,26 +205,45 @@ const PlanSleep = () => {
       ]);
       Accelerometer.removeAllListeners();
     } else {
-      // Start tracking
       setStartTime(new Date());
-      Accelerometer.setUpdateInterval(1000);
-      Accelerometer.addListener((data) => setAccelerometerData(data));
+      setDataPoints({ x: [], y: [], z: [] });
+      Accelerometer.setUpdateInterval(DATA_CAPTURE_INTERVAL);
+      Accelerometer.addListener((data) => {
+        setAccelerometerData(data);
+        setDataPoints((prevData) => ({
+          x: [...prevData.x.slice(-MAX_DATA_POINTS + 1), data.x],
+          y: [...prevData.y.slice(-MAX_DATA_POINTS + 1), data.y],
+          z: [...prevData.z.slice(-MAX_DATA_POINTS + 1), data.z],
+        }));
+      });
     }
     setIsTracking(!isTracking);
   };
 
-  useEffect(() => {
-    if (isTracking) {
-      const { x, y, z } = accelerometerData;
-      const movement = Math.sqrt(x * x + y * y + z * z);
-
-      if (movement < 1.02) {
-        console.log("User is likely sleeping");
-      } else {
-        console.log("User is active");
-      }
-    }
-  }, [accelerometerData]);
+  const chartData = {
+    labels: Array.from({ length: dataPoints.x.length }, (_, i) => i.toString()),
+    datasets: [
+      {
+        data: dataPoints.x,
+        color: () => "#c43a31",
+        strokeWidth: 2,
+        label: "X-axis",
+      },
+      {
+        data: dataPoints.y,
+        color: () => "#1f77b4",
+        strokeWidth: 2,
+        label: "Y-axis",
+      },
+      {
+        data: dataPoints.z,
+        color: () => "#2ca02c",
+        strokeWidth: 2,
+        label: "Z-axis",
+      },
+    ],
+    legend: ["X-axis", "Y-axis", "Z-axis"],
+  };
 
   const size = 185;
   const strokeWidth = 8;
@@ -212,73 +255,107 @@ const PlanSleep = () => {
     <GestureHandlerRootView>
       <BottomSheetModalProvider>
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-          <View>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                padding: 16,
-              }}
-            >
-              <TouchableOpacity>
-                <AntDesign name="arrowleft" size={20} color={colors.icon} />
-              </TouchableOpacity>
-              <Text style={{ fontSize: 20, color: colors.text }}>
-                Sleep Tracker
-              </Text>
-              <TouchableOpacity>
-                <AntDesign name="calendar" size={20} color={colors.icon} />
-              </TouchableOpacity>
-            </View>
-            <View style={{ alignItems: "center", marginVertical: 20 }}>
-              <Svg width={size} height={size}>
-                <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
-                  <Circle
-                    cx={size / 2}
-                    cy={size / 2}
-                    r={radius}
-                    stroke="#eaeaeb"
-                    strokeWidth={strokeWidth}
-                    fill="none"
-                  />
-                  <Circle
-                    cx={size / 2}
-                    cy={size / 2}
-                    r={radius}
-                    stroke="#b50101"
-                    strokeWidth={strokeWidth}
-                    strokeLinecap="round"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={strokeDashoffset}
-                    fill="none"
-                  />
-                </G>
-              </Svg>
+          <ScrollView>
+            <View>
               <View
-                style={{ position: "absolute", alignItems: "center", top: 80 }}
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  padding: 16,
+                }}
               >
-                <Text style={{ fontSize: 24, color: colors.text }}>
-                  {sleepDuration.toFixed(2)}
+                <TouchableOpacity>
+                  <AntDesign name="arrowleft" size={20} color={colors.icon} />
+                </TouchableOpacity>
+                <Text style={{ fontSize: 20, color: colors.text }}>
+                  Sleep Tracker
                 </Text>
-                <Text style={{ color: colors.text }}>of 8 hrs goal</Text>
+                <TouchableOpacity>
+                  <AntDesign name="calendar" size={20} color={colors.icon} />
+                </TouchableOpacity>
               </View>
-            </View>
-            <View style={{ alignItems: "center" }}>
-              <Button
-                title={isTracking ? "Stop Tracking" : "Start Tracking"}
-                color={isTracking ? "red" : "green"}
-                onPress={handleToggleTracking}
-              />
-            </View>
-            <View style={{ paddingHorizontal: 16, marginTop: 20 }}>
-              <Text style={{ fontSize: 18, color: colors.text }}>
-                Sleep History
-              </Text>
-              <FlatList
-                data={sleepHistory}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
+
+              <View style={{ alignItems: "center", marginVertical: 20 }}>
+                <Svg width={size} height={size}>
+                  <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
+                    <Circle
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={radius}
+                      stroke="#eaeaeb"
+                      strokeWidth={strokeWidth}
+                      fill="none"
+                    />
+                    <Circle
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={radius}
+                      stroke="#b50101"
+                      strokeWidth={strokeWidth}
+                      strokeLinecap="round"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={strokeDashoffset}
+                      fill="none"
+                    />
+                  </G>
+                </Svg>
+                <View
+                  style={{
+                    position: "absolute",
+                    alignItems: "center",
+                    top: 80,
+                  }}
+                >
+                  <Text style={{ fontSize: 24, color: colors.text }}>
+                    {sleepDuration.toFixed(2)} hrs
+                  </Text>
+                  <Text style={{ color: colors.text }}>of 8 hrs goal</Text>
+                </View>
+              </View>
+
+              <View style={{ alignItems: "center" }}>
+                <Button
+                  title={isTracking ? "Stop Tracking" : "Start Tracking"}
+                  color={isTracking ? "red" : "green"}
+                  onPress={handleToggleTracking}
+                />
+              </View>
+
+              <View style={{ paddingHorizontal: 16, marginTop: 20 }}>
+                <Text
+                  style={{
+                    fontSize: 18,
+                    color: colors.text,
+                    textAlign: "center",
+                    marginVertical: 20,
+                  }}
+                >
+                  Movement Graph
+                </Text>
+                <LineChart
+                  data={chartData}
+                  width={screenWidth - 32}
+                  height={220}
+                  chartConfig={{
+                    backgroundGradientFrom: colors.background,
+                    backgroundGradientTo: "#777",
+                    decimalPlaces: 2,
+                    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                    labelColor: () => colors.text,
+                    style: { borderRadius: 16 },
+                  }}
+                  bezier
+                />
+              </View>
+
+              <View style={{ paddingHorizontal: 16, marginTop: 20 }}>
+                <Text style={{ fontSize: 18, color: colors.text }}>
+                  Sleep History
+                </Text>
+
+                {sleepHistory?.map((item, index) => (
                   <View
+                    key={index}
                     style={{
                       flexDirection: "row",
                       justifyContent: "space-between",
@@ -287,13 +364,13 @@ const PlanSleep = () => {
                   >
                     <Text style={{ color: colors.text }}>{item.date}</Text>
                     <Text style={{ color: colors.text }}>
-                      {item.duration} hrs
+                      {item.duration.toFixed(2)} hrs
                     </Text>
                   </View>
-                )}
-              />
+                ))}
+              </View>
             </View>
-          </View>
+          </ScrollView>
         </SafeAreaView>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>
@@ -301,6 +378,7 @@ const PlanSleep = () => {
 };
 
 export default PlanSleep;
+
 const styles = {
   header: {
     flexDirection: "row",

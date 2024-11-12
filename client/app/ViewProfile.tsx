@@ -51,7 +51,8 @@ const ViewProfile = () => {
   const [profile, setProfile] = useState(null);
   const { user: me, token, isLoggedIn } = useSelector((state) => state.auth);
   const flatListRef = useRef(null);
-
+  const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState(null);
   const [comments, setComments] = useState(null);
   const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState(null);
@@ -127,9 +128,6 @@ const ViewProfile = () => {
       />
     );
   };
-
-  const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState(null);
 
   const openComments = async (postId) => {
     try {
