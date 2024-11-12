@@ -21,6 +21,7 @@ import { Image } from "react-native";
 import { useSelector } from "react-redux";
 import {
   useGetDailyConmpQuery,
+  useGetMealByDateQuery,
   useGetMealOfDayQuery,
   useGetProfileQuery,
 } from "@/redux/api/apiClient";
@@ -52,6 +53,8 @@ const PlanLogCalories = () => {
   const navigation = useNavigation();
 
   const [selectedDate, setSelectedDate] = useState(null);
+  const [pick, setPick] = useState(false);
+
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const bottomSheetEditRef = useRef<BottomSheetModal>(null);
   const openEditBottomSheet = () => {
@@ -76,6 +79,13 @@ const PlanLogCalories = () => {
   } = useGetDailyConmpQuery();
 
   // refetch();
+  const {
+    data: pickMeal,
+    error: pickMealError,
+    isLoading: isPickMealError,
+  } = useGetMealByDateQuery(selectedDate, {
+    skip: !pick,
+  });
 
   if (isLoading || isMealError || isDailyError) {
     return <Text>Loading...</Text>;
@@ -92,6 +102,12 @@ const PlanLogCalories = () => {
 
   const progressRatio = Math.min(totalCalories / targetCalories, 1);
   const strokeDashoffset = circumference * (1 - progressRatio);
+
+  const handleMealPick = async (day) => {
+    setPick(true);
+    setSelectedDate(day);
+    bottomSheetRef.current?.close();
+  };
 
   return (
     <GestureHandlerRootView>
@@ -179,7 +195,7 @@ const PlanLogCalories = () => {
                         color: colors.text,
                       }}
                     >
-                      {daily?.totalCalories}
+                      {pickMeal?.totalCalories || daily?.totalCalories}
                     </Text>
                     <Text
                       style={{
@@ -211,9 +227,9 @@ const PlanLogCalories = () => {
                   }}
                 >
                   <NutrientProgressBars
-                    carbs={daily?.totalCarbs}
-                    fat={daily?.totalFat}
-                    protein={daily?.totalProtein}
+                    carbs={pickMeal?.totalCarbs || daily?.totalCarbs}
+                    fat={pickMeal?.totalFats || daily?.totalFat || 0}
+                    protein={pickMeal?.totalProtein || daily?.totalProtein}
                     colors={colors}
                   />
                 </View>
@@ -238,6 +254,8 @@ const PlanLogCalories = () => {
                 </Text>
                 {meals?.map((item, index) => {
                   const mealCalorie = mealOfDay[item.title];
+                  const pickMealCalorie =
+                    pickMeal?.categorizedMeals[item.title];
 
                   return (
                     <View
@@ -299,7 +317,10 @@ const PlanLogCalories = () => {
                               color: "#777",
                             }}
                           >
-                            {mealCalorie?.totalCalories || 0}kcal
+                            {pickMealCalorie?.totalCalories ||
+                              mealCalorie?.totalCalories ||
+                              0}
+                            kcal
                           </Text>
                         </View>
                       </View>
@@ -340,6 +361,7 @@ const PlanLogCalories = () => {
               <CalendarPicker
                 selectedDate={selectedDate}
                 setSelectedDate={setSelectedDate}
+                handleMealPick={handleMealPick}
               />
             </View>
           </BottomSheetModal>
@@ -402,7 +424,7 @@ const PlanLogCalories = () => {
   );
 };
 
-const CalendarPicker = ({ selectedDate, setSelectedDate }) => {
+const CalendarPicker = ({ selectedDate, setSelectedDate, handleMealPick }) => {
   const renderCustomArrow = (direction) => {
     return <Text style={styles.arrow}>{direction === "left" ? "<" : ">"}</Text>;
   };
@@ -410,6 +432,7 @@ const CalendarPicker = ({ selectedDate, setSelectedDate }) => {
 
   const today = new Date().toISOString().split("T")[0];
 
+  console.log(selectedDate);
   return (
     <View
       style={{
@@ -424,7 +447,8 @@ const CalendarPicker = ({ selectedDate, setSelectedDate }) => {
         maxDate={today}
         onDayPress={(day) => {
           console.log("selected day", day);
-          setSelectedDate(day.dateString);
+          // setSelectedDate(day.dateString);
+          handleMealPick(day.dateString);
         }}
         monthFormat={"MMMM yyyy"}
         hideExtraDays={true}
@@ -457,28 +481,6 @@ const CalendarPicker = ({ selectedDate, setSelectedDate }) => {
         style={{
           height: 350,
           width: 380,
-        }}
-        theme={{
-          arrowColor: "black",
-          textSectionTitleColor: "black",
-          selectedDayBackgroundColor: "green",
-          selectedDayTextColor: "white",
-          todayTextColor: "red",
-          dayTextColor: "black",
-          textDisabledColor: "gray",
-          dotColor: "green",
-          selectedDotColor: "red",
-          monthTextColor: "black",
-          indicatorColor: "black",
-          textDayFontFamily: "monospace",
-          textMonthFontFamily: "monospace",
-          textDayHeaderFontFamily: "monospace",
-          textDayFontWeight: "300",
-          textMonthFontWeight: "bold",
-          textDayHeaderFontWeight: "300",
-          textDayFontSize: 16,
-          textMonthFontSize: 16,
-          textDayHeaderFontSize: 16,
         }}
       />
     </View>

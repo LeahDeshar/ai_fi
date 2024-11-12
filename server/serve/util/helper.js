@@ -143,3 +143,71 @@
 // };
 
 // generateMockData("67189a704f4eed52a1cfb7ae");
+
+// CREATE MOCK DATA FOR MEALS
+
+// const userId = "67189a704f4eed52a1cfb7ae"; // example user ID
+// const foodIds = [
+//   "6732508541f5c8671a50e74a",
+//   "6732508541f5c8671a50e74d",
+//   "6732508541f5c8671a50e74e",
+//   "6732508541f5c8671a50e74f",
+// ]; // Replace with real Food _id values from your database
+
+// async function createMockMeals() {
+//   // Define two past dates
+//   const today = new Date();
+//   const yesterday = new Date(today);
+//   yesterday.setDate(today.getDate() - 1);
+
+//   const meals = [
+//     {
+//       userId,
+//       mealType: "Breakfast",
+//       foods: [foodIds[0], foodIds[1]],
+//       date: yesterday,
+//     },
+//     {
+//       userId,
+//       mealType: "Lunch",
+//       foods: [foodIds[2]],
+//       date: yesterday,
+//     },
+//     {
+//       userId,
+//       mealType: "Dinner",
+//       foods: [foodIds[3], foodIds[1]],
+//       date: yesterday,
+//     },
+//     {
+//       userId,
+//       mealType: "Breakfast",
+//       foods: [foodIds[0]],
+//       date: today,
+//     },
+//     {
+//       userId,
+//       mealType: "Lunch",
+//       foods: [foodIds[2], foodIds[3]],
+//       date: today,
+//     },
+//     {
+//       userId,
+//       mealType: "Snacks",
+//       foods: [foodIds[1]],
+//       date: today,
+//     },
+//   ];
+
+//   try {
+//     // Insert mock meals
+//     await Meal.insertMany(meals);
+//     console.log("Mock data for meals has been created.");
+//   } catch (error) {
+//     console.error("Error creating mock data:", error);
+//   } finally {
+//     mongoose.connection.close();
+//   }
+// }
+
+// createMockMeals();

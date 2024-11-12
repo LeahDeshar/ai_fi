@@ -90,6 +90,9 @@ export const authApi = createApi({
     getDailyConmp: builder.query({
       query: () => `/meals/daily`,
     }),
+    getMealByDate: builder.query({
+      query: (date) => `/meals/get/date/${date}`,
+    }),
     getFoodByBarcode: builder.query({
       query: (barcode) => `/food/barcode/${barcode}`,
     }),
@@ -158,6 +161,7 @@ export const {
   useGetAllUserPostQuery,
   useGetDailyConmpQuery,
   useGetMyFriendsQuery,
+  useGetMealByDateQuery,
   useGetUserInsightQuery,
   useGetAllFoodQuery,
   useGetMealOfDayQuery,

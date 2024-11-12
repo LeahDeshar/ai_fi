@@ -41,39 +41,71 @@ export const createMeal = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
-// export const getAllMeals = async (req, res) => {
-//   try {
-//     const userId = req.user._id;
 
-//     // Get start and end of the current day
-//     const startOfDay = new Date();
-//     startOfDay.setHours(0, 0, 0, 0);
+// get all the meal of user of the picked date
 
-//     const endOfDay = new Date();
-//     endOfDay.setHours(23, 59, 59, 999);
+export const getMealsByDate = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { date } = req.params;
 
-//     const meals = await Meal.find({
-//       userId,
-//       date: { $gte: startOfDay, $lte: endOfDay },
-//     }).populate("foods");
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
 
-//     // Categorize meals by mealType
-//     const categorizedMeals = meals.reduce((acc, meal) => {
-//       if (!acc[meal.mealType]) {
-//         acc[meal.mealType] = [];
-//       }
-//       acc[meal.mealType].push(meal);
-//       return acc;
-//     }, {});
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
 
-//     console.log(categorizedMeals);
+    const meals = await Meal.find({
+      userId,
+      date: { $gte: startOfDay, $lte: endOfDay },
+    }).populate("foods");
 
-//     return res.status(200).json(categorizedMeals);
-//   } catch (error) {
-//     console.error("Error fetching meals:", error);
-//     return res.status(500).json({ message: "Server error" });
-//   }
-// };
+    if (meals.length === 0) {
+      return res.status(404).json({ message: "No meals found for this date" });
+    }
+
+    let totalCalories = 0;
+    let totalCarbs = 0;
+    let totalFats = 0;
+    let totalProtein = 0;
+
+    const categorizedMeals = {};
+
+    meals.forEach((meal) => {
+      let mealCalories = 0;
+
+      if (!categorizedMeals[meal.mealType]) {
+        categorizedMeals[meal.mealType] = { totalCalories: 0, foods: [] };
+      }
+
+      meal.foods.forEach((food) => {
+        totalCalories += food.calories;
+        totalCarbs += food.carbs;
+        totalFats += food.fats;
+        totalProtein += food.protein;
+
+        mealCalories += food.calories;
+        categorizedMeals[meal.mealType].foods.push(food);
+      });
+
+      // Update the total calories for the meal type
+      categorizedMeals[meal.mealType].totalCalories += mealCalories;
+    });
+
+    // Send the aggregated data as the response
+    return res.status(200).json({
+      totalCalories,
+      totalCarbs,
+      totalFats,
+      totalProtein,
+      categorizedMeals,
+    });
+  } catch (error) {
+    console.error("Error fetching meals by date:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 export const getAllMeals = async (req, res) => {
   try {
     const userId = req.user._id;
