@@ -55,6 +55,9 @@ const PlanDrinkWater = () => {
   } = useGetProfileQuery();
 
   const { data: userActivity, refetch } = useGetUserActivityQuery();
+  useEffect(() => {
+    setCurrentIntake(userActivity?.activity?.waterIntake || 0);
+  }, []);
 
   const { data: userActivityWeek, refetch: refetchWeek } =
     useGetUserActivityWeekQuery();
@@ -64,10 +67,6 @@ const PlanDrinkWater = () => {
 
   const [selectedValue, setSelectedValue] = useState(null);
   const [currentIntake, setCurrentIntake] = useState(0);
-
-  useEffect(() => {
-    setCurrentIntake(userActivity?.activity?.waterIntake || 0);
-  }, []);
 
   const strokeDashoffset =
     circumference - (currentIntake / waterIntakeInMl) * circumference + 1;

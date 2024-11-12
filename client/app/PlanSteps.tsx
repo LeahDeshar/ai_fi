@@ -21,9 +21,54 @@ import { Button } from "react-native";
 import { Circle, G, Rect, Svg } from "react-native-svg";
 import { IconButton } from "react-native-paper";
 import { useSelector } from "react-redux";
-import { useGetProfileQuery } from "@/redux/api/apiClient";
+import {
+  useGetProfileQuery,
+  useGetUserActivityQuery,
+  useGetUserActivityWeekQuery,
+  useUpadateUserActivityMutation,
+} from "@/redux/api/apiClient";
 import { useDispatch } from "react-redux";
 import { setSavedSteps } from "@/redux/slices/profileSlice";
+
+// useEffect(() => {
+//   let subscription;
+
+//   const startAccelerometer = async () => {
+//     const isAvailable = await Accelerometer.isAvailableAsync();
+//     if (!isAvailable) {
+//       alert("Accelerometer is not available on this device");
+//       return;
+//     }
+
+//     subscription = Accelerometer.addListener((accelerometer) => {
+//       const { y } = accelerometer;
+//       const threshold = 0.1;
+//       const timeStamp = Date.now();
+
+//       if (
+//         Math.abs(y - lastY) > threshold &&
+//         !isCounting &&
+//         timeStamp - lastTimeStamp > 800
+//       ) {
+//         setIsCounting(true);
+//         setLastY(y);
+//         setLastTimeStamp(timeStamp);
+//         setSteps((prev) => prev + 1 + savedSteps);
+
+//         dispatch(setSavedSteps(steps));
+
+//         setTimeout(() => setIsCounting(false), 3200);
+//       }
+//     });
+//   };
+
+//   startAccelerometer();
+
+//   return () => subscription && subscription.remove();
+// }, [lastY, lastTimeStamp, isCounting]);
+
+const lowPassFilter = (currentValue, previousValue, alpha = 0.2) =>
+  previousValue * (1 - alpha) + currentValue * alpha;
 const PlanSteps = () => {
   const { colors, dark } = useTheme();
   const navigation = useNavigation();
@@ -33,28 +78,42 @@ const PlanSteps = () => {
     bottomSheetRef.current?.present();
   };
   const [selectedDate, setSelectedDate] = useState(null);
-  // const progress = 1;
+  const [updateActivity] = useUpadateUserActivityMutation();
+
   const size = 185;
   const strokeWidth = 8;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  // const strokeDashoffset = circumference - (circumference * progress) / 100;
 
   const [steps, setSteps] = useState(0);
   const [isCounting, setIsCounting] = useState(false);
   const [lastY, setLastY] = useState(0);
+  const [lastZ, setLastZ] = useState(0);
   const [lastTimeStamp, setLastTimeStamp] = useState(0);
 
   const { savedSteps } = useSelector((state) => state.profile);
   const { user, token, isLoggedIn, isRegProcess } = useSelector(
     (state) => state.auth
   );
+
+  const { data: userActivityWeek, refetch: refetchWeek } =
+    useGetUserActivityWeekQuery();
+  console.log("userActivityWeek", userActivityWeek?.activities);
+
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
   const [selectedDailyStep, setSelectedSteps] = useState(0);
+
+  const { data: userActivity, refetch: refetchActivity } =
+    useGetUserActivityQuery();
+
   useEffect(() => {
-    if (profile && profile.profileOfUsers) {
-      setSelectedSteps(profile.profileOfUsers.dailySteps);
+    setSteps(userActivity?.activity?.dailySteps || 0);
+  }, []);
+
+  useEffect(() => {
+    if (profile && profile?.profileOfUsers) {
+      setSelectedSteps(profile.profileOfUsers?.dailySteps);
     }
   }, [profile]);
 
@@ -62,6 +121,7 @@ const PlanSteps = () => {
   const strokeDashoffset = circumference - (circumference * progress) / 100;
 
   const dispatch = useDispatch();
+
   useEffect(() => {
     let subscription;
 
@@ -72,22 +132,27 @@ const PlanSteps = () => {
         return;
       }
 
-      subscription = Accelerometer.addListener((accelerometer) => {
-        const { y } = accelerometer;
-        const threshold = 0.1;
+      subscription = Accelerometer.addListener(({ x, y, z }) => {
+        const filteredY = lowPassFilter(y, lastY);
+        const filteredZ = lowPassFilter(z, lastZ);
+
+        const totalAcceleration = Math.sqrt(
+          x * x + filteredY * filteredY + filteredZ * filteredZ
+        );
+        const threshold = 1.2;
         const timeStamp = Date.now();
 
         if (
-          Math.abs(y - lastY) > threshold &&
+          totalAcceleration > threshold &&
           !isCounting &&
-          timeStamp - lastTimeStamp > 800
+          timeStamp - lastTimeStamp > 1000
         ) {
           setIsCounting(true);
-          setLastY(y);
+          setLastY(filteredY);
+          setLastZ(filteredZ);
           setLastTimeStamp(timeStamp);
-          setSteps((prev) => prev + 1 + savedSteps);
 
-          dispatch(setSavedSteps(steps));
+          setSteps((prev) => prev + 1);
 
           setTimeout(() => setIsCounting(false), 3200);
         }
@@ -96,10 +161,19 @@ const PlanSteps = () => {
 
     startAccelerometer();
 
-    return () => subscription && subscription.remove();
-  }, [lastY, lastTimeStamp, isCounting]);
-
+    return () => {
+      if (subscription) subscription.remove();
+    };
+  }, [lastY, lastZ, lastTimeStamp, isCounting]);
   const resetSteps = () => setSteps(0);
+
+  useEffect(() => {
+    if (steps > 0) {
+      saveStepsToDatabase(steps);
+      refetchActivity();
+      refetchWeek();
+    }
+  }, [steps]);
 
   const birthDate = new Date(profile?.profileOfUsers.birthday);
   const today = new Date();
@@ -124,11 +198,18 @@ const PlanSteps = () => {
 
   const distance = (steps * strideLength) / 1000;
 
-  const walkingSpeed = 5; // km/h
+  const walkingSpeed = 5;
   const time = distance / walkingSpeed;
 
   const caloriesBurned = MET_WALKING * weight * time;
 
+  const saveStepsToDatabase = async (stepCount) => {
+    try {
+      await updateActivity({ dailySteps: stepCount });
+    } catch (error) {
+      console.error("Failed to update activity:", error);
+    }
+  };
   return (
     <GestureHandlerRootView>
       <BottomSheetModalProvider>
@@ -310,6 +391,7 @@ const PlanSteps = () => {
             <WeeklyStatsComponent
               selectedDailyStep={selectedDailyStep}
               colors={colors}
+              userActivityWeek={userActivityWeek?.activities || []}
               dark={dark}
             />
           </View>
@@ -421,25 +503,186 @@ const CalendarPicker = ({ selectedDate, setSelectedDate }) => {
   );
 };
 
+// const WeeklyStatsComponent = ({
+//   userActivityWeek = [],
+
+//   days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+//   selectedDailyStep,
+//   colors,
+//   dark,
+// }) => {
+//   const barWidth = 10;
+//   const barSpacing = 43;
+
+//   console.log(selectedDailyStep);
+
+//   const stats = days.map((day) => {
+//     const activity = userActivityWeek.find((act) => {
+//       const activityDate = new Date(act.date);
+//       const activityDay = activityDate.toLocaleString("en", {
+//         weekday: "short",
+//       });
+//       return activityDay === day;
+//     });
+
+//     return activity
+//       ? Math.min((activity?.dailySteps / selectedDailyStep) * 100, 100)
+//       : 0;
+//   });
+
+//   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+
+//   return (
+//     <View
+//       style={{
+//         paddingBottom: 20,
+//         marginTop: 20,
+//       }}
+//     >
+//       <View
+//         style={{
+//           paddingHorizontal: 25,
+//           paddingTop: 20,
+//           flexDirection: "row",
+//           justifyContent: "space-between",
+//         }}
+//       >
+//         <Text
+//           style={{
+//             fontSize: 18,
+//             fontWeight: "bold",
+//             color: colors.text,
+//           }}
+//         >
+//           WEEK
+//         </Text>
+
+//         <View
+//           style={{
+//             flexDirection: "row",
+//             alignItems: "center",
+//             justifyContent: "center",
+//             gap: 5,
+//           }}
+//         >
+//           <Text
+//             style={{
+//               fontSize: 16,
+//               fontWeight: 500,
+//               color: colors.text,
+//             }}
+//           >
+//             Goal
+//           </Text>
+//           <Text
+//             style={{
+//               fontSize: 13,
+//               fontWeight: 500,
+//               color: "gray",
+//             }}
+//           >
+//             {selectedDailyStep} steps
+//           </Text>
+//         </View>
+//       </View>
+//       <View
+//         style={{
+//           backgroundColor: dark ? "#2c2c2c" : "#e7e7e7",
+//           // backgroundColor: "#e7e7e7",
+//           borderRadius: 12,
+//           marginHorizontal: 20,
+//           marginTop: 15,
+//           paddingTop: 20,
+//         }}
+//       >
+//         <View
+//           style={{
+//             alignItems: "center",
+//             marginBottom: 10,
+//             marginLeft: 10,
+//           }}
+//         >
+//           <Svg height="110" width={`${(barWidth + barSpacing) * days.length}`}>
+//             {stats.map((value, index) => (
+//               <G key={index}>
+//                 <Rect
+//                   x={index * (barWidth + barSpacing) + 15}
+//                   y={0}
+//                   width={barWidth}
+//                   height={100}
+//                   fill={"#afafafed"}
+//                   rx={6}
+//                   ry={6}
+//                 />
+//                 <Rect
+//                   x={index * (barWidth + barSpacing) + 15}
+//                   // y={value === 0 ? 10 : 150 - value}
+//                   y={value === 0 ? 10 : 100 - value}
+//                   width={barWidth}
+//                   height={value === 0 ? 100 : value}
+//                   fill={value === 0 ? "#afafafed" : "#b50101"}
+//                   rx={6}
+//                   ry={6}
+//                 />
+//               </G>
+//             ))}
+//           </Svg>
+//         </View>
+
+//         <View
+//           style={{
+//             flexDirection: "row",
+//             justifyContent: "center",
+//             marginBottom: 10,
+//           }}
+//         >
+//           {days.map((day, index) => (
+//             <Text
+//               key={index}
+//               style={[
+//                 { fontSize: 13, color: dark ? "#b4b4b4" : "#5b5b5bec" },
+//                 { width: barWidth + barSpacing, textAlign: "center" },
+//               ]}
+//             >
+//               {day}
+//             </Text>
+//           ))}
+//         </View>
+//       </View>
+//     </View>
+//   );
+// };
+
 const WeeklyStatsComponent = ({
-  stats = [50, 70, 30, 80, 60, 90, 100],
-  days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
   selectedDailyStep,
+  userActivityWeek = [],
+  days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   colors,
   dark,
 }) => {
   const barWidth = 10;
   const barSpacing = 43;
 
-  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+  console.log(userActivityWeek);
+
+  const stats = days.map((day) => {
+    const activity = userActivityWeek.find((act) => {
+      const activityDate = new Date(act.date);
+      const activityDay = activityDate.toLocaleString("en", {
+        weekday: "short",
+      });
+      return activityDay === day;
+    });
+
+    console.log(activity?.dailySteps);
+
+    return activity
+      ? Math.min((activity?.dailySteps / selectedDailyStep) * 100, 100)
+      : 0;
+  });
 
   return (
-    <View
-      style={{
-        paddingBottom: 20,
-        marginTop: 20,
-      }}
-    >
+    <View style={{ paddingBottom: 20, marginTop: 20 }}>
       <View
         style={{
           paddingHorizontal: 25,
@@ -469,7 +712,7 @@ const WeeklyStatsComponent = ({
           <Text
             style={{
               fontSize: 16,
-              fontWeight: 500,
+              fontWeight: "500",
               color: colors.text,
             }}
           >
@@ -478,7 +721,7 @@ const WeeklyStatsComponent = ({
           <Text
             style={{
               fontSize: 13,
-              fontWeight: 500,
+              fontWeight: "500",
               color: "gray",
             }}
           >
@@ -486,10 +729,10 @@ const WeeklyStatsComponent = ({
           </Text>
         </View>
       </View>
+
       <View
         style={{
           backgroundColor: dark ? "#2c2c2c" : "#e7e7e7",
-          // backgroundColor: "#e7e7e7",
           borderRadius: 12,
           marginHorizontal: 20,
           marginTop: 15,
@@ -517,10 +760,9 @@ const WeeklyStatsComponent = ({
                 />
                 <Rect
                   x={index * (barWidth + barSpacing) + 15}
-                  // y={value === 0 ? 10 : 150 - value}
-                  y={value === 0 ? 10 : 100 - value}
+                  y={100 - value}
                   width={barWidth}
-                  height={value === 0 ? 100 : value}
+                  height={value}
                   fill={value === 0 ? "#afafafed" : "#b50101"}
                   rx={6}
                   ry={6}
@@ -540,10 +782,12 @@ const WeeklyStatsComponent = ({
           {days.map((day, index) => (
             <Text
               key={index}
-              style={[
-                { fontSize: 13, color: dark ? "#b4b4b4" : "#5b5b5bec" },
-                { width: barWidth + barSpacing, textAlign: "center" },
-              ]}
+              style={{
+                fontSize: 13,
+                color: dark ? "#b4b4b4" : "#5b5b5bec",
+                width: barWidth + barSpacing,
+                textAlign: "center",
+              }}
             >
               {day}
             </Text>

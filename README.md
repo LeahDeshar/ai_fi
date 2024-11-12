@@ -108,5 +108,5 @@ clear
 - [x] Calorie log (food)
 - [ ] Weight in
 - [x] Drink water
-- [ ] Reach step goal
+- [x] Reach step goal
 - [ ] sleep tracker
