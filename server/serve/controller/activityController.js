@@ -171,18 +171,24 @@ export const getUserActivity = async (req, res) => {
   }
 };
 
-// http://localhost:8080/api/v1/daily/activity/2024-11-06
+// update today's data
+// http://localhost:8080/api/v1/daily/activity
 export const updateUserActivity = async (req, res) => {
   try {
     // const { date } = req.params;
     const userId = req.user._id;
     const updates = req.body;
 
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
+    console.log(updates);
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0)); // Start of today
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
 
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
+    // const startOfDay = new Date(date);
+    // startOfDay.setHours(0, 0, 0, 0);
+
+    // const endOfDay = new Date(date);
+    // endOfDay.setHours(23, 59, 59, 999);
 
     const updatedActivity = await UserActivity.findOneAndUpdate(
       { userId, date: { $gte: startOfDay, $lte: endOfDay } },
@@ -243,5 +249,43 @@ export const getAllUserActivity = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error getting activities", error });
+  }
+};
+
+// get the weekly data
+export const getUserActivityThisWeek = async (req, res) => {
+  try {
+    const today = new Date();
+
+    // Calculate the start of the week (Sunday at 00:00:00)
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay()); // Move to Sunday
+    startOfWeek.setHours(0, 0, 0, 0); // Set time to 00:00:00
+
+    // Calculate the end of the week (Saturday at 23:59:59.999)
+    const endOfWeek = new Date(today);
+    endOfWeek.setDate(today.getDate() - today.getDay() + 6); // Move to Saturday
+    endOfWeek.setHours(23, 59, 59, 999); // Set time to 23:59:59.999
+
+    const userId = req.user._id;
+
+    // Find all user activities for the current week
+    const activities = await UserActivity.find({
+      userId,
+      date: { $gte: startOfWeek, $lte: endOfWeek }, // Match activities within this week's range
+    });
+
+    if (!activities.length) {
+      return res
+        .status(404)
+        .json({ message: "No activity found for this week." });
+    }
+
+    return res.json({ activities });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };

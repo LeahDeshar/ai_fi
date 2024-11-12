@@ -211,3 +211,64 @@
 // }
 
 // createMockMeals();
+
+// CREATE ACTIVITY OF USER
+
+// const userId = "67189a704f4eed52a1cfb7ae";
+
+// async function createMockData() {
+//   try {
+//     // Create dates for Sunday and Monday
+//     const today = new Date();
+//     const tuesday = today.getDate();
+//     const monday = new Date(today);
+//     monday.setDate(tuesday - 1); // Yesterday (Monday)
+//     const sunday = new Date(today);
+//     sunday.setDate(tuesday - 2); // Two days ago (Sunday)
+
+//     // Set time to beginning of the day
+//     monday.setHours(0, 0, 0, 0);
+//     sunday.setHours(0, 0, 0, 0);
+
+//     // Mock data for Sunday
+//     const sundayActivity = new UserActivity({
+//       userId,
+//       date: sunday,
+//       waterIntake: 2100,
+//       calorieIntake: 1800,
+//       sleepDuration: 7,
+//       dailySteps: 12000,
+//       fastingOption: "16:8",
+//       fastingStartTime: new Date(sunday.setHours(20, 0, 0)), // Example start at 8 PM
+//       fastingEndTime: new Date(sunday.setHours(20, 0, 0) + 16 * 60 * 60 * 1000), // End after 16 hours
+//       isFastingAdhered: true,
+//       fastingDeviation: 0,
+//     });
+
+//     // Mock data for Monday
+//     const mondayActivity = new UserActivity({
+//       userId,
+//       date: monday,
+//       waterIntake: 1700,
+//       calorieIntake: 2000,
+//       sleepDuration: 6,
+//       dailySteps: 14000,
+//       fastingOption: "16:8",
+//       fastingStartTime: new Date(monday.setHours(20, 0, 0)), // Example start at 8 PM
+//       fastingEndTime: new Date(monday.setHours(20, 0, 0) + 16 * 60 * 60 * 1000), // End after 16 hours
+//       isFastingAdhered: true,
+//       fastingDeviation: 0,
+//     });
+
+//     // Save both activities to the database
+//     await sundayActivity.save();
+//     await mondayActivity.save();
+
+//     console.log("Mock data for Sunday and Monday created successfully.");
+//   } catch (error) {
+//     console.error("Error creating mock data:", error);
+//   }
+// }
+
+// Call the function to create mock data
+// createMockData();

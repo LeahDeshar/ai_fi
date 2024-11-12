@@ -19,11 +19,15 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { Calendar } from "react-native-calendars";
 import { ProgressChart } from "react-native-chart-kit";
-import { Dimensions } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import { Circle, G, Rect, Svg } from "react-native-svg";
 import { useSelector } from "react-redux";
-import { useGetProfileQuery } from "@/redux/api/apiClient";
+import {
+  useGetProfileQuery,
+  useGetUserActivityQuery,
+  useGetUserActivityWeekQuery,
+  useUpadateUserActivityMutation,
+} from "@/redux/api/apiClient";
 
 const PlanDrinkWater = () => {
   const { colors, dark } = useTheme();
@@ -34,32 +38,64 @@ const PlanDrinkWater = () => {
   const strokeWidth = 8;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  // const strokeDashoffset = circumference - (circumference * progress) / 100;
+
+  const [updateActivity] = useUpadateUserActivityMutation();
+
   const openBottomSheet = () => {
     bottomSheetRef.current?.present();
   };
   const { user, token, isLoggedIn, isRegProcess } = useSelector(
     (state) => state.auth
   );
-  const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
+  const {
+    data: profile,
+    error,
+    isLoading,
+    refetch: refetchProfile,
+  } = useGetProfileQuery();
+
+  const { data: userActivity, refetch } = useGetUserActivityQuery();
+
+  const { data: userActivityWeek, refetch: refetchWeek } =
+    useGetUserActivityWeekQuery();
+  console.log("userActivityWeek", userActivityWeek.activities);
+
   const waterIntakeInMl = profile?.calculations.waterIntake * 1000 || 0;
+
   const [selectedValue, setSelectedValue] = useState(null);
   const [currentIntake, setCurrentIntake] = useState(0);
 
-  // Stroke offset calculation
+  useEffect(() => {
+    setCurrentIntake(userActivity?.activity?.waterIntake || 0);
+  }, []);
+
   const strokeDashoffset =
     circumference - (currentIntake / waterIntakeInMl) * circumference + 1;
 
-  const handleAddIntake = () => {
+  const handleAddIntake = async () => {
     if (selectedValue) {
       const mlToAdd = parseInt(selectedValue);
       setCurrentIntake((prev) => Math.min(prev + mlToAdd, waterIntakeInMl));
+      await updateActivity({
+        waterIntake: userActivity?.activity?.waterIntake + mlToAdd,
+      }).unwrap();
+      refetch();
+      refetchWeek();
     } else {
       Alert.alert("Please select a volume to add.");
     }
     if (currentIntake === waterIntakeInMl) {
       Alert.alert("Goal Completed");
     }
+  };
+
+  const handleClearWater = async () => {
+    setCurrentIntake(0);
+    await updateActivity({
+      waterIntake: 0,
+    }).unwrap();
+    refetch();
+    refetchWeek();
   };
 
   const [selectedDate, setSelectedDate] = useState(null);
@@ -189,9 +225,7 @@ const PlanDrinkWater = () => {
               <Ionicons name="add" size={35} color={colors.text} />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => {
-                setCurrentIntake(0);
-              }}
+              onPress={handleClearWater}
               style={{
                 backgroundColor: "#babbbf",
                 borderRadius: 50,
@@ -205,7 +239,12 @@ const PlanDrinkWater = () => {
               <AntDesign name="reload1" size={20} color="black" />
             </TouchableOpacity>
           </View>
-          <WeeklyStatsComponent colors={colors} dark={dark} />
+          <WeeklyStatsComponent
+            activities={userActivityWeek?.activities || []}
+            waterIntakeInMl={waterIntakeInMl}
+            colors={colors}
+            dark={dark}
+          />
 
           <BottomSheetModal
             snapPoints={["20%", "50%"]}
@@ -282,22 +321,37 @@ const HorizontalPicker = ({ selectedValue, setSelectedValue, dark }) => {
     </View>
   );
 };
+
 const WeeklyStatsComponent = ({
-  stats = [50, 70, 30, 80, 60, 90, 100],
-  days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  activities = [],
+  waterIntakeInMl = 2000,
+  days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   colors,
   dark,
 }) => {
   const barWidth = 10;
   const barSpacing = 43;
 
+  // Convert activities into daily water intake percentages
+  const stats = days.map((day) => {
+    const activity = activities.find((act) => {
+      const activityDate = new Date(act.date);
+      const activityDay = activityDate.toLocaleString("en", {
+        weekday: "short",
+      });
+      return activityDay === day;
+    });
+
+    return activity
+      ? Math.min((activity.waterIntake / waterIntakeInMl) * 100, 100) // Cap at 100%
+      : 0;
+  });
+
+  // Calculate the average water intake percentage
+  const averageWaterIntake = stats.reduce((a, b) => a + b, 0) / days.length;
+
   return (
-    <View
-      style={{
-        paddingBottom: 20,
-        marginTop: 20,
-      }}
-    >
+    <View style={{ paddingBottom: 20, marginTop: 20 }}>
       <View
         style={{
           paddingHorizontal: 25,
@@ -340,10 +394,11 @@ const WeeklyStatsComponent = ({
               color: "gray",
             }}
           >
-            0 L
+            {((averageWaterIntake * waterIntakeInMl) / 1000).toFixed(1)} L
           </Text>
         </View>
       </View>
+
       <View
         style={{
           backgroundColor: dark ? "#2c2c2c" : "#e7e7e7",
@@ -374,7 +429,6 @@ const WeeklyStatsComponent = ({
                 />
                 <Rect
                   x={index * (barWidth + barSpacing) + 15}
-                  // y={value === 0 ? 10 : 150 - value}
                   y={value === 0 ? 10 : 100 - value}
                   width={barWidth}
                   height={value === 0 ? 100 : value}
@@ -410,6 +464,7 @@ const WeeklyStatsComponent = ({
     </View>
   );
 };
+
 const CircularProgressBar = () => {
   const [progress, setProgress] = useState<number[]>([0]);
 

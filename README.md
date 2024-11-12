@@ -102,3 +102,11 @@ Gamification: Challenges, rewards, and leaderboards.
 Tracker Integration: Sync with fitness devices and share activity.
 User Reviews and Ratings: Review coaches, programs, and others.
 Search & Discovery: Search for users, content, or activities.
+
+clear
+
+- [x] Calorie log (food)
+- [ ] Weight in
+- [x] Drink water
+- [ ] Reach step goal
+- [ ] sleep tracker

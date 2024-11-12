@@ -62,6 +62,15 @@ export const authApi = createApi({
         };
       },
     }),
+    upadateUserActivity: builder.mutation({
+      query: (activityData) => {
+        return {
+          url: "/daily/activity",
+          method: "patch",
+          body: activityData,
+        };
+      },
+    }),
     getProfile: builder.query({
       query: () => "/auth/profile",
     }),
@@ -74,6 +83,12 @@ export const authApi = createApi({
     }),
     getMyFriends: builder.query({
       query: () => "/social/requests/accepted",
+    }),
+    getUserActivity: builder.query({
+      query: () => "/daily/activity",
+    }),
+    getUserActivityWeek: builder.query({
+      query: () => "/daily/week",
     }),
     getUserInsight: builder.query({
       query: () => "/data/get-insight",
@@ -156,10 +171,12 @@ export const {
   useCreateProfileMutation,
   useCreateFoodMutation,
   useCreateMealMutation,
+  useUpadateUserActivityMutation,
   useGetProfileQuery,
   useGetallUsersProfileQuery,
   useGetAllUserPostQuery,
   useGetDailyConmpQuery,
+  useGetUserActivityWeekQuery,
   useGetMyFriendsQuery,
   useGetMealByDateQuery,
   useGetUserInsightQuery,
@@ -167,4 +184,5 @@ export const {
   useGetMealOfDayQuery,
   useGetFoodByBarcodeQuery,
   useGetMealByTypeQuery,
+  useGetUserActivityQuery,
 } = authApi;
