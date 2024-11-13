@@ -4,14 +4,15 @@ import { checkAndCreateActivity } from "../controller/activityController.js";
 import axios from "axios";
 import UserActivity from "../models/activitySchema.js";
 import mongoose from "mongoose";
-
+import { Expo } from "expo-server-sdk";
+let expo = new Expo();
 let isCronInitialized = false;
 
 export const initializeCronJob = () => {
   console.log("init job");
   if (isCronInitialized) return;
 
-  cron.schedule("45 0 * * *", async () => {
+  cron.schedule("0 0 * * *", async () => {
     console.log("Running daily activity check for all users...");
 
     try {
@@ -42,103 +43,6 @@ export const initializeCronJob = () => {
   isCronInitialized = true;
 };
 
-// export const initAnomalyDetection = () => {
-//   cron.schedule("0 17 * * *", async () => {
-//     console.log("Running daily anomaly check at 5 PM");
-
-//     try {
-//       const today = new Date();
-//       const startOfDay = new Date(today.setHours(0, 0, 0, 0)); // Set time to 00:00:00
-//       const endOfDay = new Date(today.setHours(23, 59, 59, 999)); // Set time to 23:59:59
-
-//       const userActivities = await UserActivity.findOne({
-//         date: { $gte: startOfDay, $lte: endOfDay },
-//       });
-
-//       for (const activity of userActivities) {
-//         const response = await axios.post(
-//           "http://localhost:8000/check_anomaly/",
-//           {
-//             waterIntake: activity.waterIntake,
-//             calorieIntake: activity.calorieIntake,
-//             sleepDuration: activity.sleepDuration,
-//             dailySteps: activity.dailySteps,
-//           }
-//         );
-
-//         if (response.status === 200 && response.data.is_anomaly) {
-//           // If anomaly detected, trigger a notification
-//           // scheduleNotification(activity.user_id, response.data);
-//           console.log(
-//             `Anomaly detected for user ${activity.user_id}, notification scheduled.`
-//           );
-//         } else {
-//           console.log(`No anomaly for user ${activity.user_id}`);
-//         }
-//       }
-//     } catch (error) {
-//       console.error("Error in daily anomaly check:", error.message);
-//     }
-//   });
-// };
-// export const initAnomalyDetection = () => {
-//   console.log("Daily anomaly check");
-//   cron.schedule("49 21 * * *", async () => {
-//     console.log("Running daily anomaly check at 5 PM");
-//     let anomalyUserIds = [];
-
-//     try {
-//       const startOfDay = new Date();
-//       startOfDay.setHours(0, 0, 0, 0);
-
-//       const endOfDay = new Date();
-//       endOfDay.setHours(23, 59, 59, 999);
-
-//       const userActivities = await UserActivity.find({
-//         date: { $gte: startOfDay, $lte: endOfDay },
-//       });
-
-//       for (const activity of userActivities) {
-//         try {
-//           const response = await axios.post(
-//             "http://localhost:8000/check_anomaly/",
-//             {
-//               waterIntake: Number(activity.waterIntake),
-//               calorieIntake: Number(activity.calorieIntake),
-//               sleepDuration: Number(activity.sleepDuration),
-//               dailySteps: Number(activity.dailySteps),
-//             }
-//           );
-
-//           console.log(
-//             `Anomaly detected for user ${activity.userId}, notification scheduled.`
-//           );
-
-//           if (response.status === 200 && response.data.is_anomaly) {
-//             // If anomaly detected, add userId to the list
-//             anomalyUserIds.push(activity.userId);
-//             console.log(
-//               `Anomaly detected for user ${activity.userId}. Notification scheduled.`
-//             );
-//           } else {
-//             console.log(`No anomaly for user ${activity.userId}`);
-//           }
-//         } catch (error) {
-//           console.error(
-//             "Error posting data:",
-//             error.response?.data || error.message
-//           );
-//         }
-//         await new Promise((resolve) => setTimeout(resolve, 500));
-//       }
-//     } catch (error) {
-//       console.error("Error in daily anomaly check:", error.message);
-//     }
-//   });
-// };
-
-// initAnomalyDetection();
-
 export const scheduleNotification = (userId, notification) => {
   console.log(`Scheduling notification for user ${userId}:`, notification);
   // Add logic to queue or send notification here
@@ -147,7 +51,7 @@ export const scheduleNotification = (userId, notification) => {
 export const initAnomalyDetection = () => {
   console.log("Daily anomaly check initiated.");
 
-  cron.schedule("53 22 * * *", async () => {
+  cron.schedule("40 23 * * *", async () => {
     console.log("Running daily anomaly check at 5 PM");
 
     try {
@@ -160,74 +64,6 @@ export const initAnomalyDetection = () => {
       const userActivities = await UserActivity.find({
         date: { $gte: startOfDay, $lte: endOfDay },
       });
-
-      //   const anomalyNotifications = []; // Array to store notifications for anomalies
-      //   const SHAP_THRESHOLD = 0.5; // Define a threshold for SHAP values to consider a feature anomalous
-
-      //   for (const activity of userActivities) {
-      //     try {
-      //       const response = await axios.post(
-      //         "http://localhost:8000/check_anomaly/",
-      //         {
-      //           waterIntake: activity.waterIntake,
-      //           calorieIntake: activity.calorieIntake,
-      //           sleepDuration: activity.sleepDuration,
-      //           dailySteps: activity.dailySteps,
-      //         }
-      //       );
-
-      //       if (response.status === 200 && response.data.is_anomaly) {
-      //          if (response.status === 200 && response.data.is_anomaly) {
-      //   const { shap_values } = response.data;
-      //   const negativeFeatures = [];
-
-      //   // Loop through each feature and check for negative SHAP values
-      //   for (const [feature, shapValue] of Object.entries(shap_values)) {
-      //     if (shapValue < 0) {
-      //       negativeFeatures.push(feature); // Collect features with negative SHAP values
-      //     }
-      //   }
-
-      //   // If there are negative features, send a notification to the user
-      //   if (negativeFeatures.length > 0) {
-      //     let notificationMessage = "";
-
-      //     if (negativeFeatures.length === 4) {
-      //       notificationMessage = "Alert: Multiple health metrics detected unusual patterns. Please take care!";
-      //     } else if (negativeFeatures.length >= 3) {
-      //       notificationMessage = `Alert: Unusual patterns detected in ${negativeFeatures.join(", ")}. Please review your health data.`;
-      //     } else {
-      //       notificationMessage = `Alert: Unusual pattern detected in ${negativeFeatures.join(", ")}. Please monitor this aspect of your health.`;
-      //     }
-
-      //     // Add to the list of notifications to send later
-      //     anomalyNotifications.push({
-      //       userId: activity.userId,
-      //       message: notificationMessage,
-      //     });
-
-      //     console.log(`Anomaly detected for user ${activity.userId}. Notification scheduled.`);
-      //   } else {
-      //     console.log(`No negative anomalies for user ${activity.userId}`);
-      //   }
-      // } else {
-      //   console.log(`No anomaly for user ${activity.userId}`);
-      // }
-      //         // Store the notification to be sent later
-      //         anomalyNotifications.push({
-      //           userId: activity.userId,
-      //           message: notificationMessage,
-      //         });
-      //         console.log(
-      //           `Anomaly detected for user ${activity.userId}. Notification scheduled.`
-      //         );
-      //       } else {
-      //         console.log(`No anomaly for user ${activity.userId}`);
-      //       }
-      //     } catch (error) {
-      //       console.error("Error posting data:", error.message);
-      //     }
-      //   }
 
       const anomalyNotifications = [];
 
@@ -263,6 +99,7 @@ export const initAnomalyDetection = () => {
             if (negativeFeatures.length > 0) {
               let notificationMessage = "";
 
+              // Custom message based on the number of negative features
               if (negativeFeatures.length === 4) {
                 notificationMessage =
                   "Alert: Multiple health metrics detected unusual patterns. Please take care!";
@@ -271,9 +108,23 @@ export const initAnomalyDetection = () => {
                   ", "
                 )}. Please review your health data.`;
               } else {
-                notificationMessage = `Alert: Unusual pattern detected in ${negativeFeatures.join(
-                  ", "
-                )}. Please monitor this aspect of your health.`;
+                // Handle the case for just one or two negative features
+                if (negativeFeatures.includes("sleepDuration")) {
+                  notificationMessage +=
+                    "Your sleep duration seems off. Please ensure you are getting enough rest. ";
+                }
+                if (negativeFeatures.includes("dailySteps")) {
+                  notificationMessage +=
+                    "Your daily step count is lower than expected. Consider getting more physical activity. ";
+                }
+                if (negativeFeatures.includes("waterIntake")) {
+                  notificationMessage +=
+                    "Your water intake is below the recommended levels. Make sure to stay hydrated. ";
+                }
+                if (negativeFeatures.includes("calorieIntake")) {
+                  notificationMessage +=
+                    "Your calorie intake seems irregular. Please review your diet and eating habits.";
+                }
               }
 
               // Add to the list of notifications to send later
@@ -303,7 +154,8 @@ export const initAnomalyDetection = () => {
         cron.schedule("*/1 * * * *", () => {
           console.log("start");
           anomalyNotifications.forEach(({ userId, message }) => {
-            scheduleNotification(userId, { title: "Health Alert", message });
+            // scheduleNotification(userId, { title: "Health Alert", message });
+            sendPushNotification(userId, message);
           });
         });
       }
@@ -313,6 +165,35 @@ export const initAnomalyDetection = () => {
   });
 };
 initAnomalyDetection();
+
+const sendPushNotification = async (userId, message) => {
+  try {
+    // Fetch the user's Expo push token from your database (you should store these tokens when the user registers)
+    // const user = await getUserById(userId); // Replace with your actual method to get user by ID
+    const pushToken = "ExponentPushToken[oc9gz9G8LLmiy3ga_pw88X]"; // Assumes you store the push token in the user document
+
+    if (!Expo.isExpoPushToken(pushToken)) {
+      console.log(`Push token for user ${userId} is not a valid Expo token`);
+      return;
+    }
+
+    // Create a message to send via Expo Push Notification
+    const messagePayload = {
+      to: pushToken,
+      sound: "default",
+      title: "Health Alert",
+      body: message,
+      data: { userId: userId }, // You can include additional data here, such as user-specific information
+    };
+
+    // Send notification
+    const ticket = await expo.sendPushNotificationsAsync([messagePayload]);
+    console.log(`Notification sent to user ${userId}: ${message}`);
+  } catch (error) {
+    console.error("Error sending push notification:", error);
+  }
+};
+
 // today's mock data
 const updateTodayActivitiesWithMockData = async () => {
   try {
