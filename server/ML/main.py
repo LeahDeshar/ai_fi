@@ -228,8 +228,100 @@ def get_recommendations(request: RecommendationRequest):
 
 
 
-model = joblib.load("isolation_forest_model.pkl")
-explainer = joblib.load("shap_explainer.pkl")
+# model = joblib.load("./data/isolation_forest_model.pkl")
+# explainer = joblib.load("./data/shap_explainer.pkl")
+
+
+# class UserActivity(BaseModel):
+#     waterIntake: float
+#     calorieIntake: float
+#     sleepDuration: float
+#     dailySteps: int
+
+  
+    
+from sklearn.ensemble import IsolationForest
+from sklearn.preprocessing import MinMaxScaler
+import shap
+
+# df = pd.read_csv('./data/user_activity_preprocessed.csv')
+# scaler = joblib.load("./data/scaler.pkl")
+
+# X = df[['waterIntake', 'calorieIntake', 'sleepDuration', 'dailySteps']]
+
+
+# contamination_level = 0.05
+# model = IsolationForest(contamination=contamination_level, random_state=42)
+# model.fit(X)
+
+# anomaly_scores = model.decision_function(X)
+# predicted_anomalies = model.predict(X)
+
+
+# df['anomaly'] = predicted_anomalies
+
+# low_value_thresholds = (df['waterIntake'] < 0.1) | (df['sleepDuration'] < 0.3)
+# df['is_anomaly'] = (df['anomaly'] == -1) | low_value_thresholds
+
+
+# detected_anomalies_ratio = np.mean(df['is_anomaly'])
+# print(f"Expected anomaly ratio (contamination level): {contamination_level}")
+# print(f"Detected anomaly ratio: {detected_anomalies_ratio}")
+
+
+# explainer = shap.Explainer(model, X)
+
+# feature_names = X.columns
+
+
+
+# @app.post("/check_anomaly/")
+# def check_anomaly(data: UserActivity):
+ 
+#     input_data = pd.DataFrame([[
+#         data.waterIntake, data.calorieIntake, data.sleepDuration, data.dailySteps
+#     ]], columns=['waterIntake', 'calorieIntake', 'sleepDuration', 'dailySteps'])
+
+ 
+#     input_data[['waterIntake', 'calorieIntake', 'sleepDuration', 'dailySteps']] = scaler.transform(input_data)
+
+    
+#     anomaly_score = model.decision_function(input_data)[0]
+#     is_model_anomaly = model.predict(input_data)[0] == -1
+    
+
+#     is_rule_anomaly = (
+#     (input_data['waterIntake'].values[0] < 0.0003) or  
+#     (input_data['sleepDuration'].values[0] < 0.7) or   
+#     (input_data['calorieIntake'].values[0] < 0.3) or   
+#     (input_data['dailySteps'].values[0] < 0.2)         
+# )
+ 
+#     print("is_rule_anomaly",is_rule_anomaly)
+#     print("waterIntake",input_data['waterIntake'].values[0])
+#     print("sleepDuration",input_data['sleepDuration'].values[0])
+#     print("calorieIntake",input_data['calorieIntake'].values[0])
+#     print("dailySteps",input_data['dailySteps'].values[0] )
+#     is_anomaly = is_model_anomaly or is_rule_anomaly
+
+
+#     shap_values_input = explainer.shap_values(input_data)
+#     if isinstance(shap_values_input, list):
+#         shap_values_input = shap_values_input[0]
+#     shap_values_dict = dict(zip(feature_names, shap_values_input[0]))
+    
+#     print("Input Data (scaled):", input_data)
+#     print("Anomaly Score:", anomaly_score)
+#     print("Is Model-Based Anomaly:", is_model_anomaly)
+#     print("Is Rule-Based Anomaly:", is_rule_anomaly)
+
+#     return {
+#         "is_anomaly": bool(is_anomaly),
+#         "anomaly_score": anomaly_score,
+#         "shap_values": shap_values_dict
+#     }
+
+
 
 
 class UserActivity(BaseModel):
@@ -238,20 +330,61 @@ class UserActivity(BaseModel):
     sleepDuration: float
     dailySteps: int
 
-@app.post("/detect_anomaly/")
-async def detect_anomaly(data: UserActivity):
-    user_data = pd.DataFrame([data.dict()])
-    
-    contamination_level = 0.1
-    anomaly_score = model.decision_function(user_data)
-    threshold = np.percentile(anomaly_score, 100 * contamination_level)
-    is_anomaly = anomaly_score < threshold
-    
-    shap_values = explainer.shap_values(user_data)
+# Load pre-trained scaler and model once
+scaler = joblib.load("./data/scaler.pkl")
+model = IsolationForest(contamination=0.05, random_state=42)
+explainer = None  # Placeholder for SHAP explainer initialization
 
-    response = {
-        "is_anomaly": bool(is_anomaly),
-        "anomaly_score": anomaly_score[0],
-        "feature_contributions": dict(zip(user_data.columns, shap_values[0].tolist()))
+# Load and preprocess data
+df = pd.read_csv('./data/user_activity_preprocessed.csv')
+X = df[['waterIntake', 'calorieIntake', 'sleepDuration', 'dailySteps']]
+model.fit(X)
+df['anomaly'] = model.predict(X)
+
+# Set rule-based anomaly thresholds
+THRESHOLDS = {
+    'waterIntake': 0.2,
+    'calorieIntake': 0.3,
+    'sleepDuration': 0.7,
+    'dailySteps': 0.2,
+}
+
+# Initialize SHAP Explainer
+explainer = shap.Explainer(model, X)
+feature_names = X.columns
+
+@app.post("/check_anomaly/")
+def check_anomaly(data: UserActivity):
+    print(data)
+    # Create input data frame and scale features
+    input_data = pd.DataFrame([[data.waterIntake, data.calorieIntake, data.sleepDuration, data.dailySteps]],
+                              columns=feature_names)
+    input_data[feature_names] = scaler.transform(input_data)
+
+    # Model-based anomaly prediction
+    anomaly_score = model.decision_function(input_data)[0]
+    is_model_anomaly = model.predict(input_data)[0] == -1
+
+    # Rule-based anomaly detection
+    is_rule_anomaly = any(
+        input_data[feature].values[0] < THRESHOLDS[feature] for feature in THRESHOLDS
+    )
+
+    # Combine model and rule-based anomaly flags
+    is_anomaly = is_model_anomaly or is_rule_anomaly
+
+    # Compute SHAP values
+    # shap_values_input = explainer.shap_values(input_data)[0] if isinstance(explainer.shap_values(input_data), list) else explainer.shap_values(input_data)
+    # shap_values_dict = dict(zip(feature_names, shap_values_input[0]))
+    
+    shap_values_input = explainer.shap_values(input_data)
+    if isinstance(shap_values_input, list):
+        shap_values_input = shap_values_input[0]
+    shap_values_dict = dict(zip(feature_names, [float(value) for value in shap_values_input[0]]))  
+
+    # Return results
+    return {
+        "is_anomaly": is_anomaly,
+        "anomaly_score": float(anomaly_score),
+        "shap_values": shap_values_dict
     }
-    return response
