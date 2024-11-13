@@ -103,9 +103,9 @@ const planScreen = () => {
       >
         <View>
           <View>
-            {itemSet.map((item, index) => {
+            {itemSet?.map((item, index) => {
               const activityValue = item.valueKey
-                ? userActivity.activity[item.valueKey]
+                ? userActivity?.activity[item.valueKey]
                 : 0;
               const progress = Math.min(
                 (activityValue / item?.maxValue) * 100,

@@ -224,3 +224,34 @@ def get_recommendations(request: RecommendationRequest):
         return {"exercises": recommended_exercises}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+
+
+model = joblib.load("isolation_forest_model.pkl")
+explainer = joblib.load("shap_explainer.pkl")
+
+
+class UserActivity(BaseModel):
+    waterIntake: float
+    calorieIntake: float
+    sleepDuration: float
+    dailySteps: int
+
+@app.post("/detect_anomaly/")
+async def detect_anomaly(data: UserActivity):
+    user_data = pd.DataFrame([data.dict()])
+    
+    contamination_level = 0.1
+    anomaly_score = model.decision_function(user_data)
+    threshold = np.percentile(anomaly_score, 100 * contamination_level)
+    is_anomaly = anomaly_score < threshold
+    
+    shap_values = explainer.shap_values(user_data)
+
+    response = {
+        "is_anomaly": bool(is_anomaly),
+        "anomaly_score": anomaly_score[0],
+        "feature_contributions": dict(zip(user_data.columns, shap_values[0].tolist()))
+    }
+    return response

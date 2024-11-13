@@ -130,9 +130,10 @@ const ViewProfile = () => {
   };
 
   const openComments = async (postId) => {
+    setIsCommentModalVisible(true);
     try {
       const response = await axios.get(
-        `http://192.168.1.11:8080/api/v1/comment/get`,
+        `http://192.168.1.3:8080/api/v1/comment/get`,
         {
           params: {
             postId: postId,
@@ -148,7 +149,6 @@ const ViewProfile = () => {
       console.error("Error fetching comments:", error);
     }
     setSelectedPostId(postId);
-    setIsCommentModalVisible(true);
   };
 
   const closeCommentModal = () => {
@@ -203,6 +203,20 @@ const ViewProfile = () => {
       console.log(response.data);
       setNewComment("");
       refetch();
+
+      const responseCom = await axios.get(
+        `http://192.168.1.3:8080/api/v1/comment/get`,
+        {
+          params: {
+            postId: selectedPostId,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setComments(responseCom.data);
     } catch (error) {
       console.error("Error adding comment:", error);
     }

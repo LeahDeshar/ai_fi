@@ -111,3 +111,6 @@ clear
 - [x] Drink water
 - [x] Reach step goal
 - [x] sleep tracker
+- [x] Ativity insights
+- [ ] user feed
+- [ ] meals
