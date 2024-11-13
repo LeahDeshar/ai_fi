@@ -9,7 +9,11 @@ import React, { useRef, useState } from "react";
 import { useTheme } from "@/constants/ThemeProvider";
 import { useNavigation } from "expo-router";
 import {
+  useGetDailyConmpQuery,
+  useGetMealOfDayQuery,
   useGetProfileQuery,
+  useGetUserActivityQuery,
+  useGetUserActivityWeekQuery,
   useGetUserInsightQuery,
 } from "@/redux/api/apiClient";
 import { useSelector } from "react-redux";
@@ -41,7 +45,25 @@ const ActivityInsight = () => {
     isLoading: inIsLoading,
   } = useGetUserInsightQuery();
 
-  console.log("data", insights);
+  const { data: userActivity, refetch: refetchActivity } =
+    useGetUserActivityQuery();
+
+  const { data: userWeekActivity, refetch: refetchWeekActivity } =
+    useGetUserActivityWeekQuery();
+
+  const {
+    data: mealOfDay,
+    error: mealError,
+    isLoading: isMealError,
+  } = useGetMealOfDayQuery();
+  const {
+    data: daily,
+    error: dailyError,
+    isLoading: isDailyError,
+    refetch: refetchDaily,
+  } = useGetDailyConmpQuery();
+
+  console.log("data", userActivity, userWeekActivity);
   return (
     <GestureHandlerRootView>
       <BottomSheetModalProvider>

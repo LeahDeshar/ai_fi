@@ -17,8 +17,10 @@ import { StatusBar } from "react-native";
 import {
   useGetallUsersProfileQuery,
   useGetProfileQuery,
+  useGetUserActivityQuery,
 } from "@/redux/api/apiClient";
 import { useSelector } from "react-redux";
+import { Rect, Svg } from "react-native-svg";
 
 const planScreen = () => {
   const navigation = useNavigation();
@@ -31,6 +33,9 @@ const planScreen = () => {
       image:
         "https://images.pexels.com/photos/566566/pexels-photo-566566.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
       path: "PlanLogCalories",
+      valueKey: "calorieIntake",
+      unit: " kcal",
+      maxValue: 8000,
     },
     {
       title: "Do Your Workout",
@@ -49,12 +54,18 @@ const planScreen = () => {
       image:
         "https://images.pexels.com/photos/3737800/pexels-photo-3737800.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
       path: "PlanDrinkWater",
+      valueKey: "waterIntake",
+      unit: " ml",
+      maxValue: 2000,
     },
     {
       title: "Reach Step Goal",
       image:
         "https://images.pexels.com/photos/13580544/pexels-photo-13580544.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load",
       path: "PlanSteps",
+      valueKey: "dailySteps",
+      unit: " steps",
+      maxValue: 10000,
     },
     {
       title: "Sleep Tracker",
@@ -71,13 +82,9 @@ const planScreen = () => {
   const { data: userProfile } = useGetallUsersProfileQuery();
   const { user, token, isLoggedIn } = useSelector((state) => state.auth);
   const { data: profile, error, isLoading } = useGetProfileQuery();
-  // console.log(// profile.profileOfUsers.role);
-  // const currentUserRole = profile?.profileOfUsers?.role;
-  // const filteredUsers = userProfile?.data?.filter((trainer) =>
-  //   currentUserRole === "coach"
-  //     ? trainer.role === "user"
-  //     : trainer.role === "coach"
-  // );
+  const { data: userActivity, refetch: refetchActivity } =
+    useGetUserActivityQuery();
+
   return (
     <View
       style={[
@@ -87,92 +94,90 @@ const planScreen = () => {
         },
       ]}
     >
-      <StatusBar
-        barStyle={"default"}
-        // barStyle={dark ? "light-content" : "dark-content"}
-      />
+      <StatusBar barStyle={"default"} />
       <ScrollView
         style={{
           paddingHorizontal: screenPadding.horizontal,
         }}
         contentInsetAdjustmentBehavior="automatic"
       >
-        {/* <View style={{
-          backgroundColor: "#5f5f5f9c"
-        }}></View> */}
         <View>
-          {/* <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: 16,
-            }}
-          >
-            <Text
-              style={{
-                color: colors.text,
-                fontSize: 29,
-                fontWeight: "bold",
-                textAlign: "center",
-                marginVertical: 16,
-              }}
-            >
-              My Plan
-            </Text>
-
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: 16,
-              }}
-            >
-              <TouchableOpacity>
-                <FontAwesome name="bolt" size={20} color={colors.icon} />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <AntDesign name="message1" size={20} color={colors.icon} />
-              </TouchableOpacity>
-            </View>
-          </View> */}
           <View>
-            {itemSet.map((item, index) => (
-              <TouchableOpacity
-                onPress={handleNavigate(item.path)}
-                key={index}
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  backgroundColor: colors.opacity,
-                  borderRadius: 16,
-                  margin: 8,
-                  paddingHorizontal: 20,
-                  paddingVertical: 10,
-                }}
-              >
-                <Image
-                  source={{ uri: item.image }}
+            {itemSet.map((item, index) => {
+              const activityValue = item.valueKey
+                ? userActivity.activity[item.valueKey]
+                : 0;
+              const progress = Math.min(
+                (activityValue / item?.maxValue) * 100,
+                100
+              );
+
+              return (
+                <TouchableOpacity
+                  onPress={handleNavigate(item.path)}
+                  key={index}
                   style={{
-                    width: 85,
-                    height: 85,
-                    borderRadius: 50,
-                  }}
-                />
-                <Text
-                  style={{
-                    color: colors.text,
-                    fontSize: 18,
-                    fontWeight: "bold",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    backgroundColor: colors.opacity,
+                    borderRadius: 16,
+                    margin: 8,
+                    paddingHorizontal: 20,
+                    paddingVertical: 10,
                   }}
                 >
-                  {item.title}
-                </Text>
-                <AntDesign name="right" size={20} color={colors.icon} />
-              </TouchableOpacity>
-            ))}
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 20,
+                    }}
+                  >
+                    <Image
+                      source={{ uri: item.image }}
+                      style={{
+                        width: 85,
+                        height: 85,
+                        borderRadius: 50,
+                      }}
+                    />
+                    <View>
+                      <Text
+                        style={{
+                          color: colors.text,
+                          fontSize: 18,
+                          fontWeight: "bold",
+                          marginBottom: 10,
+                        }}
+                      >
+                        {item.title}
+                      </Text>
+
+                      <Svg height="3" width="100%">
+                        <Rect
+                          x="0"
+                          y="0"
+                          width="100%"
+                          height="3"
+                          fill={colors.background}
+                          rx="1.5"
+                        />
+                        <Rect
+                          x="0"
+                          y="0"
+                          width={`${progress}%`}
+                          height="3"
+                          fill={"#007f00"}
+                          rx="1.5"
+                        />
+                      </Svg>
+                    </View>
+                  </View>
+                  <AntDesign name="right" size={20} color={colors.icon} />
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
       </ScrollView>

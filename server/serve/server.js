@@ -24,6 +24,7 @@ import foodRoutes from "./routes/foodRoutes.js";
 import mealsRoutes from "./routes/mealRoutes.js";
 import Conversation from "./models/conversation.js";
 import { Message } from "./models/message.js";
+import { initializeCronJob } from "./util/scheduler.js";
 
 export const app = express();
 app.use(express.json());
@@ -38,6 +39,7 @@ cloudinary.v2.config({
 });
 
 connnectDB();
+initializeCronJob();
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));

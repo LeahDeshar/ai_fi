@@ -106,7 +106,8 @@ Search & Discovery: Search for users, content, or activities.
 clear
 
 - [x] Calorie log (food)
+- [ ] workout
 - [ ] Weight in
 - [x] Drink water
 - [x] Reach step goal
-- [ ] sleep tracker
+- [x] sleep tracker

@@ -1,13 +1,14 @@
 import cron from "node-cron";
-import User from "../models/user";
-import { checkAndCreateActivity } from "../controller/activityController";
+import User from "../models/user.js";
+import { checkAndCreateActivity } from "../controller/activityController.js";
 
 let isCronInitialized = false;
 
 export const initializeCronJob = () => {
+  console.log("init job");
   if (isCronInitialized) return;
 
-  cron.schedule("50 13 * * *", async () => {
+  cron.schedule("45 0 * * *", async () => {
     console.log("Running daily activity check for all users...");
 
     try {
