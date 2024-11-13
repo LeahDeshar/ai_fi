@@ -21,69 +21,66 @@ import {
 } from "@/redux/api/apiClient";
 import { useSelector } from "react-redux";
 import { Rect, Svg } from "react-native-svg";
+const itemSet = [
+  {
+    title: "Log Calories",
+    image:
+      "https://images.pexels.com/photos/566566/pexels-photo-566566.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    path: "PlanLogCalories",
+    valueKey: "calorieIntake",
+    unit: " kcal",
+    maxValue: 8000,
+  },
+  {
+    title: "Do Your Workout",
+    image:
+      "https://images.pexels.com/photos/4482936/pexels-photo-4482936.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    path: "PlanWorkout",
+  },
+  {
+    title: "Weight-in",
+    image:
+      "https://images.pexels.com/photos/6975464/pexels-photo-6975464.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    path: "PlanWeight",
+  },
+  {
+    title: "Drink Water",
+    image:
+      "https://images.pexels.com/photos/3737800/pexels-photo-3737800.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    path: "PlanDrinkWater",
+    valueKey: "waterIntake",
+    unit: " ml",
+    maxValue: 2000,
+  },
+  {
+    title: "Reach Step Goal",
+    image:
+      "https://images.pexels.com/photos/13580544/pexels-photo-13580544.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load",
+    path: "PlanSteps",
+    valueKey: "dailySteps",
+    unit: " steps",
+    maxValue: 10000,
+  },
+  {
+    title: "Sleep Tracker",
+    image:
+      "https://www.nia.nih.gov/sites/default/files/inline-images/sleep-older-adults-inline.jpg",
+    path: "PlanSleep",
+  },
+];
 
 const planScreen = () => {
   const navigation = useNavigation();
-
-  const { colors, dark } = useTheme();
-
-  const itemSet = [
-    {
-      title: "Log Calories",
-      image:
-        "https://images.pexels.com/photos/566566/pexels-photo-566566.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      path: "PlanLogCalories",
-      valueKey: "calorieIntake",
-      unit: " kcal",
-      maxValue: 8000,
-    },
-    {
-      title: "Do Your Workout",
-      image:
-        "https://images.pexels.com/photos/4482936/pexels-photo-4482936.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      path: "PlanWorkout",
-    },
-    {
-      title: "Weight-in",
-      image:
-        "https://images.pexels.com/photos/6975464/pexels-photo-6975464.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      path: "PlanWeight",
-    },
-    {
-      title: "Drink Water",
-      image:
-        "https://images.pexels.com/photos/3737800/pexels-photo-3737800.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      path: "PlanDrinkWater",
-      valueKey: "waterIntake",
-      unit: " ml",
-      maxValue: 2000,
-    },
-    {
-      title: "Reach Step Goal",
-      image:
-        "https://images.pexels.com/photos/13580544/pexels-photo-13580544.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load",
-      path: "PlanSteps",
-      valueKey: "dailySteps",
-      unit: " steps",
-      maxValue: 10000,
-    },
-    {
-      title: "Sleep Tracker",
-      image:
-        "https://www.nia.nih.gov/sites/default/files/inline-images/sleep-older-adults-inline.jpg",
-      path: "PlanSleep",
-    },
-  ];
-
-  const handleNavigate = (path) => () => {
-    navigation.navigate(path);
-  };
-
   const { data: userProfile } = useGetallUsersProfileQuery();
   const { user, token, isLoggedIn } = useSelector((state) => state.auth);
   const { data: profile, error, isLoading } = useGetProfileQuery();
   const { data: userActivity, refetch: refetchActivity } =
     useGetUserActivityQuery();
+  const { colors, dark } = useTheme();
+
+  const handleNavigate = (path) => () => {
+    navigation.navigate(path);
+  };
 
   return (
     <View

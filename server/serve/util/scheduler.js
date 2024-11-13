@@ -51,7 +51,7 @@ export const scheduleNotification = (userId, notification) => {
 export const initAnomalyDetection = () => {
   console.log("Daily anomaly check initiated.");
 
-  cron.schedule("40 23 * * *", async () => {
+  cron.schedule("44 0 * * *", async () => {
     console.log("Running daily anomaly check at 5 PM");
 
     try {
@@ -168,8 +168,6 @@ initAnomalyDetection();
 
 const sendPushNotification = async (userId, message) => {
   try {
-    // Fetch the user's Expo push token from your database (you should store these tokens when the user registers)
-    // const user = await getUserById(userId); // Replace with your actual method to get user by ID
     const pushToken = "ExponentPushToken[oc9gz9G8LLmiy3ga_pw88X]"; // Assumes you store the push token in the user document
 
     if (!Expo.isExpoPushToken(pushToken)) {
@@ -184,6 +182,7 @@ const sendPushNotification = async (userId, message) => {
       title: "Health Alert",
       body: message,
       data: { userId: userId }, // You can include additional data here, such as user-specific information
+      icon: "https://cdn-icons-png.flaticon.com/256/9139/9139306.png",
     };
 
     // Send notification

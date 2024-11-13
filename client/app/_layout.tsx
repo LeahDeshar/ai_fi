@@ -1,12 +1,12 @@
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "react-native-reanimated";
 
 import { ThemeProvider, useTheme } from "@/constants/ThemeProvider";
 import { StackScreenWithSearchBar } from "@/constants/layout";
-import { Alert, TouchableOpacity } from "react-native";
+import { Alert, Platform, TouchableOpacity } from "react-native";
 import { Ionicons, MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
 import { Text, View } from "react-native";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -17,7 +17,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { useSelector } from "react-redux";
 SplashScreen.preventAutoHideAsync();
 import * as Notifications from "expo-notifications";
-
+import Constants from "expo-constants";
 const requestNotificationPermissions = async () => {
   const { status } = await Notifications.requestPermissionsAsync();
   if (status !== "granted") {
@@ -37,9 +37,8 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
-  useEffect(() => {
-    requestNotificationPermissions();
-  }, []);
+  const [expoPushToken, setExpoPushToken] = useState("");
+
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
@@ -49,6 +48,45 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
+
+  useEffect(() => {
+    requestNotificationPermissions();
+    registerForPushNotificationsAsync().then(
+      (token) => token && setExpoPushToken(token)
+    );
+  }, []);
+
+  // Function to register for push notifications and get the push token
+  async function registerForPushNotificationsAsync() {
+    let token;
+
+    if (Platform.OS === "android") {
+      // Ensure a notification channel is created for Android devices
+      await Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: "#FF231F7C",
+      });
+    }
+
+    // Get the device push token from Expo
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        alert("Failed to get push token for push notifications!");
+        return;
+      }
+    }
+
+    // Get the push token for the device
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    return token;
+  }
+
+  console.log("expoPushToken", expoPushToken);
 
   return (
     <Provider store={store}>

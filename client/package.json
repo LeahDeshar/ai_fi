@@ -60,7 +60,6 @@
     "react-native-circular-progress": "^1.4.0",
     "react-native-elements": "^3.4.3",
     "react-native-emoji": "^1.8.0",
-    "react-native-fast-image": "^8.6.3",
     "react-native-gesture-handler": "~2.16.1",
     "react-native-gifted-chat": "^2.4.0",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
@@ -83,8 +82,7 @@
     "redux-logger": "^3.0.6",
     "redux-persist": "^6.0.0",
     "rn-emoji-keyboard": "^1.7.0",
-    "socket.io-client": "^4.8.1",
-    "victory-native": "^41.9.0"
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

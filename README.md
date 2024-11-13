@@ -65,13 +65,14 @@ Full Application Integration
 - [x] user activity tracker
 - [x] fasting schedule
 
-- [ ] anomaly detection progressing ....
+- [] anomaly detection progressing ....
 - [x] year worth activity information of the user mock data
 - [x] getAllUserActivity
 
 Workout recommendation
-anomaly detection
-GCN social media features
+
+- [x] anomaly detection
+      GCN social media features
 
 - [ ] social media features
   - [x] display "to find friend if the user is not friend with anyone" and -->
@@ -86,8 +87,8 @@ GCN social media features
     - [x] controller and routes with socket
     - [x] front end integration
   - [ ] post creation
-  - [ ] user analytics
-  - [ ] sleep tracker
+  - [x] user analytics
+  - [x] sleep tracker
 
 Summary of Features for Networking:
 
