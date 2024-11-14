@@ -690,6 +690,7 @@ const InnerStack = () => {
       <Stack.Screen
         name="MoreTipsAndTricks"
         options={{
+          headerShown: false,
           headerTintColor: colors.text,
           headerTransparent: true,
           headerBlurEffect: dark ? "prominent" : "light",
@@ -764,6 +765,13 @@ const InnerStack = () => {
       />
       <Stack.Screen
         name="CalorieFoodTracker"
+        options={{
+          headerShown: false,
+          presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="VideoView"
         options={{
           headerShown: false,
           presentation: "modal",

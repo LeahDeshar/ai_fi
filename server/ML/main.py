@@ -361,8 +361,7 @@ def compute_similarity_matrix(features):
     model.fit(features)
     return model
 
-# Hybrid recommendation function using collaborative and content-based filtering
-def hybrid_recommend(video_id, new_df, video_matrix_recommend, model, features, top_n=5):
+def hybrid_recommend(video_id, new_df, video_matrix_recommend, model, features, top_n=15):
     if video_id not in video_matrix_recommend.index:
         print(f"Video ID {video_id} not found in the video matrix.")
         return pd.DataFrame()

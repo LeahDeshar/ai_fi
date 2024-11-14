@@ -83,7 +83,15 @@ export const getYtChannelRecomController = async (req, res) => {
 
 export const fetchYtData = async (req, res) => {
   try {
+    const cacheKey = "ytData:allVideos";
+
+    const cachedData = await client.get(cacheKey);
+
+    if (cachedData) {
+      return res.json(JSON.parse(cachedData));
+    }
     const videos = await YTmodel.find();
+    await client.set(cacheKey, JSON.stringify(videos), "EX", 604800);
     res.json(videos);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch videos" });
