@@ -377,7 +377,7 @@ def hybrid_recommend(video_id, new_df, video_matrix_recommend, model, features, 
     recommended_videos = new_df.iloc[recommended_indices]
     recommended_videos_details = recommended_videos[['title', 'viewCount',      'likeCount', 
                                                      'Publish_date', 'Publish_time', 
-                                                     'channelTitle', 'description', 'tags']]
+                                                     'channelTitle', 'video_id', 'tags']]
     return recommended_videos_details
 
 

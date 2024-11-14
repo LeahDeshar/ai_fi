@@ -1,5 +1,6 @@
 import axios from "axios";
 import { client } from "../util/redis.js";
+import YTmodel from "../models/YTSchema.js";
 
 export const getExerciseRecomController = async (req, res) => {
   try {
@@ -61,6 +62,31 @@ export const getSleepRecomController = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: "Error processing data with FastAPI" });
+  }
+};
+
+export const getYtChannelRecomController = async (req, res) => {
+  try {
+    const { video_id } = req.body;
+
+    const response = await axios.post("http://localhost:8000/recommend_yt", {
+      video_id,
+    });
+
+    res.json({
+      video: response.data,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Error processing data with FastAPI" });
+  }
+};
+
+export const fetchYtData = async (req, res) => {
+  try {
+    const videos = await YTmodel.find();
+    res.json(videos);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch videos" });
   }
 };
 

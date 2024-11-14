@@ -111,6 +111,9 @@ export const authApi = createApi({
     getFoodByBarcode: builder.query({
       query: (barcode) => `/food/barcode/${barcode}`,
     }),
+    getYt: builder.query({
+      query: () => `/fitness/get-yt`,
+    }),
     createProfile: builder.mutation({
       query: (profileData) => {
         const formData = new FormData();
@@ -178,6 +181,7 @@ export const {
   useGetDailyConmpQuery,
   useGetUserActivityWeekQuery,
   useGetMyFriendsQuery,
+  useGetYtQuery,
   useGetMealByDateQuery,
   useGetUserInsightQuery,
   useGetAllFoodQuery,

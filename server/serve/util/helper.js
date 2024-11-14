@@ -272,3 +272,54 @@
 
 // Call the function to create mock data
 // createMockData();
+
+// YT SEEDING
+// const seedData = async () => {
+//     try {
+//       const dataPath = path.join("./db", "YT.json"); // Update with the correct path to your YT.json
+//       const fileContent = fs.readFileSync(dataPath, "utf8");
+//       const jsonData = JSON.parse(fileContent);
+
+//       // Insert the data into MongoDB
+//       // const result = await YTmodel.insertMany(jsonData);
+//       const mappedData = jsonData.map((video) => ({
+//         video_id: video.video_id,
+//         title: video.title,
+//         channelTitle: video.channelTitle,
+//         Publish_date: video.Publish_date,
+//         Publish_time: video.Publish_time,
+//         tags: video.tags,
+//         viewCount: video.viewCount || 0,
+//         likeCount: video.likeCount || 0,
+//         duration: video.duration || "",
+//       }));
+//       // const result = await YTmodel.insertMany(mappedData);
+
+//       console.log(`Preparing to insert ${mappedData.length} records...`);
+
+//       // Optional: Use batch insertion to prevent timeouts
+//       const batchSize = 500;
+//       for (let i = 0; i < mappedData.length; i += batchSize) {
+//         const batch = mappedData.slice(i, i + batchSize);
+//         try {
+//           const result = await YTmodel.insertMany(batch, {
+//             writeConcern: { w: "majority", j: true },
+//             timeout: 0,
+//           });
+//           console.log(`Inserted batch ${i / batchSize + 1}`);
+//         } catch (error) {
+//           console.error(`Error inserting batch ${i / batchSize + 1}:`, error);
+//         }
+//       }
+//       console.log(`Successfully seeded  records into the database.`);
+
+//       // Close MongoDB connection
+//       mongoose.connection.close();
+//     } catch (error) {
+//       console.error("Error seeding data:", error);
+//       mongoose.connection.close();
+//     }
+//   };
+
+// Run the seed function
+// seedData();

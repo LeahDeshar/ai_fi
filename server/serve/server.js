@@ -25,6 +25,9 @@ import mealsRoutes from "./routes/mealRoutes.js";
 import Conversation from "./models/conversation.js";
 import { Message } from "./models/message.js";
 import { initializeCronJob } from "./util/scheduler.js";
+import path from "path";
+import fs from "fs";
+import YTmodel from "./models/YTSchema.js";
 
 export const app = express();
 app.use(express.json());
