@@ -332,7 +332,7 @@ const PlanSleep = () => {
                 >
                   Movement Graph
                 </Text>
-                <LineChart
+                {/* <LineChart
                   data={chartData}
                   width={screenWidth - 32}
                   height={220}
@@ -345,7 +345,7 @@ const PlanSleep = () => {
                     style: { borderRadius: 16 },
                   }}
                   bezier
-                />
+                /> */}
               </View>
 
               <View style={{ paddingHorizontal: 16, marginTop: 20 }}>

@@ -66,7 +66,6 @@ const ActivityInsight = () => {
     isLoading: isDailyError,
     refetch: refetchDaily,
   } = useGetDailyConmpQuery();
-  console.log(daily, mealOfDay);
 
   return (
     <GestureHandlerRootView>

@@ -50,9 +50,9 @@ const MoreItems: MoreItem[] = [
 
 const renderItem = (item: MoreItem) => {
   const navigation = useRouter();
-  const nav = useNavigation();
   const { colors } = useTheme();
   const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+
   const handlePress = (path) => {
     if (isLoggedIn) {
       navigation.navigate(path);

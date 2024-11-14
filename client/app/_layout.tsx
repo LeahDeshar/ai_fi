@@ -7,7 +7,7 @@ import "react-native-reanimated";
 import { ThemeProvider, useTheme } from "@/constants/ThemeProvider";
 import { StackScreenWithSearchBar } from "@/constants/layout";
 import { Alert, Platform, TouchableOpacity } from "react-native";
-import { Ionicons, MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Text, View } from "react-native";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Provider } from "react-redux";
@@ -18,13 +18,6 @@ import { useSelector } from "react-redux";
 SplashScreen.preventAutoHideAsync();
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
-const requestNotificationPermissions = async () => {
-  const { status } = await Notifications.requestPermissionsAsync();
-  if (status !== "granted") {
-    Alert.alert("You need to enable notifications for this app!");
-  }
-};
-
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -33,21 +26,50 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// Request permission for notifications
+const requestNotificationPermissions = async () => {
+  const { status } = await Notifications.requestPermissionsAsync();
+  if (status !== "granted") {
+    Alert.alert("You need to enable notifications for this app!");
+  }
+};
+
+// Register for push notifications and get the push token
+const registerForPushNotificationsAsync = async () => {
+  let token;
+
+  if (Platform.OS === "android") {
+    await Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    });
+  }
+
+  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  if (existingStatus !== "granted") {
+    const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Failed to get push token for push notifications!");
+      return;
+    }
+  }
+
+  token = (await Notifications.getExpoPushTokenAsync()).data;
+  return token;
+};
 export default function RootLayout() {
+  const [expoPushToken, setExpoPushToken] = useState("");
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
-  const [expoPushToken, setExpoPushToken] = useState("");
 
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
 
   useEffect(() => {
     requestNotificationPermissions();
@@ -56,38 +78,9 @@ export default function RootLayout() {
     );
   }, []);
 
-  // Function to register for push notifications and get the push token
-  async function registerForPushNotificationsAsync() {
-    let token;
-
-    if (Platform.OS === "android") {
-      // Ensure a notification channel is created for Android devices
-      await Notifications.setNotificationChannelAsync("default", {
-        name: "default",
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#FF231F7C",
-      });
-    }
-
-    // Get the device push token from Expo
-    const { status: existingStatus } =
-      await Notifications.getPermissionsAsync();
-    if (existingStatus !== "granted") {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== "granted") {
-        alert("Failed to get push token for push notifications!");
-        return;
-      }
-    }
-
-    // Get the push token for the device
-    token = (await Notifications.getExpoPushTokenAsync()).data;
-    return token;
+  if (!loaded) {
+    return null;
   }
-
-  console.log("expoPushToken", expoPushToken);
-
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
@@ -108,20 +101,9 @@ const InnerStack = () => {
   return (
     <Stack
       screenOptions={{
-        // headerStyle: {
-        //   backgroundColor: colors.primary,
-        // },
-        // remove the text from header left
         headerLeft: () => null,
       }}
     >
-      {/* <Stack.Screen
-        name="index"
-        options={{
-          ...StackScreenWithSearchBar,
-          // headerShown: false,
-        }}
-      /> */}
       <Stack.Screen
         name="(side)"
         options={{

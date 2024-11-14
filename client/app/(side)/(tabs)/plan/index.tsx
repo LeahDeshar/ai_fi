@@ -71,14 +71,19 @@ const itemSet = [
 
 const planScreen = () => {
   const navigation = useNavigation();
+  const { colors, dark } = useTheme();
+
+  // Fetch user data and profile using Redux queries
   const { data: userProfile } = useGetallUsersProfileQuery();
-  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
   const { data: profile, error, isLoading } = useGetProfileQuery();
   const { data: userActivity, refetch: refetchActivity } =
     useGetUserActivityQuery();
-  const { colors, dark } = useTheme();
 
-  const handleNavigate = (path) => () => {
+  // Retrieve user authentication info from Redux store
+  const { user, token, isLoggedIn } = useSelector((state) => state.auth);
+
+  // Navigation handler
+  const handleNavigate = (path) => {
     navigation.navigate(path);
   };
 
@@ -111,7 +116,7 @@ const planScreen = () => {
 
               return (
                 <TouchableOpacity
-                  onPress={handleNavigate(item.path)}
+                  onPress={() => handleNavigate(item.path)}
                   key={index}
                   style={{
                     flexDirection: "row",

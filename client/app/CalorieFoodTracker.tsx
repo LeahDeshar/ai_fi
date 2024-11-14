@@ -11,7 +11,8 @@ import {
   LogBox,
   FlatList,
 } from "react-native";
-import { BarCodeScanner } from "expo-barcode-scanner";
+import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
+// import { BarCodeScanner } from "expo-barcode-scanner";
 // import { foodList } from "@/assets/data/food";
 import { AntDesign, Entypo, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";

@@ -11,7 +11,8 @@ import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "@gorhom/bottom-sheet";
-import { BarCodeScanner } from "expo-barcode-scanner";
+// import { BarCodeScanner } from "expo-barcode-scanner";
+import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { useCreateFoodMutation } from "@/redux/api/apiClient";
 import { useNavigation } from "expo-router";
 

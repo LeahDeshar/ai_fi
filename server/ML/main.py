@@ -299,3 +299,104 @@ def check_anomaly(data: UserActivity):
         }
     except Exception as e:
         print(e)
+        
+        
+        
+
+
+
+from fastapi import FastAPI
+from pydantic import BaseModel
+import pandas as pd
+import numpy as np
+from sklearn.decomposition import TruncatedSVD
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.neighbors import NearestNeighbors
+from scipy.sparse import hstack, csr_matrix
+from sklearn.preprocessing import LabelEncoder
+
+# Load and preprocess data
+def load_data(filepath):
+    df = pd.read_csv(filepath)
+    df.fillna(0, inplace=True)
+
+    # Encode categorical columns
+    for col in ['definition', 'pushblishDayName']:
+        le = LabelEncoder()
+        df[col] = le.fit_transform(df[col].astype(str))
+
+    return df
+
+# Generate User-Video matrix and apply dimensionality reduction
+def create_video_matrix(df):
+    video_matrix = df.pivot_table(index='video_id', columns='channelTitle', values='viewCount').fillna(0)
+    n_components = min(50, video_matrix.shape[1] - 1)
+
+    # Use TruncatedSVD for dimensionality reduction
+    svd = TruncatedSVD(n_components=n_components)
+    reduced_matrix = svd.fit_transform(video_matrix)
+
+    return pd.DataFrame(reduced_matrix, index=video_matrix.index)
+
+# Process tags using TF-IDF with limited vocabulary size
+def process_tags(df):
+    tfidf = TfidfVectorizer(stop_words='english', max_features=500)
+    tfidf_matrix = tfidf.fit_transform(df['tags'].fillna('').astype(str))
+    return tfidf_matrix
+
+# Standardize numeric features
+def normalize_numeric_features(df):
+    numeric_features = df[['viewCount', 'likeCount', 'durationSecs', 'tagCount']]
+    return (numeric_features - numeric_features.mean()) / numeric_features.std()
+
+# Combine features (TF-IDF and numeric features)
+def combine_features(tfidf_matrix, numeric_features):
+    numeric_features_sparse = csr_matrix(numeric_features)
+    return hstack([tfidf_matrix, numeric_features_sparse], format='csr')
+
+# Precompute the similarity model
+def compute_similarity_matrix(features):
+    model = NearestNeighbors(metric='cosine', algorithm='brute')
+    model.fit(features)
+    return model
+
+# Hybrid recommendation function using collaborative and content-based filtering
+def hybrid_recommend(video_id, new_df, video_matrix_recommend, model, features, top_n=5):
+    if video_id not in video_matrix_recommend.index:
+        print(f"Video ID {video_id} not found in the video matrix.")
+        return pd.DataFrame()
+
+    video_idx = new_df[new_df['video_id'] == video_id].index[0]
+
+    # Find top similar videos based on cosine distance
+    distances, indices = model.kneighbors(features[video_idx], n_neighbors=top_n+1)
+    recommended_indices = indices.flatten()[1:]  # Exclude the video itself
+
+    # Get recommended video details
+    recommended_videos = new_df.iloc[recommended_indices]
+    recommended_videos_details = recommended_videos[['title', 'viewCount',      'likeCount', 
+                                                     'Publish_date', 'Publish_time', 
+                                                     'channelTitle', 'description', 'tags']]
+    return recommended_videos_details
+
+
+# Load data and generate models
+new_df = load_data("./data/yt.csv")
+video_matrix_recommend = create_video_matrix(new_df)
+tfidf_matrix = process_tags(new_df)
+numeric_features = normalize_numeric_features(new_df)
+combined_features = combine_features(tfidf_matrix, numeric_features)
+similarity_model = compute_similarity_matrix(combined_features)
+
+class VideoRequest(BaseModel):
+    video_id: str
+
+@app.post("/recommend_yt")
+async def get_recommendations(request: VideoRequest):
+    video_id = request.video_id
+    recommended_videos = hybrid_recommend(video_id, new_df, video_matrix_recommend, similarity_model, combined_features)
+    return recommended_videos.to_dict(orient='records')
+
+
+
