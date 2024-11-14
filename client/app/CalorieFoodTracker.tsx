@@ -12,7 +12,7 @@ import {
   FlatList,
 } from "react-native";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
-// import { BarCodeScanner } from "expo-barcode-scanner";
+
 // import { foodList } from "@/assets/data/food";
 import { AntDesign, Entypo, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -104,10 +104,15 @@ const CalorieFoodTracker = () => {
     return fuzzySearch(searchQuery, allFood);
   }, [searchQuery]);
 
+  const [permission, requestPermission] = useCameraPermissions();
+
   useEffect(() => {
     const getCameraPermissions = async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === "granted");
+      requestPermission();
+
+      if (!permission?.granted) {
+        setHasPermission(permission?.granted);
+      }
     };
     getCameraPermissions();
   }, []);
@@ -407,9 +412,13 @@ const CalorieFoodTracker = () => {
         onRequestClose={() => setIsScannerOpen(false)}
       >
         <View style={styles.scannerContainer}>
-          <BarCodeScanner
+          {/* <BarCodeScanner
             onBarCodeScanned={scanned ? undefined : handleBarcodeScanned}
             style={StyleSheet.absoluteFillObject}
+          /> */}
+          <CameraView
+            style={StyleSheet.absoluteFillObject}
+            onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
           />
 
           {scanned && (

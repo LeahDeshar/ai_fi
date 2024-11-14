@@ -73,16 +73,13 @@ const planScreen = () => {
   const navigation = useNavigation();
   const { colors, dark } = useTheme();
 
-  // Fetch user data and profile using Redux queries
   const { data: userProfile } = useGetallUsersProfileQuery();
   const { data: profile, error, isLoading } = useGetProfileQuery();
   const { data: userActivity, refetch: refetchActivity } =
     useGetUserActivityQuery();
 
-  // Retrieve user authentication info from Redux store
   const { user, token, isLoggedIn } = useSelector((state) => state.auth);
 
-  // Navigation handler
   const handleNavigate = (path) => {
     navigation.navigate(path);
   };

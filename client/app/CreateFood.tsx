@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "@gorhom/bottom-sheet";
-// import { BarCodeScanner } from "expo-barcode-scanner";
+
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { useCreateFoodMutation } from "@/redux/api/apiClient";
 import { useNavigation } from "expo-router";
@@ -30,10 +30,13 @@ const CreateFood = () => {
   const [carbs, setCarbs] = useState("");
   const [fats, setFats] = useState("");
   const [protein, setProtein] = useState("");
+  const [permission, requestPermission] = useCameraPermissions();
   useEffect(() => {
     const getCameraPermissions = async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === "granted");
+      requestPermission();
+      if (!permission?.granted) {
+        setHasPermission(permission?.granted);
+      }
     };
     getCameraPermissions();
   }, []);
@@ -177,9 +180,13 @@ const CreateFood = () => {
         onRequestClose={() => setIsScannerOpen(false)}
       >
         <View style={styles.scannerContainer}>
-          <BarCodeScanner
+          {/* <BarCodeScanner
             onBarCodeScanned={scanned ? undefined : handleBarcodeScanned}
             style={StyleSheet.absoluteFillObject}
+          /> */}
+          <CameraView
+            style={StyleSheet.absoluteFillObject}
+            onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
           />
 
           {scanned && (

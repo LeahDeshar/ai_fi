@@ -3,7 +3,7 @@ import React from "react";
 import { Stack, useRouter } from "expo-router";
 import { defaultStyles } from "@/styles";
 import { useTheme } from "@/constants/ThemeProvider";
-import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
 
 const planLayout = () => {
   const { colors, dark } = useTheme();

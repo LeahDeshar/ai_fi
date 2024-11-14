@@ -1,6 +1,7 @@
 import { useTheme } from "@/constants/ThemeProvider";
-import { Ionicons } from "@expo/vector-icons";
-import React from "react";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,7 +9,10 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
+  Button,
+  Modal,
 } from "react-native";
+import { WebView } from "react-native-webview";
 
 const articles = [
   {
@@ -102,6 +106,119 @@ const MoreTipsAndTricks = () => {
         )}
         keyExtractor={(item) => item.id}
       />
+    </View>
+  );
+};
+const VideoRecommendations = () => {
+  const [videoId, setVideoId] = useState("some_video_id"); // Replace with the actual video ID
+  const [recommendations, setRecommendations] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState("");
+
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      try {
+        const response = await axios.post("http://127.0.0.1:8000/recommend", {
+          video_id: videoId,
+        });
+        setRecommendations(response.data);
+      } catch (error) {
+        console.error("Error fetching recommendations:", error);
+      }
+    };
+    fetchRecommendations();
+  }, [videoId]);
+
+  const openVideoModal = (videoUrl) => {
+    setSelectedVideoUrl(videoUrl);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedVideoUrl("");
+  };
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={recommendations}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.card}>
+            <Image
+              source={{ uri: item.thumbnailUrl }}
+              style={styles.thumbnail}
+            />
+
+            <View style={styles.cardContent}>
+              <Text style={styles.title}>{item.title}</Text>
+              <Text style={styles.channelTitle}>
+                Channel: {item.channelTitle}
+              </Text>
+
+              <View style={styles.metaInfo}>
+                <View style={styles.metaItem}>
+                  <Ionicons name="md-eye" size={16} color="#555" />
+                  <Text style={styles.metaText}>{item.viewCount}</Text>
+                </View>
+                <View style={styles.metaItem}>
+                  <MaterialIcons name="thumb-up" size={16} color="#555" />
+                  <Text style={styles.metaText}>{item.likeCount}</Text>
+                </View>
+              </View>
+
+              <Text style={styles.date}>
+                Published on: {item.Publish_date} at {item.Publish_time}
+              </Text>
+              <Text style={styles.description}>
+                {item.description.length > 100
+                  ? item.description.slice(0, 100) + "..."
+                  : item.description}
+              </Text>
+
+              <View style={styles.tagsContainer}>
+                {item.tags.split(",").map((tag, index) => (
+                  <Text key={index} style={styles.tag}>
+                    #{tag.trim()}
+                  </Text>
+                ))}
+              </View>
+
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() =>
+                  openVideoModal(
+                    `https://www.youtube.com/watch?v=${item.videoId}`
+                  )
+                }
+              >
+                <Text style={styles.buttonText}>Watch Now</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      />
+
+      {/* Modal to play YouTube Video */}
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        onRequestClose={closeModal}
+        transparent={true}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.webviewContainer}>
+            <WebView
+              source={{ uri: selectedVideoUrl }}
+              style={styles.webview}
+              javaScriptEnabled={true}
+              domStorageEnabled={true}
+            />
+            <Button title="Close" onPress={closeModal} />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
