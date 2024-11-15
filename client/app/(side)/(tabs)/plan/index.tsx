@@ -147,13 +147,12 @@ const planScreen = () => {
                           color: colors.text,
                           fontSize: 18,
                           fontWeight: "bold",
-                          marginBottom: 10,
                         }}
                       >
                         {item.title}
                       </Text>
 
-                      <Svg height="3" width="100%">
+                      {/* <Svg height="3" width="100%">
                         <Rect
                           x="0"
                           y="0"
@@ -170,7 +169,7 @@ const planScreen = () => {
                           fill={"#007f00"}
                           rx="1.5"
                         />
-                      </Svg>
+                      </Svg> */}
                     </View>
                   </View>
                   <AntDesign name="right" size={20} color={colors.icon} />

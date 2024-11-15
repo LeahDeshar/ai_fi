@@ -9,6 +9,8 @@ import {
   Image,
   ScrollView,
   Modal,
+  TextInput,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { useTheme } from "@/constants/ThemeProvider";
 import {
@@ -30,7 +32,10 @@ import { Circle, G, Rect, Svg } from "react-native-svg";
 import { IconButton } from "react-native-paper";
 import {
   useCreatePlaylistMutation,
+  useGetAllPlaylistQuery,
   useGetExeQuery,
+  useGetUserActivityQuery,
+  useUpadateUserActivityMutation,
 } from "@/redux/api/apiClient";
 
 const activity = [
@@ -829,18 +834,25 @@ const PlanWorkout = () => {
   const { colors, dark } = useTheme();
   const navigation = useNavigation();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const [selectedDate, setSelectedDate] = useState(null);
+
   const [selectTarget, setSelectTarget] = useState(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [createPlaylist] = useCreatePlaylistMutation();
+  const [customVisible, setCustomModalVisible] = useState(false);
+  const [caloriesBurned, setCaloriesBurned] = useState("");
+  const [indata, setIndata] = useState();
+
+  const { data: userActivity, refetch } = useGetUserActivityQuery();
+  const [updateActivity] = useUpadateUserActivityMutation();
 
   const handleModalVisible = (item) => {
     setModalVisible(!modalVisible);
     setSelectedExercise(item);
     handleInstruction(item.instructions);
   };
-  const [indata, setIndata] = useState();
 
   const handleInstruction = (instruction) => {
     console.log(typeof instruction);
@@ -862,10 +874,27 @@ const PlanWorkout = () => {
     }
   };
 
+  const handleCustomActivity = () => {
+    setCustomModalVisible(true);
+  };
+
+  const handleSaveCalories = async () => {
+    console.log("Calories Burned Updated:", caloriesBurned);
+    await updateActivity({
+      calorieIntake:
+        Number(userActivity?.activity?.calorieIntake) + Number(caloriesBurned),
+    }).unwrap();
+    refetch();
+    setCaloriesBurned(0);
+    setModalVisible(false);
+  };
+
+  const { data: playlist, refetch: playRefetch } = useGetAllPlaylistQuery();
   const toggleBookmark = (item) => {
     console.log(item);
     setIsBookmarked((prev) => !prev);
     createPlaylist({ data: item }).unwrap();
+    playRefetch();
   };
   const target = [
     "lats",
@@ -897,7 +926,6 @@ const PlanWorkout = () => {
   const openBottomSheet = () => {
     bottomSheetRef.current?.present();
   };
-  const [selectedDate, setSelectedDate] = useState(null);
   const progress = 1;
   const size = 185;
   const strokeWidth = 8;
@@ -1005,7 +1033,7 @@ const PlanWorkout = () => {
                       color: colors.text,
                     }}
                   >
-                    113
+                    {(userActivity?.activity?.calorieIntake).toFixed(1)}
                   </Text>
                   <Text
                     style={{
@@ -1056,6 +1084,7 @@ const PlanWorkout = () => {
                   Completed Activities
                 </Text>
                 <TouchableOpacity
+                  onPress={handleCustomActivity}
                   style={{
                     backgroundColor: "#d8d8d894",
                     justifyContent: "space-between",
@@ -1073,7 +1102,7 @@ const PlanWorkout = () => {
                       fontWeight: 500,
                     }}
                   >
-                    Log a Custom ACtivity
+                    Log a Custom Activity
                   </Text>
                   <Ionicons name="add" size={20} />
                 </TouchableOpacity>
@@ -1362,6 +1391,77 @@ const PlanWorkout = () => {
                 </View>
               </View>
             </View>
+          </Modal>
+          <Modal visible={customVisible} animationType="slide" transparent>
+            <TouchableWithoutFeedback
+              onPress={() => {
+                setCustomModalVisible(false);
+                setCaloriesBurned(0);
+              }}
+            >
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                }}
+              >
+                <View
+                  style={{
+                    backgroundColor: "#fff",
+                    width: "80%",
+                    borderRadius: 10,
+                    padding: 20,
+                    alignItems: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      fontWeight: "bold",
+                      marginBottom: 20,
+                      textAlign: "center",
+                    }}
+                  >
+                    Update Calories Burned
+                  </Text>
+
+                  {/* Input Field */}
+                  <TextInput
+                    style={{
+                      width: "100%",
+                      borderWidth: 1,
+                      borderColor: "#ddd",
+                      borderRadius: 8,
+                      padding: 10,
+                      marginBottom: 20,
+                      backgroundColor: "#f9f9f9",
+                    }}
+                    placeholder="Enter calories burned"
+                    keyboardType="numeric"
+                    value={caloriesBurned}
+                    onChangeText={setCaloriesBurned}
+                  />
+
+                  {/* Save Button */}
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: "#007BFF",
+                      padding: 10,
+                      borderRadius: 8,
+                      width: "100%",
+                      alignItems: "center",
+                    }}
+                    onPress={handleSaveCalories}
+                  >
+                    <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                      Save
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
           </Modal>
 
           <BottomSheetModal

@@ -41,9 +41,6 @@ const PlanDrinkWater = () => {
 
   const [updateActivity] = useUpadateUserActivityMutation();
 
-  const openBottomSheet = () => {
-    bottomSheetRef.current?.present();
-  };
   const { user, token, isLoggedIn, isRegProcess } = useSelector(
     (state) => state.auth
   );
