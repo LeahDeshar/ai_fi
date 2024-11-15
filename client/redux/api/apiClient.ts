@@ -114,6 +114,10 @@ export const authApi = createApi({
     getYt: builder.query({
       query: () => `/fitness/get-yt`,
     }),
+    getExe: builder.query({
+      query: ({ target_input, k }) =>
+        `fitness/predict-fitness?target_input=${target_input}&k=${k}`,
+    }),
     createProfile: builder.mutation({
       query: (profileData) => {
         const formData = new FormData();
@@ -189,4 +193,5 @@ export const {
   useGetFoodByBarcodeQuery,
   useGetMealByTypeQuery,
   useGetUserActivityQuery,
+  useGetExeQuery,
 } = authApi;

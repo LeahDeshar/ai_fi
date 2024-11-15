@@ -14,10 +14,12 @@ import {
 
 const router = express.Router();
 
-router.get("/predict-fitness", getExerciseRecomController);
+router.get("/predict-fitness", isAuth, getExerciseRecomController);
+
 router.get("/predict-sleep", getSleepRecomController);
 router.get("/predict-calorie", getCalorieRecomController);
 router.get("/predict-diet", getDietRecomController);
+
 router.post("/get-channel", getYtChannelRecomController);
 router.get("/get-yt", fetchYtData);
 export default router;

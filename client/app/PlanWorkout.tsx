@@ -7,6 +7,7 @@ import {
   Dimensions,
   View,
   Image,
+  ScrollView,
 } from "react-native";
 import { useTheme } from "@/constants/ThemeProvider";
 import {
@@ -26,6 +27,7 @@ import { LineChart, ProgressChart } from "react-native-chart-kit";
 import { Button } from "react-native";
 import { Circle, G, Rect, Svg } from "react-native-svg";
 import { IconButton } from "react-native-paper";
+import { useGetExeQuery } from "@/redux/api/apiClient";
 
 const activity = [
   {
@@ -823,7 +825,37 @@ const PlanWorkout = () => {
   const { colors, dark } = useTheme();
   const navigation = useNavigation();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const [selectTarget, setSelectTarget] = useState(null);
+  const target = [
+    "lats",
+    "spine",
+    "upper back",
+    "traps",
+    "cardiovascular system",
+    "pectorals",
+    "serratus anterior",
+    "forearms",
+    "calves",
+    "levator scapulae",
+    "delts",
+    "triceps",
+    "biceps",
+    "quads",
+    "glutes",
+    "hamstrings",
+    "adductors",
+    "abductors",
+    "abs",
+  ];
 
+  const { data: reData, error } = useGetExeQuery({
+    target_input: selectTarget,
+    k: 15,
+  });
+
+  console.log(reData);
+
+  // console.log(reData);
   const openBottomSheet = () => {
     bottomSheetRef.current?.present();
   };
@@ -844,7 +876,7 @@ const PlanWorkout = () => {
             backgroundColor: colors.background,
           }}
         >
-          <View>
+          <ScrollView>
             <View
               style={{
                 flexDirection: "row",
@@ -967,6 +999,183 @@ const PlanWorkout = () => {
                 paddingTop: 30,
               }}
             >
+              <View
+                style={{
+                  // marginHorizontal: 20,
+                  // marginTop: 30,
+                  marginBottom: 15,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 600,
+                    // padding: 10,
+                    marginBottom: 10,
+                    color: colors.text,
+                  }}
+                >
+                  Completed Activities
+                </Text>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: "#d8d8d894",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    flexDirection: "row",
+                    // marginHorizontal: 20,
+                    paddingVertical: 13,
+                    paddingHorizontal: 15,
+                    borderRadius: 10,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 500,
+                    }}
+                  >
+                    Log a Custom ACtivity
+                  </Text>
+                  <Ionicons name="add" size={20} />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{
+                  marginBottom: 20,
+                }}
+              >
+                {target.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={{
+                      backgroundColor:
+                        selectTarget === item ? colors.primary : colors.opacity,
+                      padding: 10,
+                      borderRadius: 20,
+                      margin: 5,
+                    }}
+                    onPress={() => setSelectTarget(item)}
+                  >
+                    <Text
+                      style={{
+                        color:
+                          selectTarget === item
+                            ? "white"
+                            : dark
+                            ? "white"
+                            : "black",
+                      }}
+                    >
+                      {item}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+
+              <View>
+                {reData &&
+                  reData?.exeData?.map((item, index) => (
+                    <View
+                      key={index}
+                      style={{
+                        backgroundColor: dark ? "#343434f1" : "#d8d8d894",
+                        borderRadius: 15,
+                        padding: 5,
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        paddingRight: 15,
+                        marginVertical: 8,
+                      }}
+                    >
+                      <View
+                        style={{
+                          flex: 1,
+                        }}
+                      >
+                        <View
+                          style={{
+                            marginLeft: 12,
+                            marginVertical: 5,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              marginTop: 9,
+                              marginVertical: 10,
+                              fontWeight: 600,
+                              color: colors.text,
+                            }}
+                          >
+                            {(item?.name).toUpperCase()}
+                          </Text>
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              // justifyContent: "space-between",
+                              marginTop: 5,
+                              marginRight: 20,
+                              marginVertical: 10,
+                              gap: 30,
+                            }}
+                          >
+                            <View
+                              style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                gap: 8,
+                              }}
+                            >
+                              <Ionicons
+                                name="body"
+                                size={18}
+                                color={colors.text}
+                              />
+                              <Text
+                                style={{
+                                  color: dark ? "#9c9c9cd3" : "#414141bb",
+                                }}
+                              >
+                                {item?.bodyPart}
+                              </Text>
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                gap: 8,
+                              }}
+                            >
+                              <Ionicons
+                                name="barbell-outline"
+                                size={18}
+                                color={colors.text}
+                              />
+                              <Text
+                                style={{
+                                  color: dark ? "#9c9c9cd3" : "#414141bb",
+                                }}
+                              >
+                                {item?.equipment}
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                      <FontAwesome6
+                        name="angle-right"
+                        size={20}
+                        color={dark ? "#9c9c9cd3" : "#414141bb"}
+                      />
+                    </View>
+                  ))}
+              </View>
+
               {activity?.map((item, index) => (
                 <TouchableOpacity
                   key={index}
@@ -1043,48 +1252,7 @@ const PlanWorkout = () => {
                 </TouchableOpacity>
               ))}
             </View>
-            <View
-              style={{
-                marginHorizontal: 20,
-                marginTop: 30,
-                marginBottom: 15,
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontWeight: 600,
-                  // padding: 10,
-                  marginBottom: 10,
-                  color: colors.text,
-                }}
-              >
-                Completed Activities
-              </Text>
-              <TouchableOpacity
-                style={{
-                  backgroundColor: "#d8d8d894",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  flexDirection: "row",
-                  // marginHorizontal: 20,
-                  paddingVertical: 13,
-                  paddingHorizontal: 15,
-                  borderRadius: 10,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 500,
-                  }}
-                >
-                  Log a Custom ACtivity
-                </Text>
-                <Ionicons name="add" size={20} />
-              </TouchableOpacity>
-            </View>
-          </View>
+          </ScrollView>
 
           <BottomSheetModal
             snapPoints={["20%", "50%"]}

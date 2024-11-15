@@ -9,6 +9,10 @@ static
 diet/*.csv
 diet/*.json
 
+calorie_model.joblib
+calorie_scaler.joblib
+
+
 
 dietNutri/*.csv
 dietNutri/*.json
