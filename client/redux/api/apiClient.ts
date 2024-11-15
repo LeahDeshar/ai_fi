@@ -62,6 +62,15 @@ export const authApi = createApi({
         };
       },
     }),
+    createPlaylist: builder.mutation({
+      query: (data) => {
+        return {
+          url: "/playlist/create",
+          method: "POST",
+          body: data,
+        };
+      },
+    }),
     upadateUserActivity: builder.mutation({
       query: (activityData) => {
         return {
@@ -70,6 +79,9 @@ export const authApi = createApi({
           body: activityData,
         };
       },
+    }),
+    getAllPlaylist: builder.query({
+      query: () => "/playlist/all",
     }),
     getProfile: builder.query({
       query: () => "/auth/profile",
@@ -178,6 +190,7 @@ export const {
   useCreateProfileMutation,
   useCreateFoodMutation,
   useCreateMealMutation,
+  useCreatePlaylistMutation,
   useUpadateUserActivityMutation,
   useGetProfileQuery,
   useGetallUsersProfileQuery,
@@ -186,6 +199,7 @@ export const {
   useGetUserActivityWeekQuery,
   useGetMyFriendsQuery,
   useGetYtQuery,
+  useGetAllPlaylistQuery,
   useGetMealByDateQuery,
   useGetUserInsightQuery,
   useGetAllFoodQuery,

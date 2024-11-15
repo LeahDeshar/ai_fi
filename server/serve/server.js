@@ -20,6 +20,7 @@ import fastingRoutes from "./routes/fastingRoutes.js";
 import exerciseRoutes from "./routes/exeRoutes.js";
 import recomRoutes from "./routes/recommendation.js";
 import insightRoutes from "./routes/activityInsight.js";
+import playlistRoutes from "./routes/playlist.js";
 import foodRoutes from "./routes/foodRoutes.js";
 import mealsRoutes from "./routes/mealRoutes.js";
 import Conversation from "./models/conversation.js";
@@ -79,6 +80,8 @@ app.use("/api/v1/post", setupPostRoutes(io));
 app.use("/api/v1/comment", setupCommentRoutes(io));
 // Recommendation
 app.use("/api/v1/fitness", recomRoutes);
+
+app.use("/api/v1/playlist", playlistRoutes);
 
 io.on("connection", (socket) => {
   console.log(`User connected:..... ${socket.id}`);

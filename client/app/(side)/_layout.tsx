@@ -12,12 +12,16 @@ export default function DrawerLayout() {
         drawerStyle: {
           backgroundColor: dark ? colors.opacity : "white",
         },
-        drawerItemStyle: {
-          backgroundColor: "#5f5f5f9c",
-        },
-        drawerLabelStyle: {
-          color: "white",
-        },
+        drawerActiveTintColor: colors.text,
+
+        drawerInactiveTintColor: "white",
+        // drawerItemStyle: {
+        //   backgroundColor: "#5f5f5f9c",
+        //   marginBottom: 10,
+        // },
+        // drawerLabelStyle: {
+        //   color: "white",
+        // },
       }}
     >
       <Drawer.Screen
@@ -31,6 +35,13 @@ export default function DrawerLayout() {
         name="(social)/(tabs)"
         options={{
           drawerLabel: "Network",
+          title: "",
+        }}
+      />
+      <Drawer.Screen
+        name="playlist"
+        options={{
+          drawerLabel: "Playlist",
           title: "",
         }}
       />

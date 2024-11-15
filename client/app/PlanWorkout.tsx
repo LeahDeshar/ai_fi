@@ -8,6 +8,7 @@ import {
   View,
   Image,
   ScrollView,
+  Modal,
 } from "react-native";
 import { useTheme } from "@/constants/ThemeProvider";
 import {
@@ -27,7 +28,10 @@ import { LineChart, ProgressChart } from "react-native-chart-kit";
 import { Button } from "react-native";
 import { Circle, G, Rect, Svg } from "react-native-svg";
 import { IconButton } from "react-native-paper";
-import { useGetExeQuery } from "@/redux/api/apiClient";
+import {
+  useCreatePlaylistMutation,
+  useGetExeQuery,
+} from "@/redux/api/apiClient";
 
 const activity = [
   {
@@ -826,6 +830,43 @@ const PlanWorkout = () => {
   const navigation = useNavigation();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [selectTarget, setSelectTarget] = useState(null);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedExercise, setSelectedExercise] = useState(null);
+  const [createPlaylist] = useCreatePlaylistMutation();
+
+  const handleModalVisible = (item) => {
+    setModalVisible(!modalVisible);
+    setSelectedExercise(item);
+    handleInstruction(item.instructions);
+  };
+  const [indata, setIndata] = useState();
+
+  const handleInstruction = (instruction) => {
+    console.log(typeof instruction);
+    if (!instruction) {
+      setIndata([]);
+      return;
+    }
+
+    try {
+      const instructions = instruction
+        .slice(1, -1)
+        .split("', '")
+        .map((ins) => ins.replace(/^'/, "").replace(/'$/, "").trim());
+
+      setIndata(instructions);
+    } catch (error) {
+      console.error("Error parsing instructions:", error);
+      setIndata([instruction]);
+    }
+  };
+
+  const toggleBookmark = (item) => {
+    console.log(item);
+    setIsBookmarked((prev) => !prev);
+    createPlaylist({ data: item }).unwrap();
+  };
   const target = [
     "lats",
     "spine",
@@ -853,9 +894,6 @@ const PlanWorkout = () => {
     k: 15,
   });
 
-  console.log(reData);
-
-  // console.log(reData);
   const openBottomSheet = () => {
     bottomSheetRef.current?.present();
   };
@@ -1079,7 +1117,8 @@ const PlanWorkout = () => {
               <View>
                 {reData &&
                   reData?.exeData?.map((item, index) => (
-                    <View
+                    <TouchableOpacity
+                      onPress={() => handleModalVisible(item)}
                       key={index}
                       style={{
                         backgroundColor: dark ? "#343434f1" : "#d8d8d894",
@@ -1164,6 +1203,26 @@ const PlanWorkout = () => {
                                 {item?.equipment}
                               </Text>
                             </View>
+                            <View
+                              style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                gap: 8,
+                              }}
+                            >
+                              <FontAwesome5
+                                name="burn"
+                                size={18}
+                                color={colors.text}
+                              />
+                              <Text
+                                style={{
+                                  color: dark ? "#9c9c9cd3" : "#414141bb",
+                                }}
+                              >
+                                {item?.estimatedCaloriesBurned}
+                              </Text>
+                            </View>
                           </View>
                         </View>
                       </View>
@@ -1172,7 +1231,7 @@ const PlanWorkout = () => {
                         size={20}
                         color={dark ? "#9c9c9cd3" : "#414141bb"}
                       />
-                    </View>
+                    </TouchableOpacity>
                   ))}
               </View>
 
@@ -1253,6 +1312,57 @@ const PlanWorkout = () => {
               ))}
             </View>
           </ScrollView>
+
+          <Modal
+            visible={modalVisible}
+            transparent
+            animationType="slide"
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.overlay}>
+              <View style={styles.modalContainer}>
+                <ScrollView>
+                  <Text style={styles.header}>{selectedExercise?.name}</Text>
+                  <Text style={styles.subHeader}>
+                    Target Muscle: {selectedExercise?.target}
+                  </Text>
+                  <Text style={styles.subHeader}>
+                    Body Part: {selectedExercise?.bodyPart}
+                  </Text>
+                  <Text style={styles.subHeader}>
+                    Equipment: {selectedExercise?.equipment}
+                  </Text>
+                  <Text style={styles.subHeader}>
+                    Calories Burned: {selectedExercise?.estimatedCaloriesBurned}{" "}
+                    kcal
+                  </Text>
+                  <Text style={styles.instructionsHeader}>Instructions:</Text>
+
+                  {indata?.map((instruction, index) => (
+                    <Text key={index} style={styles.instruction}>
+                      {index + 1}. {instruction}
+                    </Text>
+                  ))}
+                </ScrollView>
+                <View style={styles.actions}>
+                  <TouchableOpacity
+                    style={styles.bookmarkButton}
+                    onPress={() => toggleBookmark(selectedExercise)}
+                  >
+                    <Text style={styles.bookmarkText}>
+                      {isBookmarked ? "Bookmarked" : "Bookmark"}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => setModalVisible(false)}
+                  >
+                    <Text style={styles.closeText}>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
 
           <BottomSheetModal
             snapPoints={["20%", "50%"]}
@@ -1364,6 +1474,61 @@ const CalendarPicker = ({ selectedDate, setSelectedDate }) => {
 export default PlanWorkout;
 
 const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    width: "90%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    maxHeight: "80%",
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  subHeader: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  instructionsHeader: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 10,
+    marginBottom: 5,
+  },
+  instruction: {
+    fontSize: 14,
+    marginVertical: 8,
+  },
+  actions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 15,
+  },
+  bookmarkButton: {
+    backgroundColor: "#FFD700",
+    padding: 10,
+    borderRadius: 5,
+  },
+  bookmarkText: {
+    color: "black",
+    fontWeight: "bold",
+  },
+  closeButton: {
+    backgroundColor: "#ff4d4d",
+    padding: 10,
+    borderRadius: 5,
+  },
+  closeText: {
+    color: "white",
+    fontWeight: "bold",
+  },
   headerText: {
     fontSize: 18,
     fontWeight: "bold",
