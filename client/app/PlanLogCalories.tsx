@@ -69,7 +69,7 @@ const PlanLogCalories = () => {
   const {
     data: mealOfDay,
     error: mealError,
-    isLoading: isMealError,
+    isLoading: isMealLoading,
   } = useGetMealOfDayQuery();
   const {
     data: daily,
@@ -87,12 +87,6 @@ const PlanLogCalories = () => {
     skip: !pick,
   });
 
-  if (isLoading || isMealError || isDailyError) {
-    return <Text>Loading...</Text>;
-  }
-  if (error) {
-    return <Text>{error}</Text>;
-  }
   const targetCalories =
     profile?.calculations?.weightLossDuration?.calories?.targetCalories || 1;
   const totalCalories = daily?.totalCalories || 0;
@@ -106,7 +100,7 @@ const PlanLogCalories = () => {
   const handleMealPick = async (day) => {
     setPick(true);
     setSelectedDate(day);
-    bottomSheetRef.current?.close();
+    bottomSheetRef?.current?.close();
   };
 
   return (
@@ -130,7 +124,28 @@ const PlanLogCalories = () => {
               colors={colors}
               bottomSheetRef={bottomSheetRef}
             />
-
+            {(isLoading || isMealLoading || isDailyError) && (
+              <Text
+                style={{
+                  color: colors.text,
+                  textAlign: "center",
+                  marginTop: 20,
+                }}
+              >
+                Loading
+              </Text>
+            )}
+            {error && (
+              <Text
+                style={{
+                  color: colors.text,
+                  textAlign: "center",
+                  marginTop: 20,
+                }}
+              >
+                error
+              </Text>
+            )}
             <ScrollView
               style={{
                 height: "100%",
@@ -252,96 +267,97 @@ const PlanLogCalories = () => {
                 >
                   Daily meals
                 </Text>
-                {meals?.map((item, index) => {
-                  const mealCalorie = mealOfDay[item.title];
-                  const pickMealCalorie =
-                    pickMeal?.categorizedMeals[item.title];
+                {meals &&
+                  meals?.map((item, index) => {
+                    const mealCalorie = mealOfDay[item.title];
+                    const pickMealCalorie =
+                      pickMeal?.categorizedMeals[item.title];
 
-                  return (
-                    <View
-                      key={index}
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        backgroundColor: colors.background,
-                        marginVertical: 5,
-                        marginHorizontal: 15,
-                        paddingHorizontal: 10,
-                        paddingVertical: 15,
-                        borderRadius: 15,
-                      }}
-                    >
+                    return (
                       <View
+                        key={index}
                         style={{
                           flexDirection: "row",
+                          justifyContent: "space-between",
                           alignItems: "center",
+                          backgroundColor: colors.background,
+                          marginVertical: 5,
+                          marginHorizontal: 15,
+                          paddingHorizontal: 10,
+                          paddingVertical: 15,
+                          borderRadius: 15,
                         }}
                       >
                         <View
                           style={{
-                            backgroundColor: item.color,
-                            width: 35,
-                            height: 35,
-                            borderRadius: 25,
-                            justifyContent: "center",
+                            flexDirection: "row",
                             alignItems: "center",
-                            padding: 20,
                           }}
                         >
-                          <Image
-                            source={item.images}
+                          <View
                             style={{
-                              width: 32,
-                              height: 32,
-                              resizeMode: "contain",
-                            }}
-                          />
-                        </View>
-                        <View>
-                          <Text
-                            style={{
-                              fontSize: 16,
-                              fontWeight: 500,
-                              marginLeft: 10,
-                              color: colors.text,
+                              backgroundColor: item.color,
+                              width: 35,
+                              height: 35,
+                              borderRadius: 25,
+                              justifyContent: "center",
+                              alignItems: "center",
+                              padding: 20,
                             }}
                           >
-                            {item.title}
-                          </Text>
-                          <Text
-                            style={{
-                              fontSize: 13,
-                              marginLeft: 10,
-                              marginTop: 5,
-                              color: "#777",
-                            }}
-                          >
-                            {pickMealCalorie?.totalCalories ||
-                              mealCalorie?.totalCalories ||
-                              0}
-                            kcal
-                          </Text>
+                            <Image
+                              source={item.images}
+                              style={{
+                                width: 32,
+                                height: 32,
+                                resizeMode: "contain",
+                              }}
+                            />
+                          </View>
+                          <View>
+                            <Text
+                              style={{
+                                fontSize: 16,
+                                fontWeight: 500,
+                                marginLeft: 10,
+                                color: colors.text,
+                              }}
+                            >
+                              {item.title}
+                            </Text>
+                            <Text
+                              style={{
+                                fontSize: 13,
+                                marginLeft: 10,
+                                marginTop: 5,
+                                color: "#777",
+                              }}
+                            >
+                              {pickMealCalorie?.totalCalories ||
+                                mealCalorie?.totalCalories ||
+                                0}
+                              kcal
+                            </Text>
+                          </View>
                         </View>
+                        <TouchableOpacity
+                          style={{
+                            borderWidth: 1,
+                            borderColor: "#66bb6ac6",
+                            borderRadius: 25,
+                            padding: 8,
+                          }}
+                          onPress={() =>
+                            navigation.navigate("CalorieFoodTracker", {
+                              title: item.title,
+                            })
+                          }
+                        >
+                          <Ionicons name="add" color={"#66BB6A"} size={25} />
+                        </TouchableOpacity>
                       </View>
-                      <TouchableOpacity
-                        style={{
-                          borderWidth: 1,
-                          borderColor: "#66bb6ac6",
-                          borderRadius: 25,
-                          padding: 8,
-                        }}
-                        onPress={() =>
-                          navigation.navigate("CalorieFoodTracker", {
-                            title: item.title,
-                          })
-                        }
-                      >
-                        <Ionicons name="add" color={"#66BB6A"} size={25} />
-                      </TouchableOpacity>
-                    </View>
-                  );
-                })}
+                    );
+                  })}
               </View>
             </ScrollView>
           </View>

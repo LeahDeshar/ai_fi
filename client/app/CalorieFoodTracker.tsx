@@ -338,6 +338,7 @@ const CalorieFoodTracker = () => {
                     </View>
                   </View>
                   <TouchableOpacity
+                    onPress={() => handleAddMeal(food?._id)}
                     style={{
                       borderRadius: 50,
                       borderWidth: 2,
