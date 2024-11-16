@@ -899,12 +899,16 @@ const PlanWorkout = () => {
     refetch: playRefetch,
     isLoading: isPlaylistLoading,
   } = useGetAllPlaylistQuery();
+
+  console.log(playlist);
   const toggleBookmark = (item) => {
     console.log(item);
     setIsBookmarked((prev) => !prev);
     createPlaylist({ data: item }).unwrap();
     playRefetch();
   };
+  // playRefetch();
+
   const target = [
     "lats",
     "spine",
@@ -1011,7 +1015,7 @@ const PlanWorkout = () => {
               </TouchableOpacity>
             </View>
 
-            {reIsLoading && (
+            {/* {reIsLoading && (
               <View
                 style={{
                   flex: 1,
@@ -1021,7 +1025,7 @@ const PlanWorkout = () => {
               >
                 <ActivityIndicator size="large" color={colors.primary} />
               </View>
-            )}
+            )} */}
 
             <View
               style={{

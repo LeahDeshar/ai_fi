@@ -38,6 +38,7 @@ export const getUserPlaylist = async (req, res) => {
     const userId = req.user._id;
     const playlists = await Playlist.find({ user: userId });
 
+    console.log(playlists);
     if (!playlists || playlists.length === 0) {
       return res
         .status(404)

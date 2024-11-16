@@ -30,7 +30,8 @@ const Playlist = () => {
     isLoading,
     refetch: playRefetch,
   } = useGetAllPlaylistQuery();
-
+  // console.log(data);
+  // playRefetch();
   const [workoutTimes, setWorkoutTimes] = useState({});
   const [totalCalories, setTotalCalories] = useState(0);
   const [totalTime, setTotalTime] = useState(0);
