@@ -96,16 +96,23 @@ const PlanSteps = () => {
     (state) => state.auth
   );
 
-  const { data: userActivityWeek, refetch: refetchWeek } =
-    useGetUserActivityWeekQuery();
-  console.log("userActivityWeek", userActivityWeek?.activities);
+  const {
+    data: userActivityWeek,
+    error: weekError,
+    isLoading: weekIsLoading,
+    refetch: refetchWeek,
+  } = useGetUserActivityWeekQuery();
 
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
 
   const [selectedDailyStep, setSelectedSteps] = useState(0);
 
-  const { data: userActivity, refetch: refetchActivity } =
-    useGetUserActivityQuery();
+  const {
+    data: userActivity,
+    error: activityError,
+    isLoading: activityIsLoading,
+    refetch: refetchActivity,
+  } = useGetUserActivityQuery();
 
   useEffect(() => {
     setSteps(userActivity?.activity?.dailySteps || 0);
@@ -210,6 +217,10 @@ const PlanSteps = () => {
       console.error("Failed to update activity:", error);
     }
   };
+
+  if (weekIsLoading || isLoading || activityIsLoading) {
+    return <Text>Loading...</Text>;
+  }
   return (
     <GestureHandlerRootView>
       <BottomSheetModalProvider>

@@ -900,7 +900,6 @@ const PlanWorkout = () => {
     isLoading: isPlaylistLoading,
   } = useGetAllPlaylistQuery();
 
-  console.log(playlist);
   const toggleBookmark = (item) => {
     console.log(item);
     setIsBookmarked((prev) => !prev);
@@ -1083,7 +1082,8 @@ const PlanWorkout = () => {
                       color: colors.text,
                     }}
                   >
-                    {(userActivity?.activity?.calorieIntake).toFixed(1)}
+                    {userActivity &&
+                      (userActivity?.activity?.calorieIntake).toFixed(1)}
                   </Text>
                   <Text
                     style={{

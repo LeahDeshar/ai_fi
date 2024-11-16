@@ -16,6 +16,8 @@ const VideoView = () => {
   const { videoData, datare } = useLocalSearchParams();
   const [select, setSelected] = useState(null);
 
+  console.log(datare);
+
   const data = JSON.parse(videoData);
   const re = JSON.parse(datare);
   const getYouTubeThumbnail = (video_id) => {

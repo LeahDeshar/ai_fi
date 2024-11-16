@@ -170,10 +170,14 @@ export const getSleepRecomController = async (req, res) => {
 export const getYtChannelRecomController = async (req, res) => {
   try {
     const { video_id } = req.body;
+    console.log(video_id);
 
-    const response = await axios.post("http://localhost:8000/recommend_yt", {
-      video_id,
-    });
+    const response = await axios.post(
+      "https://aifi-py-server.onrender.com/recommend_yt",
+      {
+        video_id,
+      }
+    );
 
     res.json({
       video: response.data,

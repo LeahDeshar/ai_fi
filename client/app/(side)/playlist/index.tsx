@@ -10,9 +10,11 @@ import {
   Platform,
   Keyboard,
   ScrollView,
+  Animated,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import {
+  useDeletePlaylistMutation,
   useGetAllPlaylistQuery,
   useGetUserActivityQuery,
   useUpadateUserActivityMutation,
@@ -20,7 +22,13 @@ import {
 import { useTheme } from "@/constants/ThemeProvider";
 import { Circle, Svg } from "react-native-svg";
 import { AntDesign } from "@expo/vector-icons";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import {
+  GestureHandlerRootView,
+  RectButton,
+  TouchableWithoutFeedback,
+} from "react-native-gesture-handler";
+// import { RectButton, Swipeable } from "react-native-gesture-handler";
+import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 
 const Playlist = () => {
   const { colors, dark } = useTheme();
@@ -30,8 +38,7 @@ const Playlist = () => {
     isLoading,
     refetch: playRefetch,
   } = useGetAllPlaylistQuery();
-  // console.log(data);
-  // playRefetch();
+
   const [workoutTimes, setWorkoutTimes] = useState({});
   const [totalCalories, setTotalCalories] = useState(0);
   const [totalTime, setTotalTime] = useState(0);
@@ -47,6 +54,8 @@ const Playlist = () => {
   const [isResting, setIsResting] = useState(false);
   const { data: userActivity, refetch } = useGetUserActivityQuery();
   const [updateActivity] = useUpadateUserActivityMutation();
+  const [deleteExercise, isDeleting] = useDeletePlaylistMutation();
+
   if (isLoading) {
     return <Text>Loading...</Text>;
   }
@@ -66,10 +75,9 @@ const Playlist = () => {
 
     Object.keys(updatedTimes).forEach((id) => {
       const time = updatedTimes[id];
-      const exercise = data.find((item) => item._id === id); // Find the exercise by its ID
+      const exercise = data[0]?.exercises.find((item) => item._id === id); // Find the exercise by its ID
       if (exercise) {
-        const caloriesBurnedPerSecond =
-          exercise.exercises[0].estimatedCaloriesBurned / 60; // calories per second
+        const caloriesBurnedPerSecond = exercise.estimatedCaloriesBurned / 60; // calories per second
         updatedTotalTime += time; // total time in seconds
         updatedTotalCalories += caloriesBurnedPerSecond * time;
       }
@@ -80,6 +88,7 @@ const Playlist = () => {
   };
 
   const handleStart = () => {
+    console.log(sessionTime, restTime, totalTime);
     if (sessionTime === 0 || restTime === 0 || totalTime === 0) {
       Alert.alert(
         "Invalid Input",
@@ -94,30 +103,27 @@ const Playlist = () => {
 
   const generateWorkoutPlan = () => {
     const sets = [];
-    const totalWorkoutTime = Object.values(workoutTimes).reduce(
-      (acc, time) => acc + time,
-      0
-    );
+    const totalWorkoutTime = totalTime;
     const numSets = Math.ceil(totalWorkoutTime / sessionTime);
+
+    // Shuffle exercises for randomness
+    const shuffledExercises = [...data[0].exercises].sort(
+      () => Math.random() - 0.5
+    );
+
     for (let setIndex = 1; setIndex <= numSets; setIndex++) {
       let set = [];
-      let remainingTime = totalWorkoutTime;
+      let remainingTime = sessionTime;
 
-      data.forEach((item) => {
+      shuffledExercises.forEach((item, exerciseIndex) => {
         if (remainingTime <= 0) return;
 
-        const exerciseTime = workoutTimes[item._id] || 0;
-        const sessionDuration = Math.min(sessionTime, exerciseTime);
-        set.push(
-          `Set ${setIndex}: ${sessionDuration} sec of ${item.exercises[0].name}`
-        );
+        const exerciseName = item.name; // Exercise name
+        set.push(`Set ${setIndex}: ${remainingTime} sec of ${exerciseName}`);
 
-        remainingTime -= sessionDuration;
-
-        // Add rest time if there’s more time left in the set
-        if (remainingTime > 0) {
+        // Add rest time unless it’s the last exercise in the set
+        if (exerciseIndex < shuffledExercises.length - 1) {
           set.push(`Rest: ${restTime} sec`);
-          remainingTime -= restTime;
         }
       });
 
@@ -130,22 +136,50 @@ const Playlist = () => {
   const startWorkout = () => {
     setWorkoutStarted(true);
   };
+  // const nextExercise = async () => {
+  //   if (currentExerciseIndex + 1 < workoutPlan[currentSetIndex].length) {
+  //     setCurrentExerciseIndex(currentExerciseIndex + 1);
+  //     if (isResting) {
+  //       setRestTimeRemaining(10);
+  //       setIsResting(false);
+  //       setSetTimeRemaining(40);
+  //     } else {
+  //       setSetTimeRemaining(40);
+  //     }
+  //   } else if (currentSetIndex + 1 < workoutPlan.length) {
+  //     setCurrentSetIndex(currentSetIndex + 1);
+  //     setCurrentExerciseIndex(0);
+  //     setIsResting(false);
+  //     setSetTimeRemaining(40);
+  //     setRestTimeRemaining(10);
+  //   } else {
+  //     setWorkoutStarted(false);
+  //     console.log("workout completed");
+  //     await updateActivity({
+  //       calorieIntake: userActivity?.activity?.calorieIntake + totalCalories,
+  //     }).unwrap();
+  //     refetch();
+  //   }
+  // };
+
   const nextExercise = async () => {
     if (currentExerciseIndex + 1 < workoutPlan[currentSetIndex].length) {
       setCurrentExerciseIndex(currentExerciseIndex + 1);
       if (isResting) {
-        setRestTimeRemaining(10);
+        setRestTimeRemaining(restTime);
+        console.log("is resting", restTime);
         setIsResting(false);
-        setSetTimeRemaining(40);
+        setSetTimeRemaining(sessionTime);
+        console.log("working", sessionTime);
       } else {
-        setSetTimeRemaining(40);
+        setSetTimeRemaining(sessionTime);
       }
     } else if (currentSetIndex + 1 < workoutPlan.length) {
       setCurrentSetIndex(currentSetIndex + 1);
       setCurrentExerciseIndex(0);
       setIsResting(false);
-      setSetTimeRemaining(40);
-      setRestTimeRemaining(10);
+      setSetTimeRemaining(sessionTime);
+      setRestTimeRemaining(restTime);
     } else {
       setWorkoutStarted(false);
       console.log("workout completed");
@@ -155,7 +189,6 @@ const Playlist = () => {
       refetch();
     }
   };
-
   useEffect(() => {
     let interval;
 
@@ -240,7 +273,37 @@ const Playlist = () => {
     setRestTimeRemaining(15);
     setIsResting(false);
   };
+  // playRefetch();
 
+  const handleDelete = async (id) => {
+    try {
+      await deleteExercise(id).unwrap();
+      playRefetch();
+      Alert.alert("Success", "The workout has been deleted successfully!");
+    } catch (error) {
+      Alert.alert("Error", "Failed to delete the workout. Please try again.");
+    }
+  };
+
+  const renderRightActions = (id) => (
+    <TouchableOpacity
+      style={[
+        {
+          backgroundColor: colors.secondary,
+          justifyContent: "center",
+          alignItems: "center",
+          width: 80,
+          height: "100%",
+          borderRadius: 8,
+        },
+      ]}
+      onPress={() => handleDelete(id)}
+    >
+      <Text style={[{ fontSize: 16, fontWeight: "bold", color: colors.text }]}>
+        Delete
+      </Text>
+    </TouchableOpacity>
+  );
   return (
     <ScrollView
       style={{
@@ -249,70 +312,81 @@ const Playlist = () => {
         paddingTop: 130,
         paddingHorizontal: 20,
       }}
+      contentContainerStyle={{
+        paddingBottom: 50,
+      }}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      <View
         style={{
           flex: 1,
           backgroundColor: colors.background,
         }}
       >
-        {data?.map((item, index) => (
-          <View key={index} style={{ marginBottom: 20 }}>
-            <Text
-              style={{
-                color: colors.text,
-                fontSize: 18,
-                fontWeight: "bold",
-              }}
+        <GestureHandlerRootView>
+          {data[0]?.exercises?.map((item, index) => (
+            <Swipeable
+              key={index}
+              renderRightActions={() => renderRightActions(item._id)}
             >
-              {item?.exercises[0].name}
-            </Text>
-            <Text
-              style={{
-                color: colors.text,
-              }}
-            >
-              Body Part: {item?.exercises[0].bodyPart}
-            </Text>
-            <Text
-              style={{
-                color: colors.text,
-              }}
-            >
-              Equipment: {item?.exercises[0].equipment}
-            </Text>
-            <Text
-              style={{
-                color: colors.text,
-              }}
-            >
-              Calories Burned per Minute:{" "}
-              {item?.exercises[0].estimatedCaloriesBurned}
-            </Text>
+              <View
+                style={{
+                  marginVertical: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: "bold",
+                  }}
+                >
+                  {item?.name}
+                </Text>
+                <Text
+                  style={{
+                    color: colors.text,
+                  }}
+                >
+                  Body Part: {item?.bodyPart}
+                </Text>
+                <Text
+                  style={{
+                    color: colors.text,
+                  }}
+                >
+                  Equipment: {item?.equipment}
+                </Text>
+                <Text
+                  style={{
+                    color: colors.text,
+                  }}
+                >
+                  Calories Burned per Minute: {item?.estimatedCaloriesBurned}
+                </Text>
 
-            <TextInput
-              style={{
-                borderWidth: 1,
-                padding: 10,
-                marginVertical: 10,
-                backgroundColor: colors.opacity,
-                color: colors.text,
-                borderRadius: 8,
-              }}
-              placeholder="Enter time in seconds"
-              keyboardType="numeric"
-              onChangeText={(text) =>
-                handleTimeChange(
-                  item._id,
-                  parseFloat(text),
-                  item?.exercises[0].estimatedCaloriesBurned
-                )
-              }
-            />
-          </View>
-        ))}
-
+                <TextInput
+                  style={{
+                    borderWidth: 1,
+                    padding: 10,
+                    marginVertical: 10,
+                    backgroundColor: colors.opacity,
+                    color: colors.text,
+                    borderRadius: 8,
+                  }}
+                  placeholder="Enter time in seconds"
+                  keyboardType="numeric"
+                  onChangeText={(text) =>
+                    handleTimeChange(
+                      item._id,
+                      parseFloat(text),
+                      item?.estimatedCaloriesBurned
+                    )
+                  }
+                />
+              </View>
+            </Swipeable>
+          ))}
+        </GestureHandlerRootView>
         <View style={{ marginVertical: 16 }}>
           <Text style={{ color: colors.text, marginBottom: 8 }}>
             Session Time (seconds):
@@ -394,7 +468,7 @@ const Playlist = () => {
             Prepare Workout
           </Text>
         </TouchableOpacity>
-      </KeyboardAvoidingView>
+      </View>
       <Modal visible={modalVisible} animationType="slide">
         <View
           style={{
@@ -412,33 +486,51 @@ const Playlist = () => {
                   fontSize: 25,
                   fontWeight: "bold",
                   textAlign: "center",
+                  // marginTop: 50,
                 }}
               >
                 Your Workout Plan
               </Text>
-              {workoutPlan.length > 0 ? (
-                workoutPlan.map((set, setIndex) => (
-                  <View key={setIndex} style={{ marginVertical: 10 }}>
-                    <Text
-                      style={{
-                        color: colors.text,
-                        fontWeight: "bold",
-                        fontSize: 18,
-                      }}
-                    >
-                      Set {setIndex + 1}
+              <View
+                style={{
+                  height: 500,
+                }}
+              >
+                <ScrollView
+                  style={{
+                    flex: 1,
+                    marginVertical: 20,
+                  }}
+                >
+                  {workoutPlan.length > 0 ? (
+                    workoutPlan.map((set, setIndex) => (
+                      <View key={setIndex} style={{ marginVertical: 10 }}>
+                        <Text
+                          style={{
+                            color: colors.text,
+                            fontWeight: "bold",
+                            fontSize: 18,
+                          }}
+                        >
+                          Set {setIndex + 1}
+                        </Text>
+                        {set.map((exercise, exerciseIndex) => (
+                          <Text
+                            key={exerciseIndex}
+                            style={{ color: colors.text }}
+                          >
+                            {exercise}
+                          </Text>
+                        ))}
+                      </View>
+                    ))
+                  ) : (
+                    <Text style={{ color: colors.text }}>
+                      Generating plan...
                     </Text>
-                    {set.map((exercise, exerciseIndex) => (
-                      <Text key={exerciseIndex} style={{ color: colors.text }}>
-                        {exercise}
-                      </Text>
-                    ))}
-                  </View>
-                ))
-              ) : (
-                <Text style={{ color: colors.text }}>Generating plan...</Text>
-              )}
-
+                  )}
+                </ScrollView>
+              </View>
               <View
                 style={{
                   flexDirection: "row",

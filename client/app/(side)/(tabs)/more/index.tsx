@@ -37,7 +37,7 @@ const MoreItems: MoreItem[] = [
     path: "MorePersonalCoach",
   },
   {
-    title: "Tips & Articles",
+    title: "AIFI TV",
     icon: "document-text-outline",
     path: "MoreTipsAndTricks",
   },

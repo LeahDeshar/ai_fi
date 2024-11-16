@@ -90,8 +90,8 @@ export const getOneExerciseFromUserPlaylist = async (req, res) => {
 export const deleteFromUserPlaylist = async (req, res) => {
   try {
     const userId = req.user._id;
-    const exerciseId = req.body.exerciseId;
-
+    const { exerciseId } = req.params;
+    console.log(userId, exerciseId);
     const playlist = await Playlist.findOne({ user: userId });
 
     if (!playlist) {

@@ -43,7 +43,7 @@ import { io } from "socket.io-client";
 import axios from "axios";
 import { Alert } from "react-native";
 
-const SOCKET_SERVER_URL = "http://192.168.1.3:8080";
+const SOCKET_SERVER_URL = "http://192.168.1.9:8080";
 const socket = io(SOCKET_SERVER_URL);
 const ViewProfile = () => {
   const { user } = useLocalSearchParams();
@@ -133,7 +133,7 @@ const ViewProfile = () => {
     setIsCommentModalVisible(true);
     try {
       const response = await axios.get(
-        `http://192.168.1.3:8080/api/v1/comment/get`,
+        `http://192.168.1.9:8080/api/v1/comment/get`,
         {
           params: {
             postId: postId,
@@ -205,7 +205,7 @@ const ViewProfile = () => {
       refetch();
 
       const responseCom = await axios.get(
-        `http://192.168.1.3:8080/api/v1/comment/get`,
+        `http://192.168.1.9:8080/api/v1/comment/get`,
         {
           params: {
             postId: selectedPostId,

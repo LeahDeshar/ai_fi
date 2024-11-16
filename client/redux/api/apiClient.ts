@@ -83,6 +83,15 @@ export const authApi = createApi({
     getAllPlaylist: builder.query({
       query: () => "/playlist/all",
     }),
+
+    deletePlaylist: builder.mutation({
+      query: (exerciseId) => {
+        return {
+          url: `/playlist/${exerciseId}`,
+          method: "DELETE",
+        };
+      },
+    }),
     getProfile: builder.query({
       query: () => "/auth/profile",
     }),
@@ -191,6 +200,7 @@ export const {
   useCreateFoodMutation,
   useCreateMealMutation,
   useCreatePlaylistMutation,
+  useDeletePlaylistMutation,
   useUpadateUserActivityMutation,
   useGetProfileQuery,
   useGetallUsersProfileQuery,
