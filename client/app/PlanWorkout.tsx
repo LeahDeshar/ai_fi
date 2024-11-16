@@ -37,6 +37,7 @@ import {
   useGetUserActivityQuery,
   useUpadateUserActivityMutation,
 } from "@/redux/api/apiClient";
+import { ActivityIndicator } from "react-native";
 
 const activity = [
   {
@@ -840,13 +841,17 @@ const PlanWorkout = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState(null);
-  const [createPlaylist] = useCreatePlaylistMutation();
   const [customVisible, setCustomModalVisible] = useState(false);
   const [caloriesBurned, setCaloriesBurned] = useState("");
   const [indata, setIndata] = useState();
 
-  const { data: userActivity, refetch } = useGetUserActivityQuery();
-  const [updateActivity] = useUpadateUserActivityMutation();
+  const {
+    data: userActivity,
+    refetch,
+    isLoading: isActivityLoading,
+  } = useGetUserActivityQuery();
+  const [createPlaylist, isCreating] = useCreatePlaylistMutation();
+  const [updateActivity, isUpdating] = useUpadateUserActivityMutation();
 
   const handleModalVisible = (item) => {
     setModalVisible(!modalVisible);
@@ -889,7 +894,11 @@ const PlanWorkout = () => {
     setModalVisible(false);
   };
 
-  const { data: playlist, refetch: playRefetch } = useGetAllPlaylistQuery();
+  const {
+    data: playlist,
+    refetch: playRefetch,
+    isLoading: isPlaylistLoading,
+  } = useGetAllPlaylistQuery();
   const toggleBookmark = (item) => {
     console.log(item);
     setIsBookmarked((prev) => !prev);
@@ -918,7 +927,11 @@ const PlanWorkout = () => {
     "abs",
   ];
 
-  const { data: reData, error } = useGetExeQuery({
+  const {
+    data: reData,
+    error,
+    isLoading: reIsLoading,
+  } = useGetExeQuery({
     target_input: selectTarget,
     k: 15,
   });
@@ -932,6 +945,27 @@ const PlanWorkout = () => {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (circumference * progress) / 100;
+
+  if (isPlaylistLoading || isActivityLoading)
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.background,
+          marginTop: 50,
+        }}
+      >
+        <Text
+          style={{
+            color: colors.text,
+            textAlign: "center",
+            marginTop: 20,
+          }}
+        >
+          Loading ...
+        </Text>
+      </View>
+    );
 
   return (
     <GestureHandlerRootView>
@@ -976,6 +1010,18 @@ const PlanWorkout = () => {
                 <AntDesign name="calendar" size={20} color={colors.icon} />
               </TouchableOpacity>
             </View>
+
+            {reIsLoading && (
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <ActivityIndicator size="large" color={colors.primary} />
+              </View>
+            )}
 
             <View
               style={{

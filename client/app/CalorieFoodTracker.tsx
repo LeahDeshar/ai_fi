@@ -21,8 +21,10 @@ import { useTheme } from "@/constants/ThemeProvider";
 import {
   useCreateMealMutation,
   useGetAllFoodQuery,
+  useGetDailyConmpQuery,
   useGetFoodByBarcodeQuery,
   useGetMealByTypeQuery,
+  useGetMealOfDayQuery,
 } from "@/redux/api/apiClient";
 LogBox.ignoreLogs([
   "BarCodeScanner has been deprecated and will be removed in a future SDK version. Please use `expo-camera` instead. See https://expo.fyi/barcode-scanner-to-expo-camera for more details on how to migrate",
@@ -123,6 +125,8 @@ const CalorieFoodTracker = () => {
     const mealData = { foodId: id, mealType: title };
     await createMeal(mealData).unwrap();
     refetch();
+    fetchMeal();
+    fetchDaily();
   };
 
   const [scanneds, setScanneds] = useState(false);
@@ -135,6 +139,22 @@ const CalorieFoodTracker = () => {
   } = useGetFoodByBarcodeQuery(barcode, {
     skip: !scanneds || !barcode,
   });
+
+  const {
+    data: mealOfDay,
+    error: mealError,
+    isLoading: isMealLoading,
+    refetch: fetchMeal,
+  } = useGetMealOfDayQuery();
+  const {
+    data: daily,
+    error: dailyError,
+    isLoading: isDailyError,
+    refetch: fetchDaily,
+  } = useGetDailyConmpQuery();
+
+  // fetchMeal();
+  // console.log(daily);
 
   const handleBarcodeScanned = ({ data }) => {
     Vibration.vibrate(500);

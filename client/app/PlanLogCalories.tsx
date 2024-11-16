@@ -58,7 +58,7 @@ const PlanLogCalories = () => {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const bottomSheetEditRef = useRef<BottomSheetModal>(null);
   const openEditBottomSheet = () => {
-    bottomSheetEditRef.current?.present();
+    bottomSheetEditRef?.current?.present();
   };
   const size = 185;
   const strokeWidth = 8;
@@ -86,6 +86,25 @@ const PlanLogCalories = () => {
   } = useGetMealByDateQuery(selectedDate, {
     skip: !pick,
   });
+  if (isLoading || isMealLoading || isDailyError)
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.background,
+        }}
+      >
+        <Text
+          style={{
+            color: colors.text,
+            textAlign: "center",
+            marginTop: 20,
+          }}
+        >
+          Loading ...
+        </Text>
+      </View>
+    );
 
   const targetCalories =
     profile?.calculations?.weightLossDuration?.calories?.targetCalories || 1;
@@ -219,7 +238,7 @@ const PlanLogCalories = () => {
                     >
                       of{" "}
                       {
-                        profile?.calculations.weightLossDuration.calories
+                        profile?.calculations?.weightLossDuration?.calories
                           .targetCalories
                       }{" "}
                       kcal
@@ -269,9 +288,9 @@ const PlanLogCalories = () => {
                 </Text>
                 {meals &&
                   meals?.map((item, index) => {
-                    const mealCalorie = mealOfDay[item.title];
+                    const mealCalorie = mealOfDay[item?.title];
                     const pickMealCalorie =
-                      pickMeal?.categorizedMeals[item.title];
+                      pickMeal?.categorizedMeals[item?.title];
 
                     return (
                       <View
@@ -306,7 +325,7 @@ const PlanLogCalories = () => {
                             }}
                           >
                             <Image
-                              source={item.images}
+                              source={item?.images}
                               style={{
                                 width: 32,
                                 height: 32,
@@ -323,7 +342,7 @@ const PlanLogCalories = () => {
                                 color: colors.text,
                               }}
                             >
-                              {item.title}
+                              {item?.title}
                             </Text>
                             <Text
                               style={{
@@ -349,7 +368,7 @@ const PlanLogCalories = () => {
                           }}
                           onPress={() =>
                             navigation.navigate("CalorieFoodTracker", {
-                              title: item.title,
+                              title: item?.title || "",
                             })
                           }
                         >
