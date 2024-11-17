@@ -4,6 +4,7 @@ import { useTheme } from "@/constants/ThemeProvider";
 import { io } from "socket.io-client";
 import axios from "axios";
 import {
+  SOCKET_SERVER_URL,
   useGetallUsersProfileQuery,
   useGetProfileQuery,
 } from "@/redux/api/apiClient";
@@ -13,7 +14,7 @@ import Button from "@/components/Button";
 import { Image } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 
-const SOCKET_SERVER_URL = "http://192.168.1.9:8080";
+// const SOCKET_SERVER_URL = "http://192.168.1.9:8080";
 const socket = io(SOCKET_SERVER_URL);
 
 const FriendScreen = () => {

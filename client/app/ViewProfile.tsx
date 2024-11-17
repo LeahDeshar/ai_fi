@@ -23,6 +23,7 @@ import { useRoute } from "@react-navigation/native";
 import Carousel from "react-native-reanimated-carousel";
 import { Video } from "expo-av";
 import {
+  SOCKET_SERVER_URL,
   useGetAllUserPostQuery,
   useGetMyFriendsQuery,
 } from "@/redux/api/apiClient";
@@ -43,7 +44,7 @@ import { io } from "socket.io-client";
 import axios from "axios";
 import { Alert } from "react-native";
 
-const SOCKET_SERVER_URL = "http://192.168.1.4:8080";
+// const SOCKET_SERVER_URL = "http://192.168.1.4:8080";
 const socket = io(SOCKET_SERVER_URL);
 const ViewProfile = () => {
   const { user } = useLocalSearchParams();

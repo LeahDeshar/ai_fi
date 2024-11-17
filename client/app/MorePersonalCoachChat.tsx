@@ -21,13 +21,13 @@ import { RouteProp, useRoute } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import EmojiKeyboard from "rn-emoji-keyboard";
-import { useGetProfileQuery } from "@/redux/api/apiClient";
+import { SOCKET_SERVER_URL, useGetProfileQuery } from "@/redux/api/apiClient";
 import { Button } from "react-native";
 import { BlurView } from "expo-blur";
 import * as Notifications from "expo-notifications";
 import { HelloWave } from "@/components/HelloWave";
 import { io } from "socket.io-client";
-const SOCKET_SERVER_URL = "http://192.168.1.9:8080";
+// const SOCKET_SERVER_URL = "http://192.168.1.4:8080";
 const socket = io(SOCKET_SERVER_URL);
 type RootStackParamList = {
   MorePersonalCoachChat: { trainer: Trainer };

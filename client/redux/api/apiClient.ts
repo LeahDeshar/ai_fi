@@ -5,10 +5,12 @@ import {
 } from "@reduxjs/toolkit/query/react";
 import { getProfileData } from "react-native-calendars/src/Profiler";
 
+export const SOCKET_SERVER_URL = "http://192.168.1.4:8080";
+
 export const authApi = createApi({
   reducerPath: "user",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://192.168.1.4:8080/api/v1",
+    baseUrl: `${SOCKET_SERVER_URL}/api/v1`,
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.token;
       if (token) {
