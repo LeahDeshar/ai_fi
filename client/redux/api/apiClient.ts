@@ -82,8 +82,20 @@ export const authApi = createApi({
         };
       },
     }),
+    createReminder: builder.mutation({
+      query: (reminderData) => {
+        return {
+          url: "/reminder/create",
+          method: "POST",
+          body: reminderData,
+        };
+      },
+    }),
     getAllPlaylist: builder.query({
       query: () => "/playlist/all",
+    }),
+    getReminder: builder.query({
+      query: () => "/reminder/get",
     }),
 
     deletePlaylist: builder.mutation({
@@ -205,6 +217,7 @@ export const {
   useDeletePlaylistMutation,
   useUpadateUserActivityMutation,
   useGetProfileQuery,
+  useCreateReminderMutation,
   useGetallUsersProfileQuery,
   useGetAllUserPostQuery,
   useGetDailyConmpQuery,
@@ -213,6 +226,7 @@ export const {
   useGetYtQuery,
   useGetAllPlaylistQuery,
   useGetMealByDateQuery,
+  useGetReminderQuery,
   useGetUserInsightQuery,
   useGetAllFoodQuery,
   useGetMealOfDayQuery,

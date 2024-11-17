@@ -15,6 +15,7 @@ import weeklyRoutes from "./routes/weeklySummaryRoutes.js";
 import setupFriendRoutes from "./routes/friendshipRoutes.js";
 import setupPostRoutes from "./routes/postRoutes.js";
 import setupCommentRoutes from "./routes/commentRoutes.js";
+import reminderRoutes from "./routes/remider.js";
 
 import fastingRoutes from "./routes/fastingRoutes.js";
 import exerciseRoutes from "./routes/exeRoutes.js";
@@ -82,6 +83,7 @@ app.use("/api/v1/comment", setupCommentRoutes(io));
 app.use("/api/v1/fitness", recomRoutes);
 
 app.use("/api/v1/playlist", playlistRoutes);
+app.use("/api/v1/reminder", reminderRoutes);
 
 io.on("connection", (socket) => {
   console.log(`User connected:..... ${socket.id}`);
