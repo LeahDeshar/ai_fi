@@ -394,7 +394,7 @@ const MoreMeals = () => {
                 >
                   <View
                     style={{
-                      backgroundColor: "#fff7db",
+                      backgroundColor: colors.opacity,
                       borderRadius: 25,
                       justifyContent: "center",
                       alignItems: "center",
@@ -465,7 +465,7 @@ const MoreMeals = () => {
           <TouchableOpacity
             onPress={openBottomSheet}
             style={{
-              backgroundColor: "#daf4da",
+              backgroundColor: colors.opacity,
               justifyContent: "center",
               alignItems: "center",
               marginHorizontal: 15,
@@ -475,7 +475,7 @@ const MoreMeals = () => {
           >
             <Text
               style={{
-                color: "black",
+                color: colors.text,
                 fontSize: 20,
                 marginVertical: 10,
                 width: "50%",
@@ -487,12 +487,19 @@ const MoreMeals = () => {
             <Image
               source={require("../assets/meal/soup.png")}
               style={{
-                width: 300,
+                width: 280,
                 height: 300,
-                resizeMode: "center",
+                resizeMode: "contain",
               }}
             />
-            <Text>28/15,00 kcal</Text>
+            <Text
+              style={{
+                color: colors.text,
+                marginVertical: 10,
+              }}
+            >
+              28/15,00 kcal
+            </Text>
           </TouchableOpacity>
           <Text
             style={{
@@ -549,7 +556,16 @@ const MoreMeals = () => {
             index={1}
             snapPoints={["20%", "95%"]}
             backdropComponent={BottomSheetBackdrop}
-            handleComponent={() => <View style={styles.handleComponent} />}
+            style={{
+              backgroundColor: colors.background,
+            }}
+            handleComponent={() => (
+              <View
+                style={{
+                  backgroundColor: colors.background,
+                }}
+              />
+            )}
           >
             <ParallaxScrollView
               headerImage={
@@ -672,11 +688,16 @@ const MoreMeals = () => {
             index={1}
             snapPoints={["20%", "75%"]}
             backdropComponent={BottomSheetBackdrop}
-            handleComponent={() => <View style={styles.handleComponent} />}
+            handleComponent={() => <View />}
+            style={{
+              backgroundColor: colors.background,
+            }}
           >
             <View
               style={{
-                marginHorizontal: 26,
+                paddingHorizontal: 26,
+                backgroundColor: colors.opacity,
+                flex: 1,
               }}
             >
               <Text
@@ -760,7 +781,14 @@ const MoreMeals = () => {
                         marginRight: 10,
                       }}
                     />
-                    <Text key={index}>{item}</Text>
+                    <Text
+                      key={index}
+                      style={{
+                        color: colors.text,
+                      }}
+                    >
+                      {item}
+                    </Text>
                   </View>
                 ))}
               </View>

@@ -1,5 +1,5 @@
 import { useTheme } from "@/constants/ThemeProvider";
-import { useGetYtQuery } from "@/redux/api/apiClient";
+import { SOCKET_SERVER_URL, useGetYtQuery } from "@/redux/api/apiClient";
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import BottomSheet from "@gorhom/bottom-sheet";
 import axios from "axios";
@@ -64,7 +64,7 @@ const VideoRecommendations = ({ colors }) => {
     const fetchRecommendations = async () => {
       try {
         const response = await axios.post(
-          "http://192.168.1.4:8080/api/v1/fitness/get-channel",
+          `${SOCKET_SERVER_URL}/api/v1/fitness/get-channel`,
           {
             video_id: videoId,
           }

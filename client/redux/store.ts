@@ -17,7 +17,7 @@ const rootReducer = combineReducers({
   [authApi.reducerPath]: authApi.reducer,
   profile: profileReducer,
 });
-const logger = createLogger();
+// const logger = createLogger();
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
@@ -25,7 +25,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
-    }).concat(authApi.middleware, logger),
+    }).concat(authApi.middleware),
 });
 
 export const persistor = persistStore(store);
