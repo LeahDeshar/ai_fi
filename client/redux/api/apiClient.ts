@@ -8,7 +8,7 @@ import { getProfileData } from "react-native-calendars/src/Profiler";
 export const authApi = createApi({
   reducerPath: "user",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://192.168.1.9:8080/api/v1",
+    baseUrl: "http://192.168.1.4:8080/api/v1",
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.token;
       if (token) {

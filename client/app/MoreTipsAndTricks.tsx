@@ -64,7 +64,7 @@ const VideoRecommendations = ({ colors }) => {
     const fetchRecommendations = async () => {
       try {
         const response = await axios.post(
-          "http://192.168.1.9:8080/api/v1/fitness/get-channel",
+          "http://192.168.1.4:8080/api/v1/fitness/get-channel",
           {
             video_id: videoId,
           }

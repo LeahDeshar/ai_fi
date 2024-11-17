@@ -12,7 +12,7 @@ export const initializeCronJob = () => {
   console.log("init job");
   if (isCronInitialized) return;
 
-  cron.schedule("36 0 * * *", async () => {
+  cron.schedule("16 14 * * *", async () => {
     console.log("Running daily activity check for all users...");
 
     try {

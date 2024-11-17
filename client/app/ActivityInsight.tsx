@@ -117,7 +117,11 @@ const ActivityInsight = () => {
                 colors={colors}
                 activity={userActivity?.activity || {}}
               />
-              <NutritionalBreakdown colors={colors} data={daily || {}} />
+              <NutritionalBreakdown
+                colors={colors}
+                data={daily || {}}
+                dark={dark}
+              />
               <WeeklyActivity
                 dark={dark}
                 colors={colors}
@@ -233,10 +237,10 @@ const SingleDayActivity = ({ activity, colors, dark }) => {
     datasets: [
       {
         data: [
-          activity.dailySteps,
-          activity.waterIntake,
-          activity.calorieIntake,
-          activity.sleepDuration,
+          activity.dailySteps || 0,
+          activity.waterIntake || 0,
+          activity.calorieIntake || 0,
+          activity.sleepDuration || 0,
         ],
       },
     ],

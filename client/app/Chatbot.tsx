@@ -30,31 +30,47 @@ const Chatbot = () => {
 
   const { data: profile, error, isLoading, refetch } = useGetProfileQuery();
   const { colors, dark } = useTheme();
+
+  console.log(profile);
+
   const API_KEY = API_KEYS.secret;
   const flatListRef = useRef();
+
+  console.log(
+    profile?.profileOfUsers?.preferredUnits == "metric"
+      ? profile?.profileOfUsers?.currentHeight.centimeters
+      : profile?.profileOfUsers?.currentHeight.feet +
+          "ft" +
+          profile?.profileOfUsers?.currentHeight.inches +
+          "inches"
+  );
   const handleUserInput = async (input) => {
     const prompt = `${input}
-    birthday: ${profile?.profileOfUsers?.birthday},
-            gender: ${profile?.profileOfUsers?.gender},
-            height: ${
-              profile?.profileOfUsers?.currentHeight.centimeters
-                .preferredUnits == "metric"
-                ? profile?.profileOfUsers?.currentHeight.centimeters
-                : profile?.profileOfUsers?.currentHeight.feet +
-                  "ft" +
-                  profile?.profileOfUsers?.currentHeight.inches +
-                  "inches"
-            },
-            weight: ${
-              profile?.profileOfUsers?.currentHeight.centimeters
-                .preferredUnits == "metric"
-                ? profile?.profileOfUsers?.currentWeight.kilograms
-                : profile?.profileOfUsers?.currentWeight.pounds
-            },
-            activityLevel: ${profile?.profileOfUsers?.activityLevel},
-            preferredDietType: ${profile?.profileOfUsers?.preferredDietType},
-            activitiesLiked: ${profile?.profileOfUsers?.activitiesLiked}
-    `;
+    My birthday is on ${profile?.profileOfUsers?.birthday || "unknown"},
+    I'm gender: ${profile?.profileOfUsers?.gender || "unspecified"},
+    height: ${
+      profile?.profileOfUsers?.preferredUnits === "metric"
+        ? `${
+            profile?.profileOfUsers?.currentHeight?.centimeters || "unknown"
+          } cm`
+        : `${profile?.profileOfUsers?.currentHeight?.feet || "unknown"} ft ${
+            profile?.profileOfUsers?.currentHeight?.inches || "unknown"
+          } inches`
+    },
+    weight: ${
+      profile?.profileOfUsers?.preferredUnits === "metric"
+        ? `${profile?.profileOfUsers?.currentWeight?.kilograms || "unknown"} kg`
+        : `${profile?.profileOfUsers?.currentWeight?.pounds || "unknown"} lbs`
+    },
+    activity level: ${profile?.profileOfUsers?.activityLevel || "not provided"},
+    preferred diet type: ${
+      profile?.profileOfUsers?.preferredDietType || "not specified"
+    },
+    activities liked: ${
+      profile?.profileOfUsers?.activitiesLiked?.join(", ") || "none specified"
+    }.
+`;
+
     const updateChat = [
       ...chat,
       {
@@ -79,6 +95,8 @@ const Chatbot = () => {
           ],
         }
       );
+
+      console.log(response);
 
       const modelResponse =
         response?.data?.candidates[0]?.content?.parts[0]?.text ||
@@ -340,14 +358,15 @@ const Chatbot = () => {
               <TextInput
                 style={{
                   flex: 1,
-                  borderColor: "#b3b3b364",
+                  borderColor: "#f5f5f5e6",
                   borderWidth: 1,
                   borderRadius: 25,
                   paddingHorizontal: 10,
                   paddingVertical: 15,
                   marginRight: 10,
+                  color: "white",
                 }}
-                placeholderTextColor={"#5b5b5b9e"}
+                placeholderTextColor={"#f5f5f5e6"}
                 value={userInput}
                 onChangeText={setUserInput}
                 placeholder={"Ask me about fitness..."}
