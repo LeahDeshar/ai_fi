@@ -18,16 +18,16 @@ import * as Notifications from "expo-notifications";
 // Schedule a notification
 const scheduleNotification = async (title, body, time) => {
   console.log("called 3");
-  const trigger = new Date(time); // Convert `time` to a Date object
-
+  const trigger = new Date(time);
+  console.log(title, body, time);
   await Notifications.scheduleNotificationAsync({
     content: {
       title: title,
       body: body,
     },
-    trigger,
+    trigger: new Date(Date.now() + 60 * 1000),
   });
-
+  console.log(new Date(Date.now() + 60 * 1000));
   alert(`Notification scheduled for ${trigger.toLocaleTimeString()}`);
 };
 const ProfileReminder = () => {
@@ -203,129 +203,59 @@ const ProfileReminder = () => {
     });
   };
 
-  // const handleTimeChange = async (event, selectedDate) => {
-  //   const currentDate = selectedDate || new Date();
-  //   setShowTimePicker({ show: false, type: "", meal: "" });
-
-  //   let updatedMealReminders = { ...mealReminders };
-
-  //   if (showTimePicker.type === "meal") {
-  //     updatedMealReminders = {
-  //       ...mealReminders,
-  //       [showTimePicker.meal]: {
-  //         ...mealReminders[showTimePicker.meal],
-  //         time: currentDate,
-  //       },
-  //     };
-
-  //     const meal = showTimePicker.meal;
-  //     setMealReminders((prev) => ({
-  //       ...prev,
-  //       [meal]: { ...prev[meal], time: currentDate },
-  //     }));
-  //     await scheduleNotification(
-  //       `Time for ${meal}`,
-  //       `It's time to have your ${meal}.`,
-  //       currentDate
-  //     );
-  //     setMealReminders(updatedMealReminders);
-  //   } else if (showTimePicker.type === "exercise") {
-  //     console.log("exercise", currentDate);
-  //     setExerciseReminderTime(currentDate);
-  //     await scheduleNotification(
-  //       "Exercise Reminder",
-  //       "Time to exercise! Let's stay fit!",
-  //       currentDate
-  //     );
-  //   } else if (showTimePicker.type === "fasting") {
-  //     setFastingReminderTime(currentDate);
-  //     await scheduleNotification(
-  //       "Fasting Reminder",
-  //       "It's time to start fasting!",
-  //       currentDate
-  //     );
-  //   }
-
-  //   await updateReminder({
-  //     updates: {
-  //       allowReminders: allowReminders,
-  //       exerciseReminder: {
-  //         enabled: exerciseReminder,
-  //         time: exerciseReminderTime,
-  //       },
-  //       fastingReminder: {
-  //         enabled: fastingReminder,
-  //         time: fastingReminderTime,
-  //       },
-  //       mealReminders: updatedMealReminders,
-  //     },
-  //   }).unwrap();
-
-  //   fetchReminder();
-  // };
-
-  const handleTimeChange = (event, selectedDate) => {
-    console.log("called");
-    if (event.type === "dismissed") {
-      // User dismissed the picker
-      setShowTimePicker({ show: false, type: "", meal: "" });
-      return;
-    }
-
+  const handleTimeChange = async (event, selectedDate) => {
     const currentDate = selectedDate || new Date();
     setShowTimePicker({ show: false, type: "", meal: "" });
 
     let updatedMealReminders = { ...mealReminders };
 
     if (showTimePicker.type === "meal") {
-      const meal = showTimePicker.meal;
-      updatedMealReminders[meal] = {
-        ...mealReminders[meal],
-        time: currentDate,
+      updatedMealReminders = {
+        ...mealReminders,
+        [showTimePicker.meal]: {
+          ...mealReminders[showTimePicker.meal],
+          time: currentDate,
+        },
       };
-      setMealReminders(updatedMealReminders);
 
-      scheduleNotification(
+      const meal = showTimePicker.meal;
+      setMealReminders((prev) => ({
+        ...prev,
+        [meal]: { ...prev[meal], time: currentDate },
+      }));
+      await scheduleNotification(
         `Time for ${meal}`,
         `It's time to have your ${meal}.`,
         currentDate
       );
+      setMealReminders(updatedMealReminders);
     } else if (showTimePicker.type === "exercise") {
       console.log("exercise", currentDate);
       setExerciseReminderTime(currentDate);
-
-      scheduleNotification(
+      await scheduleNotification(
         "Exercise Reminder",
         "Time to exercise! Let's stay fit!",
         currentDate
       );
     } else if (showTimePicker.type === "fasting") {
-      console.log("called 2", currentDate);
       setFastingReminderTime(currentDate);
-
-      scheduleNotification(
+      await scheduleNotification(
         "Fasting Reminder",
         "It's time to start fasting!",
         currentDate
       );
     }
 
-    updateReminder({
+    await updateReminder({
       updates: {
-        allowReminders,
+        allowReminders: allowReminders,
         exerciseReminder: {
           enabled: exerciseReminder,
-          time:
-            showTimePicker.type === "exercise"
-              ? currentDate
-              : exerciseReminderTime,
+          time: exerciseReminderTime,
         },
         fastingReminder: {
           enabled: fastingReminder,
-          time:
-            showTimePicker.type === "fasting"
-              ? currentDate
-              : fastingReminderTime,
+          time: fastingReminderTime,
         },
         mealReminders: updatedMealReminders,
       },
@@ -333,6 +263,76 @@ const ProfileReminder = () => {
 
     fetchReminder();
   };
+
+  // const handleTimeChange = (event, selectedDate) => {
+  //   console.log("called");
+  //   if (event.type === "dismissed") {
+  //     // User dismissed the picker
+  //     setShowTimePicker({ show: false, type: "", meal: "" });
+  //     return;
+  //   }
+
+  //   const currentDate = selectedDate || new Date();
+  //   setShowTimePicker({ show: false, type: "", meal: "" });
+
+  //   let updatedMealReminders = { ...mealReminders };
+
+  //   if (showTimePicker.type === "meal") {
+  //     const meal = showTimePicker.meal;
+  //     updatedMealReminders[meal] = {
+  //       ...mealReminders[meal],
+  //       time: currentDate,
+  //     };
+  //     setMealReminders(updatedMealReminders);
+
+  //     scheduleNotification(
+  //       `Time for ${meal}`,
+  //       `It's time to have your ${meal}.`,
+  //       currentDate
+  //     );
+  //   } else if (showTimePicker.type === "exercise") {
+  //     console.log("exercise", currentDate);
+  //     setExerciseReminderTime(currentDate);
+
+  //     scheduleNotification(
+  //       "Exercise Reminder",
+  //       "Time to exercise! Let's stay fit!",
+  //       currentDate
+  //     );
+  //   } else if (showTimePicker.type === "fasting") {
+  //     console.log("called 2", currentDate);
+  //     setFastingReminderTime(currentDate);
+
+  //     scheduleNotification(
+  //       "Fasting Reminder",
+  //       "It's time to start fasting!",
+  //       currentDate
+  //     );
+  //   }
+
+  //   updateReminder({
+  //     updates: {
+  //       allowReminders,
+  //       exerciseReminder: {
+  //         enabled: exerciseReminder,
+  //         time:
+  //           showTimePicker.type === "exercise"
+  //             ? currentDate
+  //             : exerciseReminderTime,
+  //       },
+  //       fastingReminder: {
+  //         enabled: fastingReminder,
+  //         time:
+  //           showTimePicker.type === "fasting"
+  //             ? currentDate
+  //             : fastingReminderTime,
+  //       },
+  //       mealReminders: updatedMealReminders,
+  //     },
+  //   }).unwrap();
+
+  //   fetchReminder();
+  // };
 
   const showTimePickerModal = (type, meal = "") => {
     setShowTimePicker({ show: true, type, meal });
