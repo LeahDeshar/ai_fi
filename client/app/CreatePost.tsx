@@ -21,7 +21,7 @@ import Picker from "react-native-picker-select";
 import RNPickerSelect from "react-native-picker-select";
 import Button from "@/components/Button";
 const CreatePost = () => {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
   const [categories, setCategories] = useState("");
@@ -195,13 +195,14 @@ const CreatePost = () => {
       </Text>
       <View
         style={{
-          backgroundColor: colors.secondary,
+          backgroundColor: colors.opacity,
           borderRadius: 8,
           padding: 10,
           marginBottom: 20,
         }}
       >
         <RNPickerSelect
+          darkTheme={dark ? true : false}
           onValueChange={(value) => setCategories(value)}
           items={[
             { label: "Workout", value: "workout" },
@@ -211,13 +212,6 @@ const CreatePost = () => {
           ]}
           style={{
             inputIOS: {
-              color: colors.text,
-              backgroundColor: colors.opacity,
-              borderRadius: 8,
-              padding: 10,
-              marginBottom: 20,
-            },
-            inputAndroid: {
               color: colors.text,
               backgroundColor: colors.opacity,
               borderRadius: 8,
