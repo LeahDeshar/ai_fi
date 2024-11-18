@@ -56,10 +56,34 @@ const Playlist = () => {
   const { data: userActivity, refetch } = useGetUserActivityQuery();
   const [updateActivity] = useUpadateUserActivityMutation();
   const [deleteExercise, isDeleting] = useDeletePlaylistMutation();
+  const [refreshing, setRefreshing] = useState(false);
 
   if (isLoading) {
     return <Text>Loading...</Text>;
   }
+  useEffect(() => {
+    let interval;
+
+    if (workoutStarted) {
+      if (setTimeRemaining > 0 && !isResting) {
+        interval = setInterval(() => {
+          setSetTimeRemaining((prevTime) => prevTime - 1);
+        }, 1000);
+      } else if (setTimeRemaining === 0 && !isResting) {
+        setIsResting(true);
+        nextExercise();
+      } else if (restTimeRemaining > 0 && isResting) {
+        interval = setInterval(() => {
+          setRestTimeRemaining((prevTime) => prevTime - 1);
+        }, 1000);
+      } else if (restTimeRemaining === 0 && isResting) {
+        setIsResting(false);
+        nextExercise();
+      }
+    }
+
+    return () => clearInterval(interval);
+  }, [setTimeRemaining, restTimeRemaining, workoutStarted, isResting]);
 
   const handleTimeChange = (
     exerciseId,
@@ -190,29 +214,6 @@ const Playlist = () => {
       refetch();
     }
   };
-  useEffect(() => {
-    let interval;
-
-    if (workoutStarted) {
-      if (setTimeRemaining > 0 && !isResting) {
-        interval = setInterval(() => {
-          setSetTimeRemaining((prevTime) => prevTime - 1);
-        }, 1000);
-      } else if (setTimeRemaining === 0 && !isResting) {
-        setIsResting(true);
-        nextExercise();
-      } else if (restTimeRemaining > 0 && isResting) {
-        interval = setInterval(() => {
-          setRestTimeRemaining((prevTime) => prevTime - 1);
-        }, 1000);
-      } else if (restTimeRemaining === 0 && isResting) {
-        setIsResting(false);
-        nextExercise();
-      }
-    }
-
-    return () => clearInterval(interval);
-  }, [setTimeRemaining, restTimeRemaining, workoutStarted, isResting]);
 
   const renderCircularProgress = (timeRemaining, maxTime) => {
     const strokeWidth = 5;
@@ -306,22 +307,20 @@ const Playlist = () => {
     </TouchableOpacity>
   );
 
-  const [refreshing, setRefreshing] = useState(false);
-
   // Function to handle the refresh action
-  const onRefresh = async () => {
-    setRefreshing(true); // Show the spinner
-    console.log("Refreshing data...");
+  // const onRefresh = async () => {
+  //   setRefreshing(true); // Show the spinner
+  //   console.log("Refreshing data...");
 
-    try {
-      await playRefetch(); // Call your playRefetch function
-      console.log("Data refreshed!");
-    } catch (error) {
-      console.error("Error during refresh:", error);
-    } finally {
-      setRefreshing(false); // Hide the spinner after operation
-    }
-  };
+  //   try {
+  //     await playRefetch(); // Call your playRefetch function
+  //     console.log("Data refreshed!");
+  //   } catch (error) {
+  //     console.error("Error during refresh:", error);
+  //   } finally {
+  //     setRefreshing(false); // Hide the spinner after operation
+  //   }
+  // };
   return (
     <ScrollView
       style={{
@@ -333,14 +332,6 @@ const Playlist = () => {
       contentContainerStyle={{
         paddingBottom: 50,
       }}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh} // Callback to trigger on pull-to-refresh
-          colors={["#2196F3"]} // Android: spinner color
-          tintColor="#2196F3" // iOS: spinner color
-        />
-      }
     >
       <View
         style={{

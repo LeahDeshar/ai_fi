@@ -80,10 +80,19 @@ const setupPostRoutes = (io) => {
     try {
       // Step 1: Get the user's own posts
       const userPosts = await Post.find({ user: req.user._id })
-        .populate("user", "name")
+
+        .populate({
+          path: "user",
+          select: "profile",
+          populate: {
+            path: "profile",
+            select: "name profilePic",
+          },
+        })
         .populate("tags", "name")
         .populate("likes", "name")
         .sort({ createdAt: -1 });
+      console.log(userPosts);
 
       // Step 2: Get the user's friends whose friendship status is 'accepted'
       const friends = await Friendship.find({
@@ -104,13 +113,21 @@ const setupPostRoutes = (io) => {
       );
       // console.log(friendIds);
 
+      // const friendPosts = await Post.find({ user: { $in: friendIds } })
+      //   .populate("user", "name")
+      //   .populate("tags", "name")
+      //   .populate("likes", "name")
+      //   .sort({ createdAt: -1 });
+
       const friendPosts = await Post.find({ user: { $in: friendIds } })
-        .populate("user", "name")
+        .populate("user", "profile")
+        .populate("user.profile")
+        .populate("user.profile")
         .populate("tags", "name")
         .populate("likes", "name")
         .sort({ createdAt: -1 });
 
-      // console.log(friendPosts);
+      console.log(friendPosts);
 
       // Step 4: Combine both sets of posts
       const accessiblePosts = [...userPosts, ...friendPosts];

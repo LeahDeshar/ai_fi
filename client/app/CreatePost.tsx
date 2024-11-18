@@ -13,6 +13,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import {
   SOCKET_SERVER_URL,
+  useGetAccessiblePostQuery,
   useGetAllUserPostQuery,
 } from "@/redux/api/apiClient";
 import { useNavigation } from "expo-router";
@@ -34,6 +35,11 @@ const CreatePost = () => {
     isLoading: postIsLoading,
     refetch,
   } = useGetAllUserPostQuery();
+  const {
+    data: allPosts,
+    error: allPError,
+    refetch: fetchAllPost,
+  } = useGetAccessiblePostQuery();
   const navigation = useNavigation();
   const handleSelectMedia = async () => {
     const permissionResult =
@@ -110,6 +116,7 @@ const CreatePost = () => {
         }
       );
       refetch();
+      fetchAllPost();
       Alert.alert("Success", "Post created successfully.");
       navigation.goBack();
       setContent("");

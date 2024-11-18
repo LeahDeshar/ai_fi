@@ -30,6 +30,7 @@ import Carousel from "react-native-reanimated-carousel";
 import { Video } from "expo-av";
 import {
   SOCKET_SERVER_URL,
+  useGetAccessiblePostQuery,
   useGetAllUserPostQuery,
   useGetMyFriendsQuery,
 } from "@/redux/api/apiClient";
@@ -60,7 +61,12 @@ const ViewProfile = () => {
   const [profile, setProfile] = useState(null);
   const { user: me, token, isLoggedIn } = useSelector((state) => state.auth);
   const flatListRef = useRef(null);
-  const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
+  // const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
+  const {
+    data: allPosts,
+    error: allPError,
+    refetch: fetchAllPost,
+  } = useGetAccessiblePostQuery();
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [comments, setComments] = useState(null);
   const [newComment, setNewComment] = useState("");
@@ -73,12 +79,7 @@ const ViewProfile = () => {
       [commentId]: !prevVisibleReplies[commentId],
     }));
   };
-
-  useEffect(() => {
-    if (user) {
-      setProfile(JSON.parse(user));
-    }
-  }, [user]);
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
 
   const {
     data: friends,
@@ -88,6 +89,11 @@ const ViewProfile = () => {
 
   const { data: posts, error, isLoading, refetch } = useGetAllUserPostQuery();
   // refetch();
+  useEffect(() => {
+    if (user) {
+      setProfile(JSON.parse(user));
+    }
+  }, [user]);
   if (isLoading) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -107,8 +113,6 @@ const ViewProfile = () => {
       </View>
     );
   }
-
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
 
   const openBottomSheet = (postId) => {
     console.log(" called");
@@ -136,31 +140,6 @@ const ViewProfile = () => {
     };
 
     getData();
-  };
-
-  const handleBottomSheetClose = () => {
-    bottomSheetRef.current?.close();
-  };
-  const openComments = async (postId) => {
-    // console.log(postId);
-    // if (isCommentModalVisible) return;
-    // setIsCommentModalVisible(true);
-    // try {
-    //   const response = await axios.get(
-    //     `${SOCKET_SERVER_URL}/api/v1/comment/get`,
-    //     {
-    //       params: {
-    //         postId: postId,
-    //       },
-    //       headers: {
-    //         Authorization: `Bearer ${token}`,
-    //       },
-    //     }
-    //   );
-    //   setComments(response.data);
-    // } catch (error) {
-    //   console.error("Error fetching comments:", error);
-    // }
   };
 
   const renderComment = ({ item, colors }) => (
@@ -300,7 +279,6 @@ const ViewProfile = () => {
   );
 
   const closeCommentModal = () => {
-    setIsCommentModalVisible(false);
     setSelectedPostId(null);
   };
   const handleAddReply = async () => {
@@ -1188,7 +1166,7 @@ const ViewProfile = () => {
 
 export default ViewProfile;
 
-const renderReply = ({ reply }) => (
+export const renderReply = ({ reply }) => (
   <View
     key={reply._id}
     style={{
@@ -1258,7 +1236,7 @@ const renderMedia = (media) => {
   return null;
 };
 
-const PostLikeComponent = ({ post, token, colors, refetch, me }) => {
+export const PostLikeComponent = ({ post, token, colors, refetch, me }) => {
   const likeIds = post.likes.map((like) => like._id);
 
   const [likeCount, setLikeCount] = useState(likeIds.length);
