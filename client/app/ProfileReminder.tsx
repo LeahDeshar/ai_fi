@@ -17,6 +17,7 @@ import * as Notifications from "expo-notifications";
 
 // Schedule a notification
 const scheduleNotification = async (title, body, time) => {
+  console.log("called 3");
   const trigger = new Date(time); // Convert `time` to a Date object
 
   await Notifications.scheduleNotificationAsync({
@@ -107,8 +108,6 @@ const ProfileReminder = () => {
   };
 
   const handleExeToggleSwitch = async (value) => {
-    // Create a copy of the meal reminders to update
-
     setExerciseReminder(value);
     console.log(value, exerciseReminder, exerciseReminderTime);
 
@@ -204,58 +203,129 @@ const ProfileReminder = () => {
     });
   };
 
-  const handleTimeChange = async (event, selectedDate) => {
+  // const handleTimeChange = async (event, selectedDate) => {
+  //   const currentDate = selectedDate || new Date();
+  //   setShowTimePicker({ show: false, type: "", meal: "" });
+
+  //   let updatedMealReminders = { ...mealReminders };
+
+  //   if (showTimePicker.type === "meal") {
+  //     updatedMealReminders = {
+  //       ...mealReminders,
+  //       [showTimePicker.meal]: {
+  //         ...mealReminders[showTimePicker.meal],
+  //         time: currentDate,
+  //       },
+  //     };
+
+  //     const meal = showTimePicker.meal;
+  //     setMealReminders((prev) => ({
+  //       ...prev,
+  //       [meal]: { ...prev[meal], time: currentDate },
+  //     }));
+  //     await scheduleNotification(
+  //       `Time for ${meal}`,
+  //       `It's time to have your ${meal}.`,
+  //       currentDate
+  //     );
+  //     setMealReminders(updatedMealReminders);
+  //   } else if (showTimePicker.type === "exercise") {
+  //     console.log("exercise", currentDate);
+  //     setExerciseReminderTime(currentDate);
+  //     await scheduleNotification(
+  //       "Exercise Reminder",
+  //       "Time to exercise! Let's stay fit!",
+  //       currentDate
+  //     );
+  //   } else if (showTimePicker.type === "fasting") {
+  //     setFastingReminderTime(currentDate);
+  //     await scheduleNotification(
+  //       "Fasting Reminder",
+  //       "It's time to start fasting!",
+  //       currentDate
+  //     );
+  //   }
+
+  //   await updateReminder({
+  //     updates: {
+  //       allowReminders: allowReminders,
+  //       exerciseReminder: {
+  //         enabled: exerciseReminder,
+  //         time: exerciseReminderTime,
+  //       },
+  //       fastingReminder: {
+  //         enabled: fastingReminder,
+  //         time: fastingReminderTime,
+  //       },
+  //       mealReminders: updatedMealReminders,
+  //     },
+  //   }).unwrap();
+
+  //   fetchReminder();
+  // };
+
+  const handleTimeChange = (event, selectedDate) => {
+    console.log("called");
+    if (event.type === "dismissed") {
+      // User dismissed the picker
+      setShowTimePicker({ show: false, type: "", meal: "" });
+      return;
+    }
+
     const currentDate = selectedDate || new Date();
     setShowTimePicker({ show: false, type: "", meal: "" });
 
     let updatedMealReminders = { ...mealReminders };
 
     if (showTimePicker.type === "meal") {
-      updatedMealReminders = {
-        ...mealReminders,
-        [showTimePicker.meal]: {
-          ...mealReminders[showTimePicker.meal],
-          time: currentDate,
-        },
-      };
-
       const meal = showTimePicker.meal;
-      setMealReminders((prev) => ({
-        ...prev,
-        [meal]: { ...prev[meal], time: currentDate },
-      }));
-      await scheduleNotification(
+      updatedMealReminders[meal] = {
+        ...mealReminders[meal],
+        time: currentDate,
+      };
+      setMealReminders(updatedMealReminders);
+
+      scheduleNotification(
         `Time for ${meal}`,
         `It's time to have your ${meal}.`,
         currentDate
       );
-      setMealReminders(updatedMealReminders);
     } else if (showTimePicker.type === "exercise") {
+      console.log("exercise", currentDate);
       setExerciseReminderTime(currentDate);
-      await scheduleNotification(
+
+      scheduleNotification(
         "Exercise Reminder",
         "Time to exercise! Let's stay fit!",
         currentDate
       );
     } else if (showTimePicker.type === "fasting") {
+      console.log("called 2", currentDate);
       setFastingReminderTime(currentDate);
-      await scheduleNotification(
+
+      scheduleNotification(
         "Fasting Reminder",
         "It's time to start fasting!",
         currentDate
       );
     }
 
-    await updateReminder({
+    updateReminder({
       updates: {
-        allowReminders: allowReminders,
+        allowReminders,
         exerciseReminder: {
           enabled: exerciseReminder,
-          time: exerciseReminderTime,
+          time:
+            showTimePicker.type === "exercise"
+              ? currentDate
+              : exerciseReminderTime,
         },
         fastingReminder: {
           enabled: fastingReminder,
-          time: fastingReminderTime,
+          time:
+            showTimePicker.type === "fasting"
+              ? currentDate
+              : fastingReminderTime,
         },
         mealReminders: updatedMealReminders,
       },
@@ -292,22 +362,27 @@ const ProfileReminder = () => {
         {allowReminders && (
           <View>
             {/* WORKOUTS SECTION */}
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              WORKOUTS
-            </Text>
-            <View style={styles.row}>
-              <Text style={[styles.label, { color: colors.text }]}>
-                Remind me to exercise
+            <View
+              style={{
+                marginVertical: 20,
+              }}
+            >
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                WORKOUTS
               </Text>
-              <Switch
-                value={exerciseReminder}
-                onValueChange={(value) => handleExeToggleSwitch(value)}
-              />
-            </View>
-
-            {exerciseReminder && (
               <View style={styles.row}>
                 <Text style={[styles.label, { color: colors.text }]}>
+                  Remind me to exercise
+                </Text>
+                <Switch
+                  value={exerciseReminder}
+                  onValueChange={(value) => handleExeToggleSwitch(value)}
+                />
+              </View>
+            </View>
+            {exerciseReminder && (
+              <View style={styles.row}>
+                <Text style={[styles.label, { color: colors.opacity }]}>
                   Remind time
                 </Text>
                 <Button
@@ -368,7 +443,12 @@ const ProfileReminder = () => {
               </>
             )}
 
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            <Text
+              style={[
+                styles.sectionTitle,
+                { color: colors.text, marginTop: 15 },
+              ]}
+            >
               MEALS
             </Text>
             {Object.keys(mealReminders).map((meal) => (
@@ -426,7 +506,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10,
+    // marginBottom: 10,
   },
   row: {
     flexDirection: "row",
@@ -438,7 +518,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   mealRow: {
-    marginVertical: 10,
+    // marginVertical: 10,
   },
 });
 

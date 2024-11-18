@@ -29,6 +29,7 @@ import {
 } from "react-native-gesture-handler";
 // import { RectButton, Swipeable } from "react-native-gesture-handler";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
+import { RefreshControl } from "react-native";
 
 const Playlist = () => {
   const { colors, dark } = useTheme();
@@ -38,7 +39,7 @@ const Playlist = () => {
     isLoading,
     refetch: playRefetch,
   } = useGetAllPlaylistQuery();
-
+  // playRefetch();
   const [workoutTimes, setWorkoutTimes] = useState({});
   const [totalCalories, setTotalCalories] = useState(0);
   const [totalTime, setTotalTime] = useState(0);
@@ -304,6 +305,23 @@ const Playlist = () => {
       </Text>
     </TouchableOpacity>
   );
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Function to handle the refresh action
+  const onRefresh = async () => {
+    setRefreshing(true); // Show the spinner
+    console.log("Refreshing data...");
+
+    try {
+      await playRefetch(); // Call your playRefetch function
+      console.log("Data refreshed!");
+    } catch (error) {
+      console.error("Error during refresh:", error);
+    } finally {
+      setRefreshing(false); // Hide the spinner after operation
+    }
+  };
   return (
     <ScrollView
       style={{
@@ -315,6 +333,14 @@ const Playlist = () => {
       contentContainerStyle={{
         paddingBottom: 50,
       }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh} // Callback to trigger on pull-to-refresh
+          colors={["#2196F3"]} // Android: spinner color
+          tintColor="#2196F3" // iOS: spinner color
+        />
+      }
     >
       <View
         style={{

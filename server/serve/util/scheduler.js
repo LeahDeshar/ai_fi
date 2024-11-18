@@ -51,7 +51,7 @@ export const scheduleNotification = (userId, notification) => {
 export const initAnomalyDetection = () => {
   console.log("Daily anomaly check initiated.");
 
-  cron.schedule("44 0 * * *", async () => {
+  cron.schedule("9 21 * * *", async () => {
     console.log("Running daily anomaly check at 5 PM");
 
     try {
@@ -70,7 +70,7 @@ export const initAnomalyDetection = () => {
       for (const activity of userActivities) {
         try {
           const response = await axios.post(
-            "http://localhost:8000/check_anomaly/",
+            "https://aifi-py-server.onrender.com/check_anomaly/",
             {
               waterIntake: activity.waterIntake,
               calorieIntake: activity.calorieIntake,
@@ -143,7 +143,7 @@ export const initAnomalyDetection = () => {
             console.log(`No anomaly for user ${activity.userId}`);
           }
         } catch (error) {
-          console.error("Error posting data:", error.message);
+          console.error("Error posting data: scheduler", error.message);
         }
       }
 
