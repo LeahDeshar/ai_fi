@@ -20,7 +20,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { defaultStyles } from "@/styles";
 import { useTheme } from "@/constants/ThemeProvider";
 import { Image } from "react-native";
@@ -56,6 +56,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 const ViewProfile = () => {
   const { user } = useLocalSearchParams();
   const { colors, dark } = useTheme();
+  const navigation = useNavigation();
   const [profile, setProfile] = useState(null);
   const { user: me, token, isLoggedIn } = useSelector((state) => state.auth);
   const flatListRef = useRef(null);
@@ -942,12 +943,20 @@ const ViewProfile = () => {
                   </View>
 
                   {me?.profile == profile?._id ? (
-                    <Button
-                      title="Edit Profile"
-                      handlePress={() => {
-                        console.log("Add Friend");
-                      }}
-                    />
+                    <View>
+                      <Button
+                        title="Edit Profile"
+                        handlePress={() => {
+                          console.log("Add Friend");
+                        }}
+                      />
+                      <Button
+                        title="Create Post"
+                        handlePress={() => {
+                          navigation.navigate("CreatePost");
+                        }}
+                      />
+                    </View>
                   ) : (
                     <Button
                       title="Add Friend"

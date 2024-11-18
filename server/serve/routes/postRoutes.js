@@ -18,6 +18,8 @@ const setupPostRoutes = (io) => {
         return res.status(400).json({ message: "No media files uploaded." });
       }
 
+      // console.log(req.files);
+
       // Initialize array for media files metadata
       const mediaUploads = await Promise.all(
         req.files.map(async (file) => {

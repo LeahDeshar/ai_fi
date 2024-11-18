@@ -639,6 +639,13 @@ const InnerStack = () => {
           headerShown: false,
         }}
       />
+
+      <Stack.Screen
+        name="CreatePost"
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="AiChallengeDetails"
         options={{
