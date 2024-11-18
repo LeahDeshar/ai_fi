@@ -134,6 +134,9 @@ export const authApi = createApi({
     getMealByType: builder.query({
       query: (mealType) => `/meals/get/${mealType}`,
     }),
+    getAccessiblePost: builder.query({
+      query: () => "/post/accessible",
+    }),
     getMealOfDay: builder.query({
       query: () => `/meals/get`,
     }),
@@ -232,6 +235,7 @@ export const {
   useGetMealOfDayQuery,
   useGetFoodByBarcodeQuery,
   useGetMealByTypeQuery,
+  useGetAccessiblePostQuery,
   useGetUserActivityQuery,
   useGetExeQuery,
 } = authApi;

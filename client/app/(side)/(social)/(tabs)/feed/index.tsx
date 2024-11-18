@@ -8,7 +8,10 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
-import { useGetAllUserPostQuery } from "@/redux/api/apiClient";
+import {
+  useGetAccessiblePostQuery,
+  useGetAllUserPostQuery,
+} from "@/redux/api/apiClient";
 import { useTheme } from "@/constants/ThemeProvider";
 import { Video } from "expo-av";
 const { width } = Dimensions.get("window");
@@ -16,7 +19,8 @@ import Carousel from "react-native-reanimated-carousel";
 
 const FeedScreen = () => {
   const { colors } = useTheme();
-  const { data: posts, error, isLoading } = useGetAllUserPostQuery();
+  // const { data: posts, error, isLoading } = useGetAllUserPostQuery();
+  const { data: posts, error, isLoading } = useGetAccessiblePostQuery();
 
   if (isLoading) {
     return (
@@ -63,10 +67,7 @@ const FeedScreen = () => {
         renderItem={({ item }) => renderMedia(item)}
         width={width}
         height={500} // Set height according to aspect ratio
-        scrollAnimationDuration={300}
         loop={false}
-        mode="parallax"
-        parallaxOffset={50}
       />
     );
   };

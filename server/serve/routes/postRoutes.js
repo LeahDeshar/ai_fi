@@ -4,6 +4,7 @@ import cloudinary from "cloudinary";
 import { getDataUri } from "../util/features.js";
 import Post from "../models/post.js";
 import { multipleUpload } from "../middleware/multer.js";
+import Friendship from "../models/friendshipSchema.js";
 const router = express.Router();
 
 const setupPostRoutes = (io) => {
@@ -72,6 +73,55 @@ const setupPostRoutes = (io) => {
     } catch (error) {
       console.error("Error getting posts:", error);
       res.status(500).json({ message: "Failed to get posts", error });
+    }
+  });
+
+  router.get("/accessible", isAuth, async (req, res) => {
+    try {
+      // Step 1: Get the user's own posts
+      const userPosts = await Post.find({ user: req.user._id })
+        .populate("user", "name")
+        .populate("tags", "name")
+        .populate("likes", "name")
+        .sort({ createdAt: -1 });
+
+      // Step 2: Get the user's friends whose friendship status is 'accepted'
+      const friends = await Friendship.find({
+        $or: [
+          { requester: req.user._id, status: "accepted" },
+          { recipient: req.user._id, status: "accepted" },
+        ],
+      })
+        .populate("requester", "name")
+        .populate("recipient", "name");
+
+      // console.log(friends);
+      // Step 3: Get the posts of friends
+      const friendIds = friends.map((friendship) =>
+        friendship.requester._id.equals(req.user._id)
+          ? friendship.recipient._id
+          : friendship.requester._id
+      );
+      // console.log(friendIds);
+
+      const friendPosts = await Post.find({ user: { $in: friendIds } })
+        .populate("user", "name")
+        .populate("tags", "name")
+        .populate("likes", "name")
+        .sort({ createdAt: -1 });
+
+      // console.log(friendPosts);
+
+      // Step 4: Combine both sets of posts
+      const accessiblePosts = [...userPosts, ...friendPosts];
+
+      // Step 5: Return combined posts
+      res.status(200).json(accessiblePosts);
+    } catch (error) {
+      console.error("Error getting accessible posts:", error);
+      res
+        .status(500)
+        .json({ message: "Failed to get accessible posts", error });
     }
   });
 
