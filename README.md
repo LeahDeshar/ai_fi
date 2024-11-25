@@ -90,4 +90,5 @@ AiFi is a personalized AI-driven fitness mobile application,Built with cutting-e
 **Full Demo**
 
 <iframe width="600" height="338" src="./client/oo.mov" frameborder="0" allowfullscreen></iframe>
+
 [Watch the video](./client/oo.mov)
