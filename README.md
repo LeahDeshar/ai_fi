@@ -1,117 +1,90 @@
-## progress
+# AiFi: AI-Based Fitness Mobile App
 
-<!-- check the todo ui-->
+AiFi is a personalized AI-driven fitness mobile application,Built with cutting-edge machine learning and user-centric design.
 
-- [x] challenge screen
-- [x] challenge details
-- [x] Fasting screen
-- [x] Read fasting information
-- [x] fasting settings
-- [ ] workout listing
-- [ ] nested listing
-- [ ] workout detail page
-- [ ] workout page
-- [x] plan page
+## Features
 
-- [x] personalize model training
-- [x] deploy the model
-  - [x] Excercise
-  - [x] Diet
-  - [x] sleep
-  - [x] calorie intake recommend
-- [x] test the api
-  - [x] Integrate with ml and express server
-  - [x] Excercise recom
-  - [x] Diet recom
-  - [x] sleep recom
-  - [x] calorie intake recommend
-  - [x] water intake
-  - [x] bmi calculator
-  - [x] daily steps calculator
-  - [x] when does user lose the weight ?
+**💡 Algorithm:**
 
-Full Application Integration
+- ML algorithms like Random Forest and KNN,Hybrid recommendation system,Isolation Forest (anomaly detection).
 
-- [x] react query
-- [x] auth success (login/register)
-- [x] profile operations
-- [x] profile update
-- [ ] delete account
-- [x] image modules
-- [ ] recommendation
+**📊 Activity Tracking**
 
-  - [ ] calorie
-  - [x] sleep
-  - [x] water
-  - [x] daily step
-  - [x] chatbot coach
-  - [x] Mealplanner ai
-  - [x] fitness challenge ai
+**Calorie, Sleep, Steps, Workout, Water intake Tracking:**
 
-- [x] update the state of the challenge
-- [x] UI of generated challenges of a day
-- [x] Fasting functionality
-- [x] Chat intergrate
-- [ ] notification
-- [x] algorithm base
-- [ ] http to connect the fast api and express server
-- [x] redis
-- [ ] tips and trick
+- Monitor daily calorie consumption and hydration levels.
+- Step and sleep tracking using sensors for real-time insights.
+- Comprehensive activity insights to understand your daily patterns.
 
-- [x] revive and ensure everything working
-- [x] algorithm base and redis
-- [ ] login/logout process fix
-- [ ] all back js -> ts
-- [x] user activity tracker
-- [x] fasting schedule
+**🏋️‍♂️ Exercise Guide:**
 
-- [] anomaly detection progressing ....
-- [x] year worth activity information of the user mock data
-- [x] getAllUserActivity
+- Access a detailed exercise database with step-by-step instructions.
+- Playlist & Workout Plan:
+  Create custom workout playlists.
+  Generate workout plans based on user preferences.
+- Start workouts with personalized session durations and rest intervals.
 
-Workout recommendation
+**🍴 Ai generated meal plans and fitness challenges**
 
-- [x] anomaly detection
-      GCN social media features
+- AI-driven meal suggestions tailored to user preferences, dietary goals, and fitness targets.
 
-- [ ] social media features
-  - [x] display "to find friend if the user is not friend with anyone" and -->
-  - [x] all the social media models
-  - [ ] controller
-  - [ ] routes
-  - [ ] test
-  - [x] list all user that a user is not friend with
-  - [x] list all user that a user is a friend with
-  - [x] comment, like
-    - [x] post and comment models
-    - [x] controller and routes with socket
-    - [x] front end integration
-  - [ ] post creation
-  - [x] user analytics
-  - [x] sleep tracker
+**📺 Aifi TV**
 
-Summary of Features for Networking:
+- Explore curated content to enhance fitness knowledge and motivation.
 
-Groups/Communities: Join public/private groups, group challenges.
-Mentorship/Coaching: Mentorship programs, coaching feedback, and direct messaging.
-Messaging: Direct and group messaging, media sharing.
-Achievements & Badges: Fitness achievements, badges, and leaderboards.
-Event Scheduling: Schedule fitness events, sessions, and classes.
-Profile Customization: Personalize profiles with fitness history, goals, and achievements.
-Notifications & Alerts: Real-time notifications for interactions and reminders.
-Gamification: Challenges, rewards, and leaderboards.
-Tracker Integration: Sync with fitness devices and share activity.
-User Reviews and Ratings: Review coaches, programs, and others.
-Search & Discovery: Search for users, content, or activities.
+**📈 Progress Tracker:**
 
-clear
+- Visualize progress through charts and analytics.
 
-- [x] Calorie log (food)
-- [ ] workout
-- [ ] Weight in
-- [x] Drink water
-- [x] Reach step goal
-- [x] sleep tracker
-- [x] Ativity insights
-- [ ] user feed
-- [ ] meals
+**⏳ Fasting Feature**
+
+- Support for tracking fasting periods to align with health goals.
+
+**🤖 Ai Chatbot:**
+
+- Interact with an intelligent chatbot for fitness tips, motivation, and assistance.
+
+**🧑‍💼 Personal coach:**
+
+- Connect with a personal coach and engage in real-time chats for personalized guidance.
+
+**🌐 Social Media Features:**
+
+- Add friends,create posts, comment, like, and share content to stay connected.
+
+**🔍 User Activity Insights:**
+
+- Get detailed insights into your fitness journey to stay on track.
+
+**🔔 Notifications**
+
+- Stay motivated with personalized notifications powered by algorithms (Isolation Forest Algorithm).
+
+## 💡 Tech Stack
+
+**Backend**
+
+- Python: For building machine learning models.
+- FastAPI: Lightweight and high-performance API framework for serving ML-based recommendations.
+- Node.js with Express.js: For managing server-side operations and additional API endpoints.
+- Socket.IO: For real-time communication (e.g., live chat).
+- Redis: Used for caching, session management, and efficient message queuing.
+
+**Frontend**
+
+- React Native (Expo/ts): For building a cross-platform mobile app.
+
+**State Management**
+
+- Redux Toolkit: For managing global state seamlessly.
+- Redux TanStack Query: To handle server state and API integrations efficiently.
+
+**Database**
+
+- MongoDB: For storing user data, activity logs, and app configurations.
+
+**Scheduling**
+
+- Node Cron Job: Automates recurring tasks, such as sending notifications and generating reports.
+
+**Full Demo**

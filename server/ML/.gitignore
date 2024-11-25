@@ -25,3 +25,7 @@ sleep/*.csv
 sleep/*.json
 
 *.pkl
+
+
+*.py
+*.ipynb

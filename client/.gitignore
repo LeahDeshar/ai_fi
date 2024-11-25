@@ -21,3 +21,12 @@ config.ts
 
 expo-env.d.ts
 # @end expo-cli
+
+
+
+utils
+redux
+hooks
+config 
+app
+assets 
