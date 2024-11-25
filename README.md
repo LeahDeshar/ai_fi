@@ -88,8 +88,6 @@ AiFi is a personalized AI-driven fitness mobile application,Built with cutting-e
 - Node Cron Job: Automates recurring tasks, such as sending notifications and generating reports.
 
 **Full Demo**
-<video width="600" controls>
 
-  <source src="./client/oo.mov">
-  Your browser does not support the video tag.
-</video>
+<iframe width="600" height="338" src="./client/oo.mov" frameborder="0" allowfullscreen></iframe>
+[Watch the video](./client/oo.mov)
