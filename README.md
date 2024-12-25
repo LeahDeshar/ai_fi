@@ -2,6 +2,22 @@
 
 AiFi is a personalized AI-driven fitness mobile application,Built with cutting-edge machine learning and user-centric design.
 
+## New Features (active)
+
+- Quick Add for Regular Foods
+  Create a feature where users can save frequently consumed meals for faster logging.
+  Example: "Save this as 'My Morning Smoothie' for quick logging."
+- Food Swap Suggestions
+  When a user logs a high-calorie food, suggest healthier alternatives.
+  Example: "Instead of a burger, try a grilled chicken sandwich to save 200 calories."
+- Calorie Goal Adjustments for Special Days
+  Allow users to adjust calorie goals for special occasions or cheat days.
+  Provide a "recovery plan" for balancing out higher intake.
+
+  more...
+
+---
+
 ## Features
 
 **💡 Algorithm:**
