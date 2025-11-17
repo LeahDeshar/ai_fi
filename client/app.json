@@ -16,7 +16,6 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.leahexpo1234.aifi"
     },
-
     "newArchEnabled": true,
     "android": {
       "adaptiveIcon": {
@@ -40,7 +39,9 @@
           "microphonePermission": "Allow aifi to access your microphone",
           "recordAudioAndroid": true
         }
-      ]
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
